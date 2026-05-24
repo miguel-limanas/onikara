@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onikara — Admin</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --oni-red:#C8102E;--oni-red-dim:rgba(200,16,46,.7);
+    --oni-gold:#C9A84C;--oni-gold-dim:rgba(201,168,76,.6);
+    --oni-dark:#0D0D0D;--oni-ash:#111;--oni-smoke:#161616;--oni-panel:#181818;
+    --oni-border:rgba(255,255,255,.06);--oni-border-red:rgba(200,16,46,.15);--oni-border-gold:rgba(201,168,76,.12);
+    --oni-light:#F0ECE4;--oni-mist:rgba(240,236,228,.3);--oni-faint:rgba(240,236,228,.12);
+    --sidebar:220px;
+  }
+  html,body{width:100%;min-height:100vh;overflow-x:hidden;background:var(--oni-dark);font-family:'Inter',sans-serif;color:var(--oni-light)}
+
+  /* PARTICLES */
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .ember{position:absolute;border-radius:50%;animation:rise linear infinite;opacity:0}
+  @keyframes rise{0%{opacity:0;transform:translateY(0) translateX(0)}10%{opacity:.6}90%{opacity:.2}100%{opacity:0;transform:translateY(-100vh) translateX(var(--dx))}}
+  .rune-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(200,16,46,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(200,16,46,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 100% 60% at 50% 0%,black,transparent)}
+
+  /* LAYOUT */
+  .shell{position:relative;z-index:1;display:flex;min-height:100vh}
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    width:var(--sidebar);flex-shrink:0;
+    background:var(--oni-ash);
+    border-right:1px solid var(--oni-border-red);
+    display:flex;flex-direction:column;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .sidebar-logo{
+    padding:1.2rem 1.4rem;border-bottom:1px solid var(--oni-border);
+    display:flex;align-items:center;gap:.6rem;
+  }
+  .logo-mark{width:8px;height:8px;background:var(--oni-red);border-radius:50%;animation:gpulse 2.5s ease-in-out infinite;flex-shrink:0}
+  @keyframes gpulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.5)}}
+  .logo-text{font-family:'Cinzel',serif;font-size:1rem;font-weight:900;letter-spacing:.18em;color:var(--oni-light)}
+  .logo-role{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,16,46,.6);margin-top:.1rem}
+
+  .sidebar-section{padding:.6rem 0}
+  .sidebar-label{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,236,228,.18);padding:.4rem 1.4rem .2rem;margin-top:.4rem}
+  .nav-item{
+    display:flex;align-items:center;gap:.7rem;
+    padding:.55rem 1.4rem;font-size:.78rem;color:var(--oni-mist);
+    cursor:pointer;transition:color .15s,background .15s;border-left:2px solid transparent;
+    letter-spacing:.02em;
+  }
+  .nav-item:hover{color:rgba(240,236,228,.7);background:rgba(255,255,255,.03)}
+  .nav-item.active{color:var(--oni-light);background:rgba(200,16,46,.08);border-left-color:var(--oni-red)}
+  .nav-item svg{flex-shrink:0;opacity:.6}
+  .nav-item.active svg{opacity:1}
+  .nav-badge{margin-left:auto;font-size:.58rem;background:rgba(200,16,46,.2);color:rgba(200,16,46,.8);padding:.1rem .4rem;border-radius:2px;border:1px solid rgba(200,16,46,.2)}
+  .nav-badge.gold{background:rgba(201,168,76,.1);color:rgba(201,168,76,.7);border-color:rgba(201,168,76,.15)}
+
+  .sidebar-footer{margin-top:auto;padding:1rem 1.4rem;border-top:1px solid var(--oni-border)}
+  .admin-chip{display:flex;align-items:center;gap:.6rem}
+  .admin-av{width:28px;height:28px;border-radius:2px;background:rgba(200,16,46,.15);border:1px solid rgba(200,16,46,.25);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:.65rem;color:var(--oni-red);flex-shrink:0}
+  .admin-name{font-size:.75rem;color:rgba(240,236,228,.6);letter-spacing:.03em}
+  .admin-role-tag{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,16,46,.5)}
+
+  /* ── TOPBAR ── */
+  .topbar{
+    height:52px;background:rgba(13,13,13,.9);border-bottom:1px solid var(--oni-border);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 1.8rem;backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:9;
+  }
+  .topbar-breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:var(--oni-mist)}
+  .topbar-breadcrumb span{color:rgba(240,236,228,.18)}
+  .topbar-breadcrumb strong{color:rgba(240,236,228,.6);font-weight:500}
+  .topbar-actions{display:flex;align-items:center;gap:.75rem}
+  .btn-sm{
+    padding:.35rem .85rem;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    font-family:'Cinzel',serif;font-weight:700;cursor:pointer;
+    clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+    transition:background .2s,color .2s;border:none;
+  }
+  .btn-sm-primary{background:var(--oni-red);color:var(--oni-light)}
+  .btn-sm-primary:hover{background:#A50D25}
+  .btn-sm-ghost{background:transparent;border:1px solid var(--oni-border);color:var(--oni-mist)}
+  .btn-sm-ghost:hover{border-color:rgba(255,255,255,.15);color:rgba(240,236,228,.7)}
+  .topbar-divider{width:1px;height:20px;background:var(--oni-border)}
+
+  /* ── CONTENT ── */
+  .content{flex:1;display:flex;flex-direction:column;min-width:0}
+  .page{padding:1.8rem;display:none}
+  .page.active{display:block}
+
+  /* STAT CARDS */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.8rem}
+  .stat{
+    padding:.9rem 1.1rem;
+    background:var(--oni-panel);border:1px solid var(--oni-border);
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  }
+  .stat-label{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,236,228,.2);margin-bottom:.35rem}
+  .stat-val{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;color:var(--oni-light);line-height:1}
+  .stat-val.red{color:var(--oni-red)}
+  .stat-val.gold{color:var(--oni-gold)}
+  .stat-delta{font-size:.62rem;color:rgba(240,236,228,.2);margin-top:.2rem;letter-spacing:.05em}
+  .stat-delta.up{color:rgba(100,200,100,.5)}
+  .stat-delta.down{color:rgba(200,100,100,.5)}
+
+  /* SECTION TITLE */
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+  .sec-title{font-family:'Cinzel',serif;font-size:.85rem;font-weight:700;letter-spacing:.1em;color:rgba(240,236,228,.7)}
+  .sec-title-bar{display:flex;align-items:center;gap:.6rem}
+  .sec-title-bar::before{content:'';width:3px;height:14px;background:var(--oni-red);border-radius:1px}
+
+  /* TABLE */
+  .tbl-wrap{background:var(--oni-panel);border:1px solid var(--oni-border);overflow:hidden;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,236,228,.2);padding:.65rem 1rem;text-align:left;border-bottom:1px solid var(--oni-border);font-weight:500;white-space:nowrap}
+  tbody tr{border-bottom:1px solid rgba(255,255,255,.03);transition:background .15s;cursor:pointer}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,.025)}
+  tbody td{padding:.65rem 1rem;font-size:.78rem;color:rgba(240,236,228,.6);vertical-align:middle}
+  td.name{color:rgba(240,236,228,.85);font-weight:500}
+  .pill{display:inline-flex;align-items:center;gap:.3rem;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;padding:.18rem .55rem;border-radius:2px;white-space:nowrap}
+  .pill-red{background:rgba(200,16,46,.1);color:rgba(200,16,46,.8);border:1px solid rgba(200,16,46,.18)}
+  .pill-gold{background:rgba(201,168,76,.08);color:rgba(201,168,76,.7);border:1px solid rgba(201,168,76,.15)}
+  .pill-blue{background:rgba(74,123,200,.08);color:rgba(74,123,200,.7);border:1px solid rgba(74,123,200,.15)}
+  .pill-green{background:rgba(80,180,100,.08);color:rgba(80,180,100,.6);border:1px solid rgba(80,180,100,.15)}
+  .pill-gray{background:rgba(255,255,255,.04);color:rgba(240,236,228,.3);border:1px solid var(--oni-border)}
+  .tbl-actions{display:flex;gap:.4rem}
+  .icon-btn{background:none;border:1px solid var(--oni-border);color:var(--oni-mist);padding:.28rem .5rem;cursor:pointer;font-size:.7rem;border-radius:2px;transition:border-color .15s,color .15s}
+  .icon-btn:hover{border-color:rgba(200,16,46,.3);color:var(--oni-red)}
+
+  /* TWO COL */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
+  .three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-top:1rem}
+
+  /* FORM CARD */
+  .form-card{background:var(--oni-panel);border:1px solid var(--oni-border);padding:1.2rem;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px))}
+  .form-card-title{font-family:'Cinzel',serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;color:rgba(240,236,228,.5);margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid var(--oni-border);display:flex;align-items:center;gap:.5rem}
+  .form-card-title svg{opacity:.5}
+  .field{display:flex;flex-direction:column;gap:.3rem;margin-bottom:.8rem}
+  .field:last-child{margin-bottom:0}
+  .field label{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(240,236,228,.25)}
+  .field input,.field select,.field textarea{
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+    color:var(--oni-light);font-family:'Inter',sans-serif;font-size:.8rem;
+    padding:.5rem .75rem;outline:none;transition:border-color .2s;
+    clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,5px 100%,0 calc(100% - 5px));
+  }
+  .field input::placeholder,.field textarea::placeholder{color:rgba(240,236,228,.15)}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(200,16,46,.4)}
+  .field select option{background:#1a1a1a;color:var(--oni-light)}
+  .field textarea{resize:vertical;min-height:70px;line-height:1.5}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+
+  /* TOGGLE */
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--oni-border)}
+  .toggle-row:last-child{border-bottom:none}
+  .toggle-info{flex:1}
+  .toggle-name{font-size:.78rem;color:rgba(240,236,228,.7);margin-bottom:.1rem}
+  .toggle-desc{font-size:.65rem;color:rgba(240,236,228,.25);letter-spacing:.03em}
+  .toggle{position:relative;width:36px;height:20px;flex-shrink:0;margin-left:1rem;cursor:pointer}
+  .toggle input{opacity:0;width:0;height:0;position:absolute}
+  .toggle-slider{position:absolute;inset:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;transition:.2s}
+  .toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;background:rgba(240,236,228,.3);border-radius:50%;transition:.2s}
+  .toggle input:checked + .toggle-slider{background:rgba(200,16,46,.3);border-color:rgba(200,16,46,.4)}
+  .toggle input:checked + .toggle-slider::before{transform:translateX(16px);background:var(--oni-red)}
+
+  /* PROGRESS BAR */
+  .prog-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+  .prog-label{font-size:.68rem;color:var(--oni-mist);width:90px;flex-shrink:0;letter-spacing:.03em}
+  .prog-bar{flex:1;height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+  .prog-fill{height:100%;border-radius:2px;transition:width .4s}
+  .prog-val{font-size:.65rem;color:rgba(240,236,228,.25);width:36px;text-align:right;flex-shrink:0}
+
+  /* AUDIT LOG */
+  .log-item{display:flex;align-items:flex-start;gap:.8rem;padding:.65rem 1rem;border-bottom:1px solid rgba(255,255,255,.03)}
+  .log-item:last-child{border-bottom:none}
+  .log-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+  .log-dot.red{background:var(--oni-red)}
+  .log-dot.gold{background:var(--oni-gold)}
+  .log-dot.blue{background:#4A7BC8}
+  .log-dot.gray{background:rgba(240,236,228,.2)}
+  .log-text{font-size:.75rem;color:rgba(240,236,228,.5);line-height:1.5;flex:1}
+  .log-text strong{color:rgba(240,236,228,.8);font-weight:500}
+  .log-time{font-size:.62rem;color:rgba(240,236,228,.18);white-space:nowrap;margin-top:2px}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--oni-border);margin-bottom:1.4rem}
+  .tab{
+    font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    padding:.6rem 1.1rem;color:rgba(240,236,228,.25);cursor:pointer;
+    border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s,border-color .15s;
+  }
+  .tab:hover{color:rgba(240,236,228,.5)}
+  .tab.active{color:var(--oni-gold);border-bottom-color:var(--oni-gold)}
+
+  /* PAGE HEADER */
+  .page-header{margin-bottom:1.5rem}
+  .page-eyebrow{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(240,236,228,.2);margin-bottom:.3rem}
+  .page-title{font-family:'Cinzel',serif;font-size:1.3rem;font-weight:700;color:var(--oni-light);letter-spacing:.06em}
+  .page-title em{color:var(--oni-red);font-style:normal}
+
+  /* SLIDER */
+  .slider-row{margin-bottom:.8rem}
+  .slider-head{display:flex;justify-content:space-between;margin-bottom:.3rem}
+  .slider-head label{font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(240,236,228,.25)}
+  .slider-head span{font-size:.72rem;color:var(--oni-gold);font-weight:500}
+  input[type=range]{width:100%;accent-color:var(--oni-red)}
+
+  .danger-zone{border:1px solid rgba(200,16,46,.2);background:rgba(200,16,46,.04);padding:1rem 1.2rem;margin-top:1rem;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
+  .danger-title{font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(200,16,46,.6);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+  .danger-title::before{content:'▲';font-size:.5rem}
+  .danger-item{display:flex;align-items:center;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(200,16,46,.08)}
+  .danger-item:last-child{border-bottom:none}
+  .danger-desc{font-size:.75rem;color:rgba(240,236,228,.4)}
+  .btn-danger{background:transparent;border:1px solid rgba(200,16,46,.3);color:rgba(200,16,46,.6);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:.3rem .75rem;cursor:pointer;font-family:'Cinzel',serif;transition:background .2s,color .2s;border-radius:2px}
+  .btn-danger:hover{background:var(--oni-red);color:var(--oni-light)}
+
+  .spacer{height:1.2rem}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="rune-bg"></div>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark"></div>
+      <div>
+        <div class="logo-text">ONIKARA</div>
+        <div class="logo-role">Painel Administrativo</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Visão Geral</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('auditoria',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3h10M2 7h10M2 11h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Auditoria
+        <span class="nav-badge">12</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Catálogos de Jogo</div>
+      <div class="nav-item" onclick="showPage('classes',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 13c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Classes
+      </div>
+      <div class="nav-item" onclick="showPage('racas',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.8 3.6L13 5.2l-3 2.9.7 4.1L7 10.1l-3.7 2.1.7-4.1-3-2.9 4.2-.6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        Raças
+      </div>
+      <div class="nav-item" onclick="showPage('elementos',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Elementos
+      </div>
+      <div class="nav-item" onclick="showPage('magias',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1c0 3.3-2 6-5 7 2 .7 4 .5 5 2 1-1.5 3-1.3 5-2-3-1-5-3.7-5-7z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+        Magias
+        <span class="nav-badge gold">48</span>
+      </div>
+      <div class="nav-item" onclick="showPage('itens',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="4" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a2 2 0 014 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Itens & Equipamentos
+      </div>
+      <div class="nav-item" onclick="showPage('inimigos',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2L2 11h10L7 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M7 8v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="7" cy="6" r=".5" fill="currentColor"/></svg>
+        Inimigos & NPCs
+      </div>
+      <div class="nav-item" onclick="showPage('missoes',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2h10v10H2z" stroke="currentColor" stroke-width="1.2" rx="1"/><path d="M5 7l1.5 1.5L9 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Missões
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Balanceamento</div>
+      <div class="nav-item" onclick="showPage('balanco',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10l3-4 2 2 2-4 3 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Progressão & XP
+      </div>
+      <div class="nav-item" onclick="showPage('combate',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 12L12 2M9 2h3v3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 5L5 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Regras de Combate
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Plataforma</div>
+      <div class="nav-item" onclick="showPage('jogadores',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="4" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="11" cy="4" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M11 8c1.7.3 3 1.8 3 3.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Jogadores
+        <span class="nav-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="showPage('acessos',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="6" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M4 6V4.5a3 3 0 016 0V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Acessos & Papéis
+      </div>
+      <div class="nav-item" onclick="showPage('config',this)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M7 1v2M7 11v2M1 7h2M11 7h2M2.9 2.9l1.4 1.4M9.7 9.7l1.4 1.4M2.9 11.1l1.4-1.4M9.7 4.3l1.4-1.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Configurações
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="admin-chip">
+        <div class="admin-av">SA</div>
+        <div>
+          <div class="admin-name">Senhor Akuma</div>
+          <div class="admin-role-tag">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-breadcrumb">
+        <span>Onikara</span>
+        <span>›</span>
+        <strong id="breadcrumb">Dashboard</strong>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-sm btn-sm-ghost">Exportar</button>
+        <div class="topbar-divider"></div>
+        <button class="btn-sm btn-sm-primary" id="topbar-cta" onclick="alert('Ação principal')">+ Novo</button>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div style="padding:1.8rem">
+        <div class="page-header">
+          <div class="page-eyebrow">Visão Geral</div>
+          <h1 class="page-title">Dashboard <em>Admin</em></h1>
+        </div>
+        <div class="stats-grid">
+          <div class="stat"><div class="stat-label">Jogadores ativos</div><div class="stat-val red">24</div><div class="stat-delta up">↑ +3 esta semana</div></div>
+          <div class="stat"><div class="stat-label">Campanhas em curso</div><div class="stat-val">8</div><div class="stat-delta">2 aguardando mestre</div></div>
+          <div class="stat"><div class="stat-label">Sessões hoje</div><div class="stat-val gold">5</div><div class="stat-delta up">↑ 2 em andamento</div></div>
+          <div class="stat"><div class="stat-label">Itens no catálogo</div><div class="stat-val">312</div><div class="stat-delta">18 sem raridade</div></div>
+        </div>
+        <div class="two-col">
+          <div>
+            <div class="sec-head"><div class="sec-title-bar"><span class="sec-title">Distribuição de Classes</span></div></div>
+            <div class="form-card">
+              <div class="prog-row"><div class="prog-label">Guerreiro</div><div class="prog-bar"><div class="prog-fill" style="width:72%;background:var(--oni-red)"></div></div><div class="prog-val">72%</div></div>
+              <div class="prog-row"><div class="prog-label">Mago</div><div class="prog-bar"><div class="prog-fill" style="width:58%;background:#4A7BC8"></div></div><div class="prog-val">58%</div></div>
+              <div class="prog-row"><div class="prog-label">Assassino</div><div class="prog-bar"><div class="prog-fill" style="width:41%;background:var(--oni-gold)"></div></div><div class="prog-val">41%</div></div>
+              <div class="prog-row"><div class="prog-label">Curandeiro</div><div class="prog-bar"><div class="prog-fill" style="width:29%;background:#50B464"></div></div><div class="prog-val">29%</div></div>
+              <div class="prog-row"><div class="prog-label">Invocador</div><div class="prog-bar"><div class="prog-fill" style="width:18%;background:#9B59B6"></div></div><div class="prog-val">18%</div></div>
+            </div>
+          </div>
+          <div>
+            <div class="sec-head"><div class="sec-title-bar"><span class="sec-title">Log de Auditoria</span></div></div>
+            <div class="tbl-wrap">
+              <div class="log-item"><div class="log-dot red"></div><div class="log-text"><strong>akuma</strong> editou os atributos de <strong>Guerreiro Oni</strong></div><div class="log-time">há 4 min</div></div>
+              <div class="log-item"><div class="log-dot gold"></div><div class="log-text"><strong>akuma</strong> criou item <strong>Lâmina de Cinzas</strong> (Lendário)</div><div class="log-time">há 18 min</div></div>
+              <div class="log-item"><div class="log-dot blue"></div><div class="log-text">Jogador <strong>Ryuken</strong> solicitou acesso à campanha Z</div><div class="log-time">há 35 min</div></div>
+              <div class="log-item"><div class="log-dot gray"></div><div class="log-text"><strong>akuma</strong> atualizou parâmetros de <strong>XP base</strong></div><div class="log-time">há 1h</div></div>
+              <div class="log-item"><div class="log-dot red"></div><div class="log-text">Sessão de combate <strong>#0042</strong> encerrada por timeout</div><div class="log-time">há 2h</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLASSES ── -->
+    <div class="page" id="page-classes">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title">Classes <em>de Personagem</em></h1></div>
+        <div class="tabs">
+          <div class="tab active">Lista</div>
+          <div class="tab">Editar</div>
+          <div class="tab">Atributos Base</div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Elemento</th><th>HP Base</th><th>Mana Base</th><th>Ataque</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Guerreiro Oni</td><td><span class="pill pill-red">Fogo</span></td><td>180</td><td>60</td><td>42</td><td><span class="pill pill-green">Ativo</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Mago das Sombras</td><td><span class="pill pill-blue">Vazio</span></td><td>90</td><td>200</td><td>68</td><td><span class="pill pill-green">Ativo</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Assassino da Névoa</td><td><span class="pill pill-gray">Vento</span></td><td>120</td><td>80</td><td>75</td><td><span class="pill pill-green">Ativo</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Curandeiro da Lua</td><td><span class="pill pill-blue">Água</span></td><td>110</td><td>160</td><td>25</td><td><span class="pill pill-green">Ativo</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Invocador Ancestral</td><td><span class="pill pill-gold">Raio</span></td><td>100</td><td>180</td><td>38</td><td><span class="pill pill-gray">Rascunho</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="spacer"></div>
+        <div class="sec-head"><div class="sec-title-bar"><span class="sec-title">Nova Classe</span></div></div>
+        <div class="two-col">
+          <div class="form-card">
+            <div class="form-card-title">Identidade</div>
+            <div class="field"><label>Nome da Classe</label><input type="text" placeholder="Ex: Oni Guardião"></div>
+            <div class="field"><label>Elemento Principal</label><select><option>Fogo</option><option>Água</option><option>Raio</option><option>Vento</option><option>Vazio</option><option>Terra</option></select></div>
+            <div class="field"><label>Descrição</label><textarea placeholder="Descrição de lore e papel tático..."></textarea></div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Atributos Base</div>
+            <div class="field-row"><div class="field"><label>HP</label><input type="number" placeholder="120"></div><div class="field"><label>Mana</label><input type="number" placeholder="100"></div></div>
+            <div class="field-row"><div class="field"><label>Ataque</label><input type="number" placeholder="40"></div><div class="field"><label>Defesa</label><input type="number" placeholder="30"></div></div>
+            <div class="field-row"><div class="field"><label>Velocidade</label><input type="number" placeholder="20"></div><div class="field"><label>Sorte</label><input type="number" placeholder="10"></div></div>
+            <div class="field"><label>Bônus de Elemento</label><input type="text" placeholder="Ex: +15% dano Fogo"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MAGIAS ── -->
+    <div class="page" id="page-magias">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title"><em>Magias</em> & Habilidades</h1></div>
+        <div class="tbl-wrap" style="margin-bottom:1.4rem">
+          <table>
+            <thead><tr><th>Nome</th><th>Elemento</th><th>Mana</th><th>Dano</th><th>Cooldown</th><th>Alvo</th><th>Raridade</th><th>Ações</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Chama Demoníaca</td><td><span class="pill pill-red">Fogo</span></td><td>40</td><td>120</td><td>2 turnos</td><td>Único</td><td><span class="pill pill-red">Lendário</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Véu da Névoa</td><td><span class="pill pill-gray">Vento</span></td><td>20</td><td>0</td><td>3 turnos</td><td>Self</td><td><span class="pill pill-gold">Épico</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Onda Lunar</td><td><span class="pill pill-blue">Água</span></td><td>30</td><td>60</td><td>1 turno</td><td>Área</td><td><span class="pill pill-blue">Raro</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Raio Espectral</td><td><span class="pill pill-gold">Raio</span></td><td>55</td><td>180</td><td>4 turnos</td><td>Único</td><td><span class="pill pill-red">Lendário</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="two-col">
+          <div class="form-card">
+            <div class="form-card-title">Nova Magia</div>
+            <div class="field"><label>Nome</label><input type="text" placeholder="Nome da magia"></div>
+            <div class="field-row"><div class="field"><label>Elemento</label><select><option>Fogo</option><option>Água</option><option>Raio</option><option>Vento</option><option>Vazio</option></select></div><div class="field"><label>Raridade</label><select><option>Comum</option><option>Raro</option><option>Épico</option><option>Lendário</option></select></div></div>
+            <div class="field-row"><div class="field"><label>Custo de Mana</label><input type="number" placeholder="30"></div><div class="field"><label>Dano Base</label><input type="number" placeholder="80"></div></div>
+            <div class="field-row"><div class="field"><label>Cooldown (turnos)</label><input type="number" placeholder="2"></div><div class="field"><label>Alvo</label><select><option>Único</option><option>Área</option><option>Self</option><option>Aliado</option></select></div></div>
+            <div class="field"><label>Efeito de Status</label><input type="text" placeholder="Ex: Queimadura 2 turnos"></div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Vínculo com Classes</div>
+            <p style="font-size:.72rem;color:rgba(240,236,228,.25);margin-bottom:.8rem">Quais classes podem aprender esta magia</p>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Guerreiro Oni</div><div class="toggle-desc">Fogo — Tanque DPS</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Mago das Sombras</div><div class="toggle-desc">Vazio — Caster</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Assassino da Névoa</div><div class="toggle-desc">Vento — DPS</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Curandeiro da Lua</div><div class="toggle-desc">Água — Suporte</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BALANCEAMENTO ── -->
+    <div class="page" id="page-balanco">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Balanceamento</div><h1 class="page-title">Progressão <em>& XP</em></h1></div>
+        <div class="three-col">
+          <div class="form-card">
+            <div class="form-card-title">Curva de XP</div>
+            <div class="slider-row"><div class="slider-head"><label>XP Base (Nível 1→2)</label><span id="xp-base-val">100</span></div><input type="range" min="50" max="500" value="100" oninput="document.getElementById('xp-base-val').textContent=this.value"></div>
+            <div class="slider-row"><div class="slider-head"><label>Multiplicador por Nível</label><span id="xp-mult-val">1.5x</span></div><input type="range" min="10" max="30" value="15" oninput="document.getElementById('xp-mult-val').textContent=(this.value/10).toFixed(1)+'x'"></div>
+            <div class="slider-row"><div class="slider-head"><label>Nível Máximo</label><span id="xp-max-val">20</span></div><input type="range" min="10" max="50" value="20" oninput="document.getElementById('xp-max-val').textContent=this.value"></div>
+            <div class="field"><label>XP por Kill de Inimigo Comum</label><input type="number" placeholder="25"></div>
+            <div class="field"><label>XP por Kill de Chefe</label><input type="number" placeholder="250"></div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Regras de Mana</div>
+            <div class="slider-row"><div class="slider-head"><label>Regeneração por Turno (%)</label><span id="mana-reg-val">10%</span></div><input type="range" min="0" max="50" value="10" oninput="document.getElementById('mana-reg-val').textContent=this.value+'%'"></div>
+            <div class="slider-row"><div class="slider-head"><label>Bônus Elem. Favorável (%)</label><span id="mana-bon-val">25%</span></div><input type="range" min="0" max="100" value="25" oninput="document.getElementById('mana-bon-val').textContent=this.value+'%'"></div>
+            <div class="field"><label>Mana Máxima Base</label><input type="number" placeholder="100"></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Overflow de Mana</div><div class="toggle-desc">Permite acumular além do máximo</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Mana compartilhada</div><div class="toggle-desc">Pool coletivo por campanha</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Loot & Raridade</div>
+            <div class="slider-row"><div class="slider-head"><label>Drop Comum (%)</label><span id="drop-c-val">60%</span></div><input type="range" min="0" max="100" value="60" oninput="document.getElementById('drop-c-val').textContent=this.value+'%'"></div>
+            <div class="slider-row"><div class="slider-head"><label>Drop Raro (%)</label><span id="drop-r-val">25%</span></div><input type="range" min="0" max="50" value="25" oninput="document.getElementById('drop-r-val').textContent=this.value+'%'"></div>
+            <div class="slider-row"><div class="slider-head"><label>Drop Épico (%)</label><span id="drop-e-val">12%</span></div><input type="range" min="0" max="30" value="12" oninput="document.getElementById('drop-e-val').textContent=this.value+'%'"></div>
+            <div class="slider-row"><div class="slider-head"><label>Drop Lendário (%)</label><span id="drop-l-val">3%</span></div><input type="range" min="0" max="10" value="3" oninput="document.getElementById('drop-l-val').textContent=this.value+'%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── JOGADORES ── -->
+    <div class="page" id="page-jogadores">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Plataforma</div><h1 class="page-title"><em>Jogadores</em> & Personagens</h1></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Usuário</th><th>Personagem</th><th>Classe</th><th>Nível</th><th>Campanhas</th><th>Último acesso</th><th>Papel</th><th>Ações</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Kira Oni</td><td>Kira</td><td><span class="pill pill-red">Guerreiro</span></td><td>14</td><td>3</td><td>Hoje</td><td><span class="pill pill-gold">Admin</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Ryuken</td><td>Ryuu</td><td><span class="pill pill-blue">Mago</span></td><td>11</td><td>2</td><td>há 2 dias</td><td><span class="pill pill-green">Jogador</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+              <tr><td class="name">Sakura</td><td>Saku</td><td><span class="pill pill-gray">Assassino</span></td><td>9</td><td>1</td><td>há 1 semana</td><td><span class="pill pill-green">Jogador</span></td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACESSOS ── -->
+    <div class="page" id="page-acessos">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Plataforma</div><h1 class="page-title">Acessos <em>& Papéis</em></h1></div>
+        <div class="two-col">
+          <div>
+            <div class="sec-head"><div class="sec-title-bar"><span class="sec-title">Convites Pendentes</span></div></div>
+            <div class="tbl-wrap" style="margin-bottom:1.2rem">
+              <table>
+                <thead><tr><th>E-mail</th><th>Papel</th><th>Enviado</th><th>Ações</th></tr></thead>
+                <tbody>
+                  <tr><td class="name">tobi@oni.gg</td><td><span class="pill pill-green">Jogador</span></td><td>há 1h</td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+                  <tr><td class="name">moto@oni.gg</td><td><span class="pill pill-gold">Mestre</span></td><td>há 3h</td><td class="tbl-actions"><button class="icon-btn">✎</button><button class="icon-btn">⋯</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="form-card">
+              <div class="form-card-title">Convidar Usuário</div>
+              <div class="field"><label>E-mail</label><input type="email" placeholder="email@exemplo.com"></div>
+              <div class="field"><label>Papel</label><select><option>Jogador</option><option>Mestre</option><option>Admin</option></select></div>
+              <div class="field"><label>Campanha (opcional)</label><select><option>— Nenhuma —</option><option>Campanha X — As Chamas</option><option>Campanha Y — O Abismo</option><option>Campanha Z — Tribunal</option></select></div>
+              <button class="btn-sm btn-sm-primary" style="width:100%;margin-top:.4rem">Enviar Convite</button>
+            </div>
+          </div>
+          <div>
+            <div class="sec-head"><div class="sec-title-bar"><span class="sec-title">Permissões por Papel</span></div></div>
+            <div class="form-card">
+              <div class="form-card-title">Jogador</div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Criar personagem</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Entrar em campanha</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Criar campanha</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            </div>
+            <div class="spacer"></div>
+            <div class="form-card">
+              <div class="form-card-title">Mestre</div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Criar campanha</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Gerenciar sessões</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+              <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Editar catálogos</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONFIGURAÇÕES ── -->
+    <div class="page" id="page-config">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Plataforma</div><h1 class="page-title"><em>Configurações</em> Globais</h1></div>
+        <div class="two-col">
+          <div class="form-card">
+            <div class="form-card-title">Plataforma</div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Cadastros abertos</div><div class="toggle-desc">Novos usuários podem se registrar</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Modo manutenção</div><div class="toggle-desc">Bloqueia acesso de jogadores</div></div><label class="toggle"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Realtime de combate</div><div class="toggle-desc">Sincronização via Supabase Realtime</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="toggle-name">Log de auditoria</div><div class="toggle-desc">Registrar todas as ações admin</div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+          </div>
+          <div class="form-card">
+            <div class="form-card-title">Limites Globais</div>
+            <div class="field"><label>Máx. jogadores por campanha</label><input type="number" placeholder="5"></div>
+            <div class="field"><label>Máx. campanhas por mestre</label><input type="number" placeholder="3"></div>
+            <div class="field"><label>Duração máx. de sessão (min)</label><input type="number" placeholder="180"></div>
+            <div class="field"><label>Timeout de combate inativo (min)</label><input type="number" placeholder="30"></div>
+          </div>
+        </div>
+        <div class="danger-zone">
+          <div class="danger-title">Zona de Perigo</div>
+          <div class="danger-item"><div class="danger-desc">Resetar todos os seeds de catálogo</div><button class="btn-danger">Resetar Seeds</button></div>
+          <div class="danger-item"><div class="danger-desc">Encerrar todas as sessões de combate ativas</div><button class="btn-danger">Encerrar Sessões</button></div>
+          <div class="danger-item"><div class="danger-desc">Apagar dados de teste (não produção)</div><button class="btn-danger">Limpar Teste</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AUDITORIA ── -->
+    <div class="page" id="page-auditoria">
+      <div style="padding:1.8rem">
+        <div class="page-header"><div class="page-eyebrow">Sistema</div><h1 class="page-title">Log de <em>Auditoria</em></h1></div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Horário</th><th>Admin</th><th>Ação</th><th>Entidade</th><th>Detalhe</th></tr></thead>
+            <tbody>
+              <tr><td>14:02</td><td class="name">akuma</td><td><span class="pill pill-gold">EDIT</span></td><td>Classe</td><td>Guerreiro Oni — ATK 40→42</td></tr>
+              <tr><td>13:44</td><td class="name">akuma</td><td><span class="pill pill-green">CREATE</span></td><td>Item</td><td>Lâmina de Cinzas (Lendário)</td></tr>
+              <tr><td>13:09</td><td class="name">akuma</td><td><span class="pill pill-blue">ACCESS</span></td><td>Jogador</td><td>Ryuken aprovado em Campanha Z</td></tr>
+              <tr><td>12:30</td><td class="name">akuma</td><td><span class="pill pill-gold">EDIT</span></td><td>Config</td><td>XP base: 80→100</td></tr>
+              <tr><td>11:55</td><td class="name">akuma</td><td><span class="pill pill-red">DELETE</span></td><td>Magia</td><td>Rajada Comum removida</td></tr>
+              <tr><td>10:18</td><td class="name">akuma</td><td><span class="pill pill-green">CREATE</span></td><td>Campanha</td><td>Tribunal dos Relâmpagos criada</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- placeholder pages -->
+    <div class="page" id="page-racas"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title"><em>Raças</em></h1></div><p style="color:var(--oni-mist);font-size:.85rem">Mesmo padrão de Classes — tabela + formulário de criação.</p></div></div>
+    <div class="page" id="page-elementos"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title"><em>Elementos</em> & Afinidades</h1></div><p style="color:var(--oni-mist);font-size:.85rem">Matriz de vantagens/desvantagens entre elementos.</p></div></div>
+    <div class="page" id="page-itens"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title">Itens <em>& Equipamentos</em></h1></div><p style="color:var(--oni-mist);font-size:.85rem">Catálogo com raridade, slot, atributos e loot table.</p></div></div>
+    <div class="page" id="page-inimigos"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title">Inimigos <em>& NPCs</em></h1></div><p style="color:var(--oni-mist);font-size:.85rem">Catálogo de inimigos com atributos, magias e loot.</p></div></div>
+    <div class="page" id="page-missoes"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Catálogos</div><h1 class="page-title"><em>Missões</em> & Etapas</h1></div><p style="color:var(--oni-mist);font-size:.85rem">Missões com etapas, condições e recompensas.</p></div></div>
+    <div class="page" id="page-combate"><div style="padding:1.8rem"><div class="page-header"><div class="page-eyebrow">Balanceamento</div><h1 class="page-title">Regras de <em>Combate</em></h1></div><p style="color:var(--oni-mist);font-size:.85rem">Parâmetros de turno, iniciativa, crítico e status.</p></div></div>
+
+  </div>
+</div>
+
+<script>
+const c=document.getElementById('particles');
+const cols=['#C8102E','#C9A84C'];
+for(let i=0;i<20;i++){
+  const d=document.createElement('div');d.className='ember';
+  const sz=Math.random()*2+1,dur=Math.random()*16+10,del=Math.random()*16;
+  d.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[i%2]};left:${Math.random()*100}%;bottom:0;animation-duration:${dur}s;animation-delay:${del}s;--dx:${(Math.random()-.5)*120}px`;
+  c.appendChild(d);
+}
+
+const labels={
+  dashboard:'Dashboard',classes:'Classes',racas:'Raças',elementos:'Elementos',
+  magias:'Magias',itens:'Itens',inimigos:'Inimigos',missoes:'Missões',
+  balanco:'Progressão & XP',combate:'Regras de Combate',
+  jogadores:'Jogadores',acessos:'Acessos & Papéis',config:'Configurações',auditoria:'Auditoria'
+};
+
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('breadcrumb').textContent=labels[id]||id;
+}
+</script>
+</body>
+</html>
