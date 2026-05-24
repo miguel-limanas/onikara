@@ -383,6 +383,31 @@ create trigger character_status_effects_set_updated_at before update on public.c
 create trigger enemies_set_updated_at before update on public.enemies for each row execute function public.set_updated_at();
 create trigger quests_set_updated_at before update on public.quests for each row execute function public.set_updated_at();
 create trigger combat_sessions_set_updated_at before update on public.combat_sessions for each row execute function public.set_updated_at();
+create trigger progression_rules_set_updated_at before update on public.progression_rules for each row execute function public.set_updated_at();
+create trigger mana_rules_set_updated_at before update on public.mana_rules for each row execute function public.set_updated_at();
+create trigger combat_rules_set_updated_at before update on public.combat_rules for each row execute function public.set_updated_at();
+create trigger rarity_rules_set_updated_at before update on public.rarity_rules for each row execute function public.set_updated_at();
+create trigger loot_rules_set_updated_at before update on public.loot_rules for each row execute function public.set_updated_at();
+
+create view public.active_progression_rules
+with (security_invoker = true)
+as select * from public.progression_rules where status = 'active';
+
+create view public.active_mana_rules
+with (security_invoker = true)
+as select * from public.mana_rules where status = 'active';
+
+create view public.active_combat_rules
+with (security_invoker = true)
+as select * from public.combat_rules where status = 'active';
+
+create view public.active_rarity_rules
+with (security_invoker = true)
+as select * from public.rarity_rules where status = 'active';
+
+create view public.active_loot_rules
+with (security_invoker = true)
+as select * from public.loot_rules where status = 'active';
 
 alter table public.rpg_classes enable row level security;
 alter table public.rpg_races enable row level security;
@@ -404,6 +429,11 @@ alter table public.character_quests enable row level security;
 alter table public.combat_sessions enable row level security;
 alter table public.combat_participants enable row level security;
 alter table public.combat_events enable row level security;
+alter table public.progression_rules enable row level security;
+alter table public.mana_rules enable row level security;
+alter table public.combat_rules enable row level security;
+alter table public.rarity_rules enable row level security;
+alter table public.loot_rules enable row level security;
 
 create policy "catalogs are readable by everyone" on public.rpg_classes for select using (true);
 create policy "catalogs are readable by everyone" on public.rpg_races for select using (true);
@@ -460,6 +490,21 @@ create policy "admins can delete quests" on public.quests for delete using (publ
 create policy "admins can insert quest steps" on public.quest_steps for insert with check (public.is_admin());
 create policy "admins can update quest steps" on public.quest_steps for update using (public.is_admin()) with check (public.is_admin());
 create policy "admins can delete quest steps" on public.quest_steps for delete using (public.is_admin());
+
+create policy "active progression rules are readable by everyone" on public.progression_rules for select using (status = 'active');
+create policy "admins can manage progression rules" on public.progression_rules for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "active mana rules are readable by everyone" on public.mana_rules for select using (status = 'active');
+create policy "admins can manage mana rules" on public.mana_rules for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "active combat rules are readable by everyone" on public.combat_rules for select using (status = 'active');
+create policy "admins can manage combat rules" on public.combat_rules for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "active rarity rules are readable by everyone" on public.rarity_rules for select using (status = 'active');
+create policy "admins can manage rarity rules" on public.rarity_rules for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "active loot rules are readable by everyone" on public.loot_rules for select using (status = 'active');
+create policy "admins can manage loot rules" on public.loot_rules for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can read own profile" on public.profiles for select using (auth.uid() = user_id);
 create policy "users can insert own profile" on public.profiles for insert with check (auth.uid() = user_id);
