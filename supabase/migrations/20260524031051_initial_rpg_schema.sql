@@ -383,6 +383,10 @@ create policy "admins can delete quest steps" on public.quest_steps for delete u
 create policy "users can read own profile" on public.profiles for select using (auth.uid() = user_id);
 create policy "users can insert own profile" on public.profiles for insert with check (auth.uid() = user_id);
 create policy "users can update own profile" on public.profiles for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "admins can read all profiles" on public.profiles for select using (public.is_admin());
+create policy "admins can insert all profiles" on public.profiles for insert with check (public.is_admin());
+create policy "admins can update all profiles" on public.profiles for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete all profiles" on public.profiles for delete using (public.is_admin());
 
 create policy "users can read own character spells" on public.character_spells for select using (
   exists (select 1 from public.profiles where profiles.id = character_spells.profile_id and profiles.user_id = auth.uid())
@@ -392,36 +396,48 @@ create policy "users can manage own character spells" on public.character_spells
 ) with check (
   exists (select 1 from public.profiles where profiles.id = character_spells.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all character spells" on public.character_spells for select using (public.is_admin());
+create policy "admins can manage all character spells" on public.character_spells for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own inventory" on public.inventory for all using (
   exists (select 1 from public.profiles where profiles.id = inventory.profile_id and profiles.user_id = auth.uid())
 ) with check (
   exists (select 1 from public.profiles where profiles.id = inventory.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all inventory" on public.inventory for select using (public.is_admin());
+create policy "admins can manage all inventory" on public.inventory for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own equipment" on public.equipment for all using (
   exists (select 1 from public.profiles where profiles.id = equipment.profile_id and profiles.user_id = auth.uid())
 ) with check (
   exists (select 1 from public.profiles where profiles.id = equipment.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all equipment" on public.equipment for select using (public.is_admin());
+create policy "admins can manage all equipment" on public.equipment for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own status effects" on public.character_status_effects for all using (
   exists (select 1 from public.profiles where profiles.id = character_status_effects.profile_id and profiles.user_id = auth.uid())
 ) with check (
   exists (select 1 from public.profiles where profiles.id = character_status_effects.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all character status effects" on public.character_status_effects for select using (public.is_admin());
+create policy "admins can manage all character status effects" on public.character_status_effects for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own quests" on public.character_quests for all using (
   exists (select 1 from public.profiles where profiles.id = character_quests.profile_id and profiles.user_id = auth.uid())
 ) with check (
   exists (select 1 from public.profiles where profiles.id = character_quests.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all character quests" on public.character_quests for select using (public.is_admin());
+create policy "admins can manage all character quests" on public.character_quests for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own combat sessions" on public.combat_sessions for all using (
   exists (select 1 from public.profiles where profiles.id = combat_sessions.profile_id and profiles.user_id = auth.uid())
 ) with check (
   exists (select 1 from public.profiles where profiles.id = combat_sessions.profile_id and profiles.user_id = auth.uid())
 );
+create policy "admins can read all combat sessions" on public.combat_sessions for select using (public.is_admin());
+create policy "admins can manage all combat sessions" on public.combat_sessions for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can read own combat participants" on public.combat_participants for select using (
   exists (
@@ -450,6 +466,8 @@ create policy "users can manage own combat participants" on public.combat_partic
       and profiles.user_id = auth.uid()
   )
 );
+create policy "admins can read all combat participants" on public.combat_participants for select using (public.is_admin());
+create policy "admins can manage all combat participants" on public.combat_participants for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can read own combat events" on public.combat_events for select using (
   exists (
@@ -460,6 +478,8 @@ create policy "users can read own combat events" on public.combat_events for sel
       and profiles.user_id = auth.uid()
   )
 );
+create policy "admins can read all combat events" on public.combat_events for select using (public.is_admin());
+create policy "admins can manage all combat events" on public.combat_events for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "users can manage own combat events" on public.combat_events for all using (
   exists (
