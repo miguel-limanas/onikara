@@ -278,6 +278,77 @@ create table public.combat_events (
   created_at timestamptz not null default now()
 );
 
+create table public.progression_rules (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  version integer not null check (version >= 1),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  xp_curve jsonb not null,
+  level_stat_scaling jsonb not null default '{}'::jsonb,
+  unlock_rules jsonb not null default '{}'::jsonb,
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (name, version)
+);
+
+create table public.mana_rules (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  version integer not null check (version >= 1),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  regeneration jsonb not null,
+  fatigue jsonb not null default '{}'::jsonb,
+  cost_rules jsonb not null default '{}'::jsonb,
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (name, version)
+);
+
+create table public.combat_rules (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  version integer not null check (version >= 1),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  initiative jsonb not null,
+  damage_formula jsonb not null,
+  critical_rules jsonb not null default '{}'::jsonb,
+  mitigation_rules jsonb not null default '{}'::jsonb,
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (name, version)
+);
+
+create table public.rarity_rules (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  version integer not null check (version >= 1),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  rarity_weights jsonb not null,
+  upgrade_rules jsonb not null default '{}'::jsonb,
+  display_rules jsonb not null default '{}'::jsonb,
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (name, version)
+);
+
+create table public.loot_rules (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  version integer not null check (version >= 1),
+  status text not null check (status in ('draft', 'active', 'archived')),
+  drop_rates jsonb not null,
+  pity_rules jsonb not null default '{}'::jsonb,
+  reward_modifiers jsonb not null default '{}'::jsonb,
+  notes text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (name, version)
+);
+
 create index profiles_user_id_idx on public.profiles(user_id);
 create index character_spells_spell_id_idx on public.character_spells(spell_id);
 create index inventory_profile_id_idx on public.inventory(profile_id);
@@ -289,6 +360,16 @@ create index character_quests_profile_id_idx on public.character_quests(profile_
 create index combat_sessions_profile_id_idx on public.combat_sessions(profile_id);
 create index combat_participants_session_idx on public.combat_participants(combat_session_id);
 create index combat_events_session_turn_idx on public.combat_events(combat_session_id, turn_number);
+create unique index progression_rules_one_active_idx on public.progression_rules ((status)) where status = 'active';
+create unique index mana_rules_one_active_idx on public.mana_rules ((status)) where status = 'active';
+create unique index combat_rules_one_active_idx on public.combat_rules ((status)) where status = 'active';
+create unique index rarity_rules_one_active_idx on public.rarity_rules ((status)) where status = 'active';
+create unique index loot_rules_one_active_idx on public.loot_rules ((status)) where status = 'active';
+create index progression_rules_status_idx on public.progression_rules(status);
+create index mana_rules_status_idx on public.mana_rules(status);
+create index combat_rules_status_idx on public.combat_rules(status);
+create index rarity_rules_status_idx on public.rarity_rules(status);
+create index loot_rules_status_idx on public.loot_rules(status);
 
 create trigger rpg_classes_set_updated_at before update on public.rpg_classes for each row execute function public.set_updated_at();
 create trigger rpg_races_set_updated_at before update on public.rpg_races for each row execute function public.set_updated_at();
