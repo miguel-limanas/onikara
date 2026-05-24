@@ -448,6 +448,99 @@ begin
 end;
 $$;
 
+create or replace function public.log_admin_permission_action(
+  target_user_id uuid,
+  action text,
+  metadata jsonb default '{}'::jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  audit_id uuid;
+begin
+  if not public.is_admin() then
+    raise exception 'Only platform admins can log permission actions';
+  end if;
+
+  insert into public.admin_audit_logs (
+    actor_user_id,
+    actor_role,
+    action,
+    entity_table,
+    entity_id,
+    before_data,
+    after_data,
+    redacted,
+    metadata
+  )
+  values (
+    auth.uid(),
+    public.current_app_role(),
+    action,
+    'auth.users',
+    target_user_id::text,
+    null,
+    null,
+    true, -- redacted = true
+    coalesce(metadata, '{}'::jsonb) || jsonb_build_object('source', 'log_admin_permission_action')
+  )
+  returning id into audit_id;
+
+  return audit_id;
+end;
+$$;
+
+create or replace function public.log_admin_support_action(
+  target_profile_id uuid,
+  action text,
+  summary jsonb default '{}'::jsonb
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  audit_id uuid;
+begin
+  if not public.is_admin() then
+    raise exception 'Only platform admins can log support actions';
+  end if;
+
+  insert into public.admin_audit_logs (
+    actor_user_id,
+    actor_role,
+    action,
+    entity_table,
+    entity_id,
+    before_data,
+    after_data,
+    redacted,
+    metadata
+  )
+  values (
+    auth.uid(),
+    public.current_app_role(),
+    action,
+    'public.profiles',
+    target_profile_id::text,
+    null,
+    null,
+    true, -- redacted = true
+    jsonb_build_object(
+      'source', 'log_admin_support_action',
+      'summary', coalesce(summary, '{}'::jsonb)
+    )
+  )
+  returning id into audit_id;
+
+  return audit_id;
+end;
+$$;
+
 create trigger rpg_classes_set_updated_at before update on public.rpg_classes for each row execute function public.set_updated_at();
 create trigger rpg_races_set_updated_at before update on public.rpg_races for each row execute function public.set_updated_at();
 create trigger elements_set_updated_at before update on public.elements for each row execute function public.set_updated_at();
