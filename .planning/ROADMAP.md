@@ -134,7 +134,7 @@ Linha de pesquisa visual:
 
 1. O nome Onikara aparece como marca principal do produto.
 2. Tokens de cor, tipografia, espaçamento, radius, sombras, estados, raridades e elementos estão documentados.
-3. Há distinção clara entre linguagem visual do admin e do player sem quebrar consistência de marca.
+3. Há distinção clara entre linguagem visual do admin, do player e do master sem quebrar consistência de marca.
 4. Componentes base têm estados de loading, empty, error, disabled, focus e success.
 5. Contraste, touch targets e navegação por teclado são contemplados desde o início.
 
@@ -149,7 +149,7 @@ Linha de pesquisa visual:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-03: Validar responsividade e acessibilidade dos componentes em admin e player.
+- [ ] 02-03: Validar responsividade e acessibilidade dos componentes em admin, player e master.
 
 ### Phase 3: Área de Administração - Catálogos e Balanceamento
 
