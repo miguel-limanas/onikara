@@ -1,3 +1,18 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+last_updated: "2026-05-24T06:50:21.499Z"
+last_activity: 2026-05-24 — Roadmap reoriented for Onikara admin/player interfaces using Supabase as platform base
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -5,20 +20,21 @@
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Prover um motor de combate por turnos modular e facilmente balanceável, onde as fraquezas elementais e a gestão tática de mana sejam determinantes para a vitória.
-**Current focus:** Phase 1: Núcleo Estatístico e Personagem
+**Current focus:** Phase 1: Núcleo Supabase, Papéis e Governança para Onikara
 
 ## Current Position
 
-Phase: 1 of 4 (Núcleo Estatístico e Personagem)
-Plan: 0 of 2 in current phase
+Phase: 1 of 6 (Núcleo Supabase, Papéis e Governança)
+Plan: 0 of 3 in current phase
 Status: Ready to plan
-Last activity: 2026-05-24 — Project initialized under GSD Redux methodology with sistema_rpg.txt specification
+Last activity: 2026-05-24 — Roadmap reoriented for Onikara admin/player interfaces using Supabase as platform base
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: 0 min
 - Total execution time: 0.0 hours
@@ -27,12 +43,15 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Núcleo Estatístico | 0 | 2 | - |
-| 2. Motor Elemental | 0 | 2 | - |
-| 3. Motor de Combate | 0 | 2 | - |
-| 4. Loop de Console | 0 | 1 | - |
+| 1. Núcleo Supabase/Governança | 0 | 3 | - |
+| 2. Identidade Visual/Design System | 0 | 3 | - |
+| 3. Área de Administração | 0 | 4 | - |
+| 4. Área do Jogador | 0 | 3 | - |
+| 5. Combate Interativo/Realtime | 0 | 4 | - |
+| 6. Observabilidade/Polimento | 0 | 4 | - |
 
 **Recent Trend:**
+
 - Last 5 plans: N/A
 - Trend: Stable
 
@@ -42,6 +61,8 @@ Progress: [░░░░░░░░░░] 0%
 
 - [Phase 1]: Escolha da arquitetura modular baseada em JavaScript puro para as regras de negócio e motor do jogo.
 - [Phase 1]: Escalonamento definido como MVP de 4 fases para validar o combate estratégico de mana/elementos de forma enxuta.
+- [Phase 1]: Nome do produto definido como Onikara.
+- [Phase 1]: Roadmap reorganizado para conter área de administração e área de interação dos jogadores, ambas apoiadas em Supabase.
 
 ### Pending Todos
 
@@ -61,6 +82,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-24 02:47
-Stopped at: Initialized GSD environment and created planning files (PROJECT.md, REQUIREMENTS.md, ROADMAP.md, STATE.md)
-Resume file: None
+Last session: 2026-05-24T06:50:21.490Z
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-n-cleo-supabase-pap-is-e-governan-a/01-CONTEXT.md
