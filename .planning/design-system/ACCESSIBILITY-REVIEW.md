@@ -31,7 +31,7 @@ Os critérios observados incluem:
 | button | Possui foco visível, estado normal, loading, erro, sucesso e disabled. | Passou |
 | input | Possui `label`, foco visível, estado de erro e suporte a disabled via CSS. | Passou |
 | select | Possui `label`, foco visível e área mínima de interação. | Passou |
-| modal | Usa bloco focado de conteúdo com botão de ação nomeado. | Passou |
+| modal | Usa `role="dialog"`, título associado e botão de ação nomeado. | Passou |
 | tabs | Usa `role="tablist"`, `role="tab"`, `aria-selected` e botões alcançáveis por teclado. | Passou |
 | table | Usa `table`, `thead`, `tbody`, `th` e wrapper com rolagem horizontal controlada. | Passou |
 | badge | Usa texto visível para raridade e estado. | Passou |
@@ -56,7 +56,8 @@ O CSS define foco visível para:
 - `.ok-input:focus-visible`
 - `.ok-select:focus-visible`
 - `.ok-tab:focus-visible`
-- `.ok-toolbar__action:focus-visible`
+- `.ok-pill-action:focus-visible`
+- `.ok-access-option:focus-within`
 
 ## Contraste e Cor
 
@@ -91,6 +92,15 @@ Componentes usam os tokens `--motion-fast` e `--motion-ease`, portanto herdam a 
 - campos de login com `autocomplete` e `inputmode` adequados.
 
 Os modos admin, player e master usam a mesma grade responsiva e devem empilhar em viewport estreita.
+
+## Redefinição UI/UX Pro Max
+
+A revisão considera o kit inicial documentado em `.planning/design-system/INITIAL-KIT.md`, que adapta as recomendações da skill UI/UX Pro Max para Onikara:
+
+- Enterprise Gateway para portal, login e seleção de contexto.
+- Dark Mode OLED adaptado à paleta preto, carmesim e dourado velho.
+- Mobile-first real com breakpoints progressivos.
+- Componentes com foco visível, alvos de toque, estados e navegação por teclado.
 
 ## Limitações Conhecidas
 

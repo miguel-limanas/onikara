@@ -62,11 +62,11 @@ a {
 
 .ok-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 1fr;
   gap: var(--space-6);
   align-items: center;
-  min-height: 360px;
-  padding: var(--space-8);
+  min-height: 0;
+  padding: var(--space-4);
 }
 
 .ok-brand-lockup {
@@ -183,18 +183,7 @@ a {
 .ok-grid-4 {
   display: grid;
   gap: var(--space-4);
-}
-
-.ok-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.ok-grid-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.ok-grid-4 {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .ok-stack {
@@ -207,6 +196,14 @@ a {
   flex-wrap: wrap;
   gap: var(--space-2);
   align-items: center;
+}
+
+.ok-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  min-width: 0;
 }
 
 .ok-fieldset {
@@ -337,7 +334,7 @@ a {
 
 .ok-access-option {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: var(--space-4);
   align-items: center;
   min-height: 112px;
@@ -351,6 +348,16 @@ a {
   display: grid;
   gap: var(--space-5);
   padding: var(--space-6);
+}
+
+.ok-modal {
+  display: grid;
+  gap: var(--space-3);
+  border: var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-popover);
+  padding: var(--space-5);
 }
 
 .ok-route-nav {
@@ -532,35 +539,40 @@ a {
   color: var(--mode-accent);
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 781px) {
+  .ok-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 360px;
+    padding: var(--space-8);
+  }
+
+  .ok-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ok-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .ok-grid-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .ok-access-option {
+    grid-template-columns: 1fr auto;
+  }
 }
 
-@media (max-width: 780px) {
-  .ok-page {
-    width: min(100% - 20px, var(--container));
-    padding-top: var(--space-3);
+@media (min-width: 1025px) {
+  .ok-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
 
-  .ok-hero,
-  .ok-grid,
-  .ok-grid-2,
-  .ok-grid-4,
-  .ok-access-option {
-    grid-template-columns: 1fr;
-  }
-
-  .ok-hero,
-  .ok-band,
-  .ok-route-shell {
-    padding: var(--space-4);
-  }
-
+@media (max-width: 420px) {
   .ok-logo-frame {
-    width: 140px;
-    min-height: 140px;
+    width: 132px;
+    min-height: 132px;
   }
 
   .ok-logo {

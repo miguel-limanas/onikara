@@ -26,6 +26,7 @@ A entrega define a fundação visual da Onikara, o kit mínimo de assets, tokens
 | `.planning/design-system/ACCESSIBILITY-REVIEW.md` | Presente |
 | `.planning/design-system/LOGO-APPLICATIONS.md` | Presente |
 | `.planning/design-system/RESPONSIVE-SPEC.md` | Presente |
+| `.planning/design-system/INITIAL-KIT.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-01-SUMMARY.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-02-SUMMARY.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-03-SUMMARY.md` | Presente |
@@ -46,6 +47,7 @@ A entrega define a fundação visual da Onikara, o kit mínimo de assets, tokens
 - A regra de idioma foi registrada na memória do projeto: artefatos humanos em português brasileiro, com acentuação e norma culta.
 - A limitação do PNG com fundo branco foi registrada, com exigência de versões transparentes e exemplos de aplicação.
 - A responsividade foi planejada como contrato mobile-first para mobile, tablet, desktop e wide desktop.
+- O kit inicial foi redefinido com base na skill UI/UX Pro Max, adaptando Enterprise Gateway e Dark Mode OLED para a marca Onikara.
 
 ## Checks Executados
 

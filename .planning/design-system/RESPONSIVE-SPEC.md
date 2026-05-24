@@ -2,7 +2,7 @@
 
 ## Princípio
 
-Onikara deve abrir e permanecer operável em mobile, tablet e desktop. A abordagem é mobile-first: o layout padrão é pensado para telas pequenas e os breakpoints ampliam densidade, colunas e navegação quando houver espaço.
+Onikara deve abrir e permanecer operável em mobile, tablet e desktop. A abordagem é mobile-first: o CSS padrão é de uma coluna para telas pequenas, e os breakpoints com `min-width` ampliam densidade, colunas e navegação quando houver espaço.
 
 ## Breakpoints
 
@@ -18,6 +18,7 @@ Onikara deve abrir e permanecer operável em mobile, tablet e desktop. A abordag
 
 - Todo HTML deve manter `<meta name="viewport" content="width=device-width, initial-scale=1">`.
 - Usar `min-height: 100dvh` em superfícies de tela cheia para respeitar chrome móvel.
+- O CSS base deve ser mobile-first; evitar desktop-first com correções mobile tardias.
 - Alvos de toque primários devem ter pelo menos `44px` de altura e largura.
 - O layout não deve gerar rolagem horizontal global.
 - Tabelas podem rolar horizontalmente dentro de `.ok-table-wrap`; a página inteira não.

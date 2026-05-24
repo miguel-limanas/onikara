@@ -26,6 +26,7 @@ requirements_completed:
 - Confirmado que o preview contém labels reais, `aria-label`, foco visível, alvos primários de 44px, responsividade e controle de overflow.
 - Confirmado que `tokens.css` inclui `prefers-reduced-motion` e que `components.css` usa tokens de movimento.
 - Documentada matriz manual cobrindo button, input, select, modal, tabs, table, badge, toast, stat bar, toolbar e os previews de admin, player e master.
+- Atualizada a revisão para considerar o kit inicial redefinido com UI/UX Pro Max, incluindo portal, seleção de contexto, shells isolados e responsividade mobile-first.
 
 ## Decisões Capturadas
 

@@ -6,7 +6,7 @@
   <title>Preview do Design System Onikara</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="tokens.css">
   <link rel="stylesheet" href="components.css">
 </head>
@@ -191,6 +191,10 @@
           <button class="ok-button is-success" type="button">Salvo</button>
           <button class="ok-button is-error" type="button">Rejeitado</button>
           <button class="ok-button" type="button" disabled>Desabilitado</button>
+          <div class="ok-toolbar" aria-label="Ações rápidas">
+            <button class="ok-button" type="button">Filtrar</button>
+            <button class="ok-button" type="button">Exportar</button>
+          </div>
         </div>
         <div class="ok-stack">
           <div class="ok-field">
@@ -204,6 +208,12 @@
           <span class="ok-badge ok-badge--legendary">Lendário</span>
         </div>
         <div class="ok-stack">
+          <div class="ok-modal" role="dialog" aria-labelledby="modal-title">
+            <p class="ok-kicker">Modal</p>
+            <h3 class="ok-route-title" id="modal-title">Aviso de contenção</h3>
+            <p class="ok-copy">Use para confirmação focada, perigo e mensagens formais do sistema.</p>
+            <button class="ok-button ok-button--primary" type="button">Confirmar</button>
+          </div>
           <div class="ok-toast is-success" aria-live="polite"><span>Registro atualizado</span><strong>OK</strong></div>
           <div class="ok-empty">Estado vazio: nenhum incidente ativo.</div>
         </div>
