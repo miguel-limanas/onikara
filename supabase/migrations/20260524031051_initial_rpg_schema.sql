@@ -349,6 +349,20 @@ create table public.loot_rules (
   unique (name, version)
 );
 
+create table public.admin_audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  actor_user_id uuid,
+  actor_role text,
+  action text not null,
+  entity_table text not null,
+  entity_id text,
+  before_data jsonb,
+  after_data jsonb,
+  redacted boolean not null default false,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
 create index profiles_user_id_idx on public.profiles(user_id);
 create index character_spells_spell_id_idx on public.character_spells(spell_id);
 create index inventory_profile_id_idx on public.inventory(profile_id);
@@ -370,6 +384,69 @@ create index mana_rules_status_idx on public.mana_rules(status);
 create index combat_rules_status_idx on public.combat_rules(status);
 create index rarity_rules_status_idx on public.rarity_rules(status);
 create index loot_rules_status_idx on public.loot_rules(status);
+create index admin_audit_logs_entity_idx on public.admin_audit_logs(entity_table, entity_id);
+create index admin_audit_logs_actor_idx on public.admin_audit_logs(actor_user_id, created_at desc);
+
+create or replace function public.audit_admin_row_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  before_payload jsonb;
+  after_payload jsonb;
+  target_id text;
+begin
+  if not public.is_admin() then
+    if TG_OP = 'DELETE' then
+      return old;
+    end if;
+    return new;
+  end if;
+
+  before_payload := case when TG_OP in ('UPDATE', 'DELETE') then to_jsonb(old) else null end;
+  after_payload := case when TG_OP in ('INSERT', 'UPDATE') then to_jsonb(new) else null end;
+  target_id := coalesce(
+    after_payload ->> 'id',
+    before_payload ->> 'id',
+    after_payload ->> 'class_id',
+    before_payload ->> 'class_id',
+    after_payload ->> 'enemy_id',
+    before_payload ->> 'enemy_id',
+    after_payload ->> 'quest_id',
+    before_payload ->> 'quest_id'
+  );
+
+  insert into public.admin_audit_logs (
+    actor_user_id,
+    actor_role,
+    action,
+    entity_table,
+    entity_id,
+    before_data,
+    after_data,
+    redacted,
+    metadata
+  )
+  values (
+    auth.uid(),
+    public.current_app_role(),
+    lower(TG_OP),
+    TG_TABLE_SCHEMA || '.' || TG_TABLE_NAME,
+    target_id,
+    before_payload,
+    after_payload,
+    false,
+    jsonb_build_object('source', 'audit_admin_row_change')
+  );
+
+  if TG_OP = 'DELETE' then
+    return old;
+  end if;
+  return new;
+end;
+$$;
 
 create trigger rpg_classes_set_updated_at before update on public.rpg_classes for each row execute function public.set_updated_at();
 create trigger rpg_races_set_updated_at before update on public.rpg_races for each row execute function public.set_updated_at();
@@ -388,6 +465,23 @@ create trigger mana_rules_set_updated_at before update on public.mana_rules for 
 create trigger combat_rules_set_updated_at before update on public.combat_rules for each row execute function public.set_updated_at();
 create trigger rarity_rules_set_updated_at before update on public.rarity_rules for each row execute function public.set_updated_at();
 create trigger loot_rules_set_updated_at before update on public.loot_rules for each row execute function public.set_updated_at();
+
+create trigger rpg_classes_admin_audit after insert or update or delete on public.rpg_classes for each row execute function public.audit_admin_row_change();
+create trigger rpg_races_admin_audit after insert or update or delete on public.rpg_races for each row execute function public.audit_admin_row_change();
+create trigger elements_admin_audit after insert or update or delete on public.elements for each row execute function public.audit_admin_row_change();
+create trigger status_effects_admin_audit after insert or update or delete on public.status_effects for each row execute function public.audit_admin_row_change();
+create trigger spells_admin_audit after insert or update or delete on public.spells for each row execute function public.audit_admin_row_change();
+create trigger class_spells_admin_audit after insert or update or delete on public.class_spells for each row execute function public.audit_admin_row_change();
+create trigger items_admin_audit after insert or update or delete on public.items for each row execute function public.audit_admin_row_change();
+create trigger enemies_admin_audit after insert or update or delete on public.enemies for each row execute function public.audit_admin_row_change();
+create trigger enemy_spells_admin_audit after insert or update or delete on public.enemy_spells for each row execute function public.audit_admin_row_change();
+create trigger quests_admin_audit after insert or update or delete on public.quests for each row execute function public.audit_admin_row_change();
+create trigger quest_steps_admin_audit after insert or update or delete on public.quest_steps for each row execute function public.audit_admin_row_change();
+create trigger progression_rules_admin_audit after insert or update or delete on public.progression_rules for each row execute function public.audit_admin_row_change();
+create trigger mana_rules_admin_audit after insert or update or delete on public.mana_rules for each row execute function public.audit_admin_row_change();
+create trigger combat_rules_admin_audit after insert or update or delete on public.combat_rules for each row execute function public.audit_admin_row_change();
+create trigger rarity_rules_admin_audit after insert or update or delete on public.rarity_rules for each row execute function public.audit_admin_row_change();
+create trigger loot_rules_admin_audit after insert or update or delete on public.loot_rules for each row execute function public.audit_admin_row_change();
 
 create view public.active_progression_rules
 with (security_invoker = true)
@@ -434,6 +528,7 @@ alter table public.mana_rules enable row level security;
 alter table public.combat_rules enable row level security;
 alter table public.rarity_rules enable row level security;
 alter table public.loot_rules enable row level security;
+alter table public.admin_audit_logs enable row level security;
 
 create policy "catalogs are readable by everyone" on public.rpg_classes for select using (true);
 create policy "catalogs are readable by everyone" on public.rpg_races for select using (true);
@@ -505,6 +600,8 @@ create policy "admins can manage rarity rules" on public.rarity_rules for all us
 
 create policy "active loot rules are readable by everyone" on public.loot_rules for select using (status = 'active');
 create policy "admins can manage loot rules" on public.loot_rules for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "admins can read admin audit logs" on public.admin_audit_logs for select using (public.is_admin());
 
 create policy "users can read own profile" on public.profiles for select using (auth.uid() = user_id);
 create policy "users can insert own profile" on public.profiles for insert with check (auth.uid() = user_id);
