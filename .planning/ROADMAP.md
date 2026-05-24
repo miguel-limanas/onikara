@@ -167,11 +167,38 @@ Linha de pesquisa visual:
 5. Conteúdo publicado aparece para jogadores por políticas Supabase adequadas.
 
 **Plans**:
+**Wave 1**
 
 - [ ] 03-01: Implementar shell do admin com navegação lateral, autenticação, proteção por role e dashboard operacional.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 03-02: Implementar CRUD de catálogos de gameplay com tabelas filtráveis, formulários e validação.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 03-03: Implementar telas de balanceamento: progressão, mana, combate, loot table, raridade e vínculos de desbloqueio.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 03-04: Implementar visualização de jogadores, sessões de combate e ferramentas controladas de suporte.
+
+**Cross-cutting constraints:**
+
+- D-01: Phase 3 includes real Supabase API/integration work for admin, not static screens only.
+- D-12: Admin uses anon key + authenticated session + RLS; `service_role` is prohibited in browser code.
+- D-14: Modules standardize data, loading, structured errors and friendly UI messages.
+- D-21: UI follows Onikara design system and UI UX Pro Max checklist.
+- D-27: Visible focus, keyboard navigation, 4.5:1 contrast and `prefers-reduced-motion` are blocking criteria.
+- D-28: Reuse `tokens.css` and `components.css` before creating new styles.
+- D-33: Dashboard shows Phase 3 operational status: catalog totals, draft/active/archived content, recent activity and configuration alerts.
+- D-05: `onikara_admin.html` guides shell, density, sidebar navigation, dashboard, catalogs, balancing and audit.
+- D-15: Administrative writes pass through admin RLS/helpers and register audit per Phase 1.
+- D-23: Tables are filterable, scannable and contained in responsive wrappers with local horizontal scroll when needed.
+- D-24: Forms use visible labels, blur validation, required indicators, submit feedback and field-level messages.
+- D-25: Destructive/archive actions require confirmation and impact indication.
+- D-31: JSON/rule fields validate before saving to avoid corrupting data.
+- D-16: RPCs are used for sensitive, transactional or support operations when needed.
 
 ### Phase 4: Área do Jogador - Perfil, Personagem e Progressão
 
