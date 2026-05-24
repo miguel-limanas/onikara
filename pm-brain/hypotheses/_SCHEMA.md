@@ -1,6 +1,6 @@
 # Hypothesis File Schema
 
-> **Read this schema before writing or editing a hypothesis file.** Especially § *Provenance tag — required on every evidence row*. Two structural checks (`no_orphan_evidence`, `hypothesis_evidence_count_*`) reject hypothesis files where evidence rows either lack a provenance tag OR carry a path-typed citation in prose form instead of `[text](path)` markdown link form.
+> **Read this schema before writing or editing a hypothesis file.** Especially § *Provenance tag — required on every evidence row*. Two structural checks (`no_orphan_evidence`, `hypothesis_evidence_count_*`) reject hypothesis files where evidence rows either lack a provenance tag OR carry a path-typed citation in prose form instead of `[text](relative-path)` markdown link form.
 >
 > **Pre-save self-check** (run mentally before every write to a hypothesis file):
 > 1. **COUNT-THE-TAGS.** Count the number of bullet rows under `**Evidence for:**` and `**Evidence against:**` in your draft. Count the number of provenance tags in those rows. The two numbers MUST match. If you have 5 evidence rows and 3 tags, you have 2 orphans — add tags before saving (or move the bullets to `Open questions / caveats:` if they aren't really claims). This single check catches the most common failure mode.

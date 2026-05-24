@@ -15,19 +15,19 @@ If shape is ambiguous, ask one question. Don't guess.
 
 ## Loads
 
-- `knowledge/strategy.md`
-- The matching area for the inferred shape: `knowledge/users/insights.md` (interview), `stakeholders/<slug>.md` (meeting), `knowledge/market/` (market), nothing extra (adhoc)
-- Active `hypotheses/<slug>.md` files that the artifact might touch
-- Last 3 entries in `ingestion/<shape>/` for pattern comparison
+- `pm-brain/knowledge/strategy.md`
+- The matching area for the inferred shape: `pm-brain/knowledge/users/insights.md` (interview), `pm-brain/stakeholders/<slug>.md` (meeting), `pm-brain/knowledge/market/` (market), nothing extra (adhoc)
+- Active `pm-brain/hypotheses/<slug>.md` files that the artifact might touch
+- Last 3 entries in `pm-brain/ingestion/<shape>/` for pattern comparison
 
 ## Updates
 
-- `source/<shape>/<date>-<slug>.md` — immutable copy of the original artifact
-- `ingestion/<shape>/<date>-<slug>.md` — observations tagged (observation / interpretation / hypothesis / assumption / decision)
-- One or more durable destinations per the cognition pipeline: `knowledge/`, `hypotheses/`, `decisions/`, `stakeholders/`
+- `pm-brain/source/<shape>/<date>-<slug>.md` — immutable copy of the original artifact
+- `pm-brain/ingestion/<shape>/<date>-<slug>.md` — observations tagged (observation / interpretation / hypothesis / assumption / decision)
+- One or more durable destinations per the cognition pipeline: `pm-brain/knowledge/`, `pm-brain/hypotheses/`, `pm-brain/decisions/`, `pm-brain/stakeholders/`
 - Maintenance log if structural (a new persona, a new competitor, a new stakeholder)
 
-Promotion to durable layers follows the memory promotion bar in `CLAUDE.md § Memory promotion`. One-off observations stay in `ingestion/` until they accumulate.
+Promotion to durable layers follows the memory promotion bar in `pm-brain/CLAUDE.md § Memory promotion`. One-off observations stay in `pm-brain/ingestion/` until they accumulate.
 
 ## Surfaces
 

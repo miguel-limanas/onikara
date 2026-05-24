@@ -4,23 +4,23 @@ Generate solution directions for a problem, grounded in what the brain already k
 
 ## Input
 
-A problem statement, an opportunity, or a `knowledge/users/insights.md § <theme>` reference. Example: `/ideate onboarding drop-off in mid-market`.
+A problem statement, an opportunity, or a `pm-brain/knowledge/users/insights.md § <theme>` reference. Example: `/ideate onboarding drop-off in mid-market`.
 
 ## Loads
 
-- `knowledge/strategy.md` (priorities, non-goals, north-star)
-- `knowledge/users/insights.md` and any matching `personas.md` / `segments.md`
-- Active `hypotheses/` files in the same area
-- Recent `decisions/` that constrain or invalidate options
-- `knowledge/market/competitors/` and `trends.md` for adjacent moves
-- `rules/discovery.md` and `rules/prioritization.md` if present
+- `pm-brain/knowledge/strategy.md` (priorities, non-goals, north-star)
+- `pm-brain/knowledge/users/insights.md` and any matching `personas.md` / `segments.md`
+- Active `pm-brain/hypotheses/` files in the same area
+- Recent `pm-brain/decisions/` that constrain or invalidate options
+- `pm-brain/knowledge/market/competitors/` and `trends.md` for adjacent moves
+- `pm-brain/rules/discovery.md` and `pm-brain/rules/prioritization.md` if present
 
 ## Updates
 
 Drafts only. Nothing committed at call time.
 
-- A draft `ingestion/adhoc/<date>-ideate-<slug>.md` capturing the session
-- Hypothesis candidates queued under `hypotheses/<slug>.md § Candidates` (PM confirms before promotion)
+- A draft `pm-brain/ingestion/adhoc/<date>-ideate-<slug>.md` capturing the session
+- Hypothesis candidates queued under `pm-brain/hypotheses/<slug>.md § Candidates` (PM confirms before promotion)
 
 ## Surfaces
 

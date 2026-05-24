@@ -10,9 +10,9 @@ O storytelling do Onikara não deve parecer apenas:
 
 Ele precisa vender a sensação de:
 
-> participar de uma organização real de caçadores Oni.
+> O medo da destruição, a dor da perda e a ganância de força
 
-O usuário não entra em um site. Ele entra em um sistema operacional proibido.
+O usuário não entra em um site. Ele entra em um mundo onde esperança se vê através da lâmina de sua katana
 
 ## Conceito Central
 
@@ -41,7 +41,7 @@ Ele é:
 - um operador
 - um caçador registrado
 - um observador do sistema
-- alguém autorizado a acessar arquivos restritos
+
 
 Isso muda completamente a percepção da interface.
 
@@ -62,7 +62,7 @@ Exemplos:
 - níveis de autorização
 - logs incompletos
 - documentos censurados
-- símbolos ritualísticos
+
 
 ### 2. Organização Real
 
@@ -122,7 +122,7 @@ Depois:
 - falhas do sistema
 - desaparecimentos
 
-### Camada 3 — Verdade
+### Camada 3 — Plot twist
 
 Mais tarde o jogador descobre:
 
@@ -197,13 +197,10 @@ ou:
 ### Elementos Visuais
 
 - mapa tático
-- símbolos Oni
-- logs vivos
 - barras de status
 - alerta de anomalia
 - arquivos classificados
 - glitch discreto
-- fundo escuro profundo
 
 ## Direção Final
 
@@ -259,7 +256,7 @@ Cada aparição Oni segue um padrão:
 
 - primeiro, desaparecimentos pequenos
 - depois, falhas em sistemas de segurança
-- em seguida, surgem cultos locais
+- em seguida, surgem postos locais
 - por fim, um Oni superior aparece
 
 O problema é que esse padrão não parece natural.
@@ -360,7 +357,7 @@ A maior virada do enredo é descobrir que a Onikara não está apenas lutando co
 
 Ela depende deles.
 
-A organização usa sangue Oni, relíquias e energia demoníaca para criar armas, técnicas e sistemas de contenção.
+A organização é regida por um Oni, querendo calar testemunhas antingas , técnicas e estudar para fazer o grande ataque
 
 Ou seja:
 
@@ -370,7 +367,7 @@ Isso gera uma dúvida moral:
 
 A Onikara protege o mundo?
 
-Ou apenas controla quem pode usar esse poder?
+Ou apenas controla quem pode viver?
 
 ## Tom Estratégico
 
@@ -506,7 +503,7 @@ A sensação passa a ser de suspeita.
 
 ### Ato 3 — Contaminação
 
-O jogador descobre que parte da Onikara usa tecnologia baseada em energia Oni.
+O jogador descobre que parte da Onikara usa as mesmas armas de alguns  Onis.
 
 Alguns caçadores fortes demais talvez não sejam totalmente humanos.
 
@@ -516,7 +513,7 @@ A sensação passa a ser de medo moral.
 
 A organização se divide.
 
-Alguns querem destruir todos os Onis. Outros querem controlar o poder deles. Outros acreditam que os Onis são o próximo estágio da humanidade.
+Alguns querem destruir todos os Onis. Outros querem controlar o poder com eles. Outros acreditam que os Onis são o próximo estágio da humanidade.
 
 A sensação passa a ser de guerra interna.
 

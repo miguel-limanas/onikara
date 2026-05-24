@@ -1,3 +1,27 @@
+# Identidade Visual: Onikara
+
+## Decisão de Nome
+
+O nome escolhido para o produto é **Onikara**.
+
+Direção inicial:
+
+- **Território visual**: dark fantasy, energia anime, máscaras Oni, brasas, cinzas, metal escuro, selos/runa e magia elemental.
+- **Administração**: visual mais sóbrio, denso e operacional, com alto contraste, tabelas claras, formulários precisos e leitura rápida.
+- **Jogadores**: visual mais imersivo, com HUD expressivo, raridades, elementos, efeitos de combate e feedback de progressão.
+- **Pesquisa visual**: criar moodboard textual e visual para logo/wordmark, paleta, tipografia, iconografia, ilustrações, padrões e motion.
+- **Validação**: testar contraste, legibilidade em mobile/desktop, reconhecimento da marca no primeiro viewport e consistência entre admin e player.
+
+## Princípios de UI/UX
+
+- A marca deve reforçar estratégia, mana, linhagem Oni e consequência das escolhas.
+- O admin deve priorizar eficiência: filtros, busca, edição em formulários, validação inline, auditoria e confirmação para ações destrutivas.
+- A área do jogador deve priorizar clareza tática: HP, mana, cooldown, status, ordem de turno, alvo atual e resultado das ações.
+- Tokens de design devem cobrir cor de marca, elementos, raridade, estados de combate, sucesso, alerta, erro e superfícies.
+- Componentes devem nascer acessíveis: foco visível, labels reais, `aria-label` em botões de ícone, contraste mínimo 4.5:1 e touch target mínimo de 44px.
+
+---
+
 # ⚔️ Ideias de Nomes para o RPG e Marca do Site
 
 ## 🔥 Nomes Épicos

@@ -1,8 +1,13 @@
-# Sistema RPG
+# Onikara
 
 ## What This Is
 
-Um sistema de RPG original, modular e altamente escalável focado em combates estratégicos por turnos, mecânicas elementais dinâmicas, gerenciamento tático de mana, classes distintas com progressão de nível, raças customizadas (como a sub-raça Oni) e NPCs interativos. O projeto foi projetado desde a base técnica para ser extensível, equilibrado e preparado para futuras expansões de missões e multiplayer.
+**Onikara** é uma plataforma de RPG original, modular e altamente escalável focada em combates estratégicos por turnos, mecânicas elementais dinâmicas, gerenciamento tático de mana, classes distintas com progressão de nível, raças customizadas (como a sub-raça Oni) e NPCs interativos. O projeto foi projetado desde a base técnica para ser extensível, equilibrado e preparado para futuras expansões de missões e multiplayer.
+
+O sistema terá duas áreas principais:
+
+- **Administração**: backoffice para configurar a plataforma, balancear conteúdo, gerenciar catálogos, acompanhar jogadores e operar o jogo com segurança.
+- **Interação dos jogadores**: experiência jogável para criação de personagem, progressão, inventário, missões e combate.
 
 ## Core Value
 
@@ -38,6 +43,8 @@ Prover um motor de combate por turnos modular e facilmente balanceável, onde as
 
 - **Arquitetura Recomendada**: Divisão clara entre Backend (regras de jogo, combate, banco de dados) e Frontend (interface, menus e feedback visual).
 - **Abordagem de Desenvolvimento**: Modular, permitindo a inserção simplificada de novas classes, magias e elementos sem a necessidade de reescrever as classes base de regras de jogo.
+- **Supabase como plataforma base**: Auth, Postgres, RLS, PostgREST, Realtime, Storage, migrations e seed devem ser usados como recursos primários antes da criação de serviços próprios.
+- **Identidade visual Onikara**: a marca deve equilibrar dark fantasy, energia anime, máscaras Oni, brasas, selos/runa e uma leitura tática clara para admin e jogador.
 
 ## Constraints
 
@@ -52,6 +59,8 @@ Prover um motor de combate por turnos modular e facilmente balanceável, onde as
 | Arquitetura Modular em JS | Facilitar a adição futura de novos elementos, classes e magias sem quebrar o motor central. | — Pending |
 | MVP com 2 Classes, 4 Elementos e 10 Magias | Validar o motor tático de mana e combate de forma enxuta antes de escalonar o conteúdo completo. | — Pending |
 | Supabase Self-Hosted em Docker | Utilização de serviços conteinerizados locais (PostgreSQL, Auth, PostgREST) para stack mínima de banco de dados, facilitando setup rápido e portabilidade total. | ✓ Good |
+| Nome do produto: Onikara | Nome memorável com associação direta à linhagem Oni e potencial visual forte para RPG anime/dark fantasy. | ✓ Good |
+| Duas áreas de produto | Separar backoffice operacional da experiência jogável reduz acoplamento de UX, permissões e navegação. | ✓ Good |
 
 ## Evolution
 

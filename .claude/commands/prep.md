@@ -8,11 +8,11 @@ Stakeholder slug (`/prep acme-ops`), meeting name (`/prep weekly-exec-review`), 
 
 ## Loads
 
-- `stakeholders/<slug>.md` for each attendee
-- `decisions/` filtered to ones affecting them or the topic
-- Active `hypotheses/<slug>.md` they care about or own
-- Last 3 `ingestion/meetings/<slug>-*.md` with this person or this meeting type
-- `knowledge/strategy.md § Tensions` if any tension intersects their concerns
+- `pm-brain/stakeholders/<slug>.md` for each attendee
+- `pm-brain/decisions/` filtered to ones affecting them or the topic
+- Active `pm-brain/hypotheses/<slug>.md` they care about or own
+- Last 3 `pm-brain/ingestion/meetings/<slug>-*.md` with this person or this meeting type
+- `pm-brain/knowledge/strategy.md § Tensions` if any tension intersects their concerns
 
 ## Updates
 

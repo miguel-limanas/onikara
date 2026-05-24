@@ -8,15 +8,15 @@ None, or an optional scope (`/review hypotheses`, `/review stakeholders`) to run
 
 ## Loads
 
-- `CLAUDE.md` (operating principles, autonomy mode, memory promotion bar)
-- `docs/system-evolution.md` (the 8 failure modes the sweep is designed to catch)
-- All durable areas in scope: `knowledge/`, `hypotheses/`, `decisions/`, `stakeholders/`
-- Recent `ingestion/` for promotion candidates
-- The last 2 `maintenance/log/` entries to compare deltas
+- `pm-brain/CLAUDE.md` (operating principles, autonomy mode, memory promotion bar)
+- `pm-brain/docs/system-evolution.md` (the 8 failure modes the sweep is designed to catch)
+- All durable areas in scope: `pm-brain/knowledge/`, `pm-brain/hypotheses/`, `pm-brain/decisions/`, `pm-brain/stakeholders/`
+- Recent `pm-brain/ingestion/` for promotion candidates
+- The last 2 `pm-brain/maintenance/log/` entries to compare deltas
 
 ## Updates
 
-- `maintenance/log/<date>-review.md` — the dated report
+- `pm-brain/maintenance/log/<date>-review.md` — the dated report
 - Direct edits to durable files where confidence is high: promote / demote hypotheses, update stakeholder `Last touched`, archive shipped features past 90 days, compress duplicate insights
 - Drafts (not committed) for items that need PM judgment: stale strategy assumptions, unresolved tensions, decision debt
 
@@ -43,7 +43,7 @@ The failure mode is collapsing a multi-part contradiction into a one-line synthe
 - **Distinguish two layers explicitly**: (a) "the original artifacts remain valid as artifacts — that interview really happened and that decision was justified by the evidence at the time"; (b) "the *claim* those artifacts supported no longer matches the world." Both true; both belong in the surfacing.
 - **Do not resolve in this turn.** The status field stays where it is. No new decision file is written. The point of the review is to make the drift visible — resolution is the next turn's job, with the PM in the loop.
 
-Annotations under existing files (a new row under `Evidence against:`, a note under `Risks` / `Open questions / caveats:`, a recommendation in the response text that the PM consider demotion next turn) are valid surfacing. Status changes and new `decisions/` files are not.
+Annotations under existing files (a new row under `Evidence against:`, a note under `Risks` / `Open questions / caveats:`, a recommendation in the response text that the PM consider demotion next turn) are valid surfacing. Status changes and new `pm-brain/decisions/` files are not.
 
 ## Decision-scoped /review — relevance filter on cadence flags
 
@@ -58,4 +58,4 @@ A stakeholder whose own file says "as-needed cadence, not implicated in feature-
 
 ## Cadence notes
 
-- `/review` runs weekly. The biweekly / monthly / quarterly refinements live in `docs/system-evolution.md` and run separately.
+- `/review` runs weekly. The biweekly / monthly / quarterly refinements live in `pm-brain/docs/system-evolution.md` and run separately.

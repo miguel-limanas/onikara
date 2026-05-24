@@ -50,19 +50,21 @@ _BARE_PLACEHOLDER_RE = re.compile(
     r"^\s*[*_`]*\s*"
     r"\(?\s*(none(\s+yet)?|n/?a|tbd|todo|"
     r"nothing\s+yet|no\s+evidence(\s+yet)?|"
-    r"not\s+yet|pending|open|[—–-])\s*\)?"
+    r"nenhum(a)?(\s+ainda)?|sem\s+evid[êe]ncia(\s+ainda)?|"
+    r"not\s+yet|pending|pendente|open|[—–-])\s*\)?"
     r"\s*[*_`]*\s*[.!]?\s*$",
     re.IGNORECASE,
 )
 
 _PAREN_ABSENCE_RE = re.compile(
-    r"^\s*[*_`]*\s*\(\s*(none|nothing|no\s+evidence|n/?a|tbd|not\s+yet|nothing\s+yet)\b"
+    r"^\s*[*_`]*\s*\(\s*(none|nothing|no\s+evidence|nenhum(a)?|sem\s+evid[êe]ncia|n/?a|tbd|not\s+yet|nothing\s+yet)\b"
     r"[^)]*\)\s*[*_`]*\s*[.!]?\s*$",
     re.IGNORECASE,
 )
 
 _BOLD_EVIDENCE_LABEL_RE = re.compile(
-    r"^\s*[-*]\s+\*\*Evidence\s+(for|against)\s*:\*\*\s*$", re.IGNORECASE
+    r"^\s*[-*]\s+\*\*(Evidence\s+(for|against)|Evid[êe]ncias?\s+(a\s+favor|contra))\s*:\*\*\s*$",
+    re.IGNORECASE,
 )
 
 _FENCED_CODE_RE = re.compile(r"^```[^\n]*\n.*?^```[ \t]*$", re.DOTALL | re.MULTILINE)
@@ -127,7 +129,7 @@ def _iter_evidence_rows(text: str):
         if hm:
             d = len(hm.group(1))
             header = hm.group(2).lower()
-            if "evidence" in header:
+            if "evidence" in header or "evidência" in header or "evidencias" in header:
                 in_evidence = True
                 depth = d
             elif in_evidence and d <= depth:

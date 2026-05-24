@@ -8,21 +8,21 @@ An objective statement. Example: `/plan reduce onboarding drop-off by 20% in Q3`
 
 ## Loads
 
-- `knowledge/strategy.md` (priorities, non-goals, north-star, tensions)
-- `knowledge/product/metrics.md` (current values, definitions)
-- `knowledge/product/features/` filtered to ones touching the objective
-- `knowledge/users/insights.md`, relevant `personas.md` / `segments.md`
-- All active `hypotheses/` in the area
-- `decisions/` filtered to relevant prior commitments
-- `stakeholders/` filtered to people who'd influence or block the plan
-- `rules/discovery.md`, `rules/prioritization.md`, `rules/data.md`
+- `pm-brain/knowledge/strategy.md` (priorities, non-goals, north-star, tensions)
+- `pm-brain/knowledge/product/metrics.md` (current values, definitions)
+- `pm-brain/knowledge/product/features/` filtered to ones touching the objective
+- `pm-brain/knowledge/users/insights.md`, relevant `personas.md` / `segments.md`
+- All active `pm-brain/hypotheses/` in the area
+- `pm-brain/decisions/` filtered to relevant prior commitments
+- `pm-brain/stakeholders/` filtered to people who'd influence or block the plan
+- `pm-brain/rules/discovery.md`, `pm-brain/rules/prioritization.md`, `pm-brain/rules/data.md`
 
 ## Updates
 
-- A draft `ingestion/adhoc/<date>-plan-<slug>.md` capturing the planning session
-- `hypotheses/<slug>.md` — drafts for any value/usability/feasibility/viability/other risk that needs testing (status: `candidate`)
-- `decisions/<date>-<slug>.md` — drafts for go/no-go points (status: `pending`)
-- `stakeholders/<slug>.md § Open asks` — drafts for the alignment conversations the plan implies
+- A draft `pm-brain/ingestion/adhoc/<date>-plan-<slug>.md` capturing the planning session
+- `pm-brain/hypotheses/<slug>.md` — drafts for any value/usability/feasibility/viability/other risk that needs testing (status: `candidate`)
+- `pm-brain/decisions/<date>-<slug>.md` — drafts for go/no-go points (status: `pending`)
+- `pm-brain/stakeholders/<slug>.md § Open asks` — drafts for the alignment conversations the plan implies
 
 Nothing committed without operator confirmation per autonomy mode.
 
