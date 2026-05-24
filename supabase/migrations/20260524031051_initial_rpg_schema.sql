@@ -336,6 +336,50 @@ create policy "catalogs are readable by everyone" on public.enemy_spells for sel
 create policy "catalogs are readable by everyone" on public.quests for select using (true);
 create policy "catalogs are readable by everyone" on public.quest_steps for select using (true);
 
+create policy "admins can insert rpg classes" on public.rpg_classes for insert with check (public.is_admin());
+create policy "admins can update rpg classes" on public.rpg_classes for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete rpg classes" on public.rpg_classes for delete using (public.is_admin());
+
+create policy "admins can insert rpg races" on public.rpg_races for insert with check (public.is_admin());
+create policy "admins can update rpg races" on public.rpg_races for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete rpg races" on public.rpg_races for delete using (public.is_admin());
+
+create policy "admins can insert elements" on public.elements for insert with check (public.is_admin());
+create policy "admins can update elements" on public.elements for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete elements" on public.elements for delete using (public.is_admin());
+
+create policy "admins can insert status effects" on public.status_effects for insert with check (public.is_admin());
+create policy "admins can update status effects" on public.status_effects for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete status effects" on public.status_effects for delete using (public.is_admin());
+
+create policy "admins can insert spells" on public.spells for insert with check (public.is_admin());
+create policy "admins can update spells" on public.spells for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete spells" on public.spells for delete using (public.is_admin());
+
+create policy "admins can insert class spells" on public.class_spells for insert with check (public.is_admin());
+create policy "admins can update class spells" on public.class_spells for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete class spells" on public.class_spells for delete using (public.is_admin());
+
+create policy "admins can insert items" on public.items for insert with check (public.is_admin());
+create policy "admins can update items" on public.items for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete items" on public.items for delete using (public.is_admin());
+
+create policy "admins can insert enemies" on public.enemies for insert with check (public.is_admin());
+create policy "admins can update enemies" on public.enemies for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete enemies" on public.enemies for delete using (public.is_admin());
+
+create policy "admins can insert enemy spells" on public.enemy_spells for insert with check (public.is_admin());
+create policy "admins can update enemy spells" on public.enemy_spells for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete enemy spells" on public.enemy_spells for delete using (public.is_admin());
+
+create policy "admins can insert quests" on public.quests for insert with check (public.is_admin());
+create policy "admins can update quests" on public.quests for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete quests" on public.quests for delete using (public.is_admin());
+
+create policy "admins can insert quest steps" on public.quest_steps for insert with check (public.is_admin());
+create policy "admins can update quest steps" on public.quest_steps for update using (public.is_admin()) with check (public.is_admin());
+create policy "admins can delete quest steps" on public.quest_steps for delete using (public.is_admin());
+
 create policy "users can read own profile" on public.profiles for select using (auth.uid() = user_id);
 create policy "users can insert own profile" on public.profiles for insert with check (auth.uid() = user_id);
 create policy "users can update own profile" on public.profiles for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
