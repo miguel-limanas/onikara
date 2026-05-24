@@ -85,7 +85,7 @@ Linha de pesquisa visual:
 ## Phases
 
 - [x] **Phase 1: Núcleo Supabase, Papéis e Governança** - Formalizar Onikara no schema, roles administrativas, permissões RLS e contratos de dados para admin/player. (completed 2026-05-24)
-- [ ] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas.
+- [x] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas. (completed 2026-05-24)
 - [ ] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase.
 - [ ] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
 - [ ] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate.
@@ -149,7 +149,7 @@ Linha de pesquisa visual:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-03: Validar responsividade e acessibilidade dos componentes em admin, player e master.
+- [x] 02-03: Validar responsividade e acessibilidade dos componentes em admin, player e master.
 
 ### Phase 3: Área de Administração - Catálogos e Balanceamento
 
@@ -248,7 +248,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
-| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 2/3 | In Progress|  |
+| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete   | 2026-05-24 |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |
