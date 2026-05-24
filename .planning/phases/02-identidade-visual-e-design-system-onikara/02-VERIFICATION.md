@@ -1,6 +1,6 @@
 ---
 phase: 02-identidade-visual-e-design-system-onikara
-status: verificado
+status: passed
 verified_at: 2026-05-24
 language_policy: pt-BR com acentuação e norma culta
 ---
