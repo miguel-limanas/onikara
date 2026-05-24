@@ -100,8 +100,8 @@
 | UIDB-04 | Phase 4, Phase 5 | Pending |
 | UIDB-05 | Phase 2 | Pending |
 | ADMIN-01 | Phase 1 | Complete |
-| ADMIN-02 | Phase 1, Phase 3, Phase 6 | Pending |
-| ADMIN-03 | Phase 1, Phase 3 | Pending |
+| ADMIN-02 | Phase 1, Phase 3, Phase 6 | Complete |
+| ADMIN-03 | Phase 1, Phase 3 | Complete |
 | ADMIN-04 | Phase 6 | Pending |
 
 **Coverage:**

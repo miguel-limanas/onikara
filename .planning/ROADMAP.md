@@ -117,7 +117,7 @@ Linha de pesquisa visual:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02: Adicionar tabelas de configuração (`platform_settings`, `progression_rules`, `combat_rules`, `admin_audit_logs`) e seeds iniciais.
+- [x] 01-02: Adicionar tabelas de configuração (`platform_settings`, `progression_rules`, `combat_rules`, `admin_audit_logs`) e seeds iniciais.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -240,7 +240,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 1/3 | In Progress|  |
+| 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 2/3 | In Progress|  |
 | 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 0/3 | Not started | - |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
