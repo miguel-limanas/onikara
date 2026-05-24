@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-05-24T07:21:33.724Z"
+status: ready_to_plan
+last_updated: 2026-05-24T07:22:43.404Z
 last_activity: 2026-05-24
 progress:
   total_phases: 6
@@ -11,6 +11,7 @@ progress:
   total_plans: 3
   completed_plans: 3
   percent: 17
+stopped_at: Phase 01 complete (3/3) — ready to discuss Phase 2
 ---
 
 # Project State
@@ -20,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Prover um motor de combate por turnos modular e facilmente balanceável, onde as fraquezas elementais e a gestão tática de mana sejam determinantes para a vitória.
-**Current focus:** Phase 1: Núcleo Supabase, Papéis e Governança para Onikara
+**Current focus:** Phase 2 — identidade visual e design system onikara
 
 ## Current Position
 
-Phase: 1 of 6 (Núcleo Supabase, Papéis e Governança)
-Plan: 3 of 3 in current phase
-Status: Ready to execute
+Phase: 2 of 6 (identidade visual e design system onikara)
+Plan: Not started
+Status: Ready to plan
 Last activity: 2026-05-24
 
 Progress: [░░░░░░░░░░] 0%
@@ -35,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 3
 - Average duration: 0 min
 - Total execution time: 0.0 hours
 
@@ -49,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 4. Área do Jogador | 0 | 3 | - |
 | 5. Combate Interativo/Realtime | 0 | 4 | - |
 | 6. Observabilidade/Polimento | 0 | 4 | - |
+| 01 | 3 | - | - |
 
 **Recent Trend:**
 
