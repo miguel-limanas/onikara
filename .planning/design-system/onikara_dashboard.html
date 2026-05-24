@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onikara — Campanhas</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --oni-red:#C8102E;--oni-red-deep:#8B0000;
+    --oni-gold:#C9A84C;--oni-gold-light:#E8C96A;
+    --oni-dark:#0D0D0D;--oni-ash:#141414;--oni-smoke:#1C1C1C;
+    --oni-border:rgba(200,16,46,.12);--oni-border-gold:rgba(201,168,76,.15);
+    --oni-light:#F0ECE4;--oni-mist:rgba(240,236,228,.35);
+  }
+  html,body{width:100%;min-height:100vh;overflow-x:hidden;background:var(--oni-dark);font-family:'Inter',sans-serif}
+
+  #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .ember{position:absolute;border-radius:50%;animation:rise linear infinite;opacity:0}
+  @keyframes rise{0%{transform:translateY(0) translateX(0) scale(1);opacity:0}10%{opacity:.8}90%{opacity:.3}100%{transform:translateY(-110vh) translateX(var(--dx)) scale(.2);opacity:0}}
+
+  .rune-bg{
+    position:fixed;inset:0;z-index:0;
+    background-image:linear-gradient(rgba(200,16,46,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(200,16,46,.025) 1px,transparent 1px);
+    background-size:60px 60px;
+    mask-image:radial-gradient(ellipse 90% 90% at 50% 0%,black 0%,transparent 100%);
+  }
+
+  .app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+  /* ── TOPBAR ── */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 2.5rem;height:64px;
+    border-bottom:1px solid var(--oni-border);
+    background:rgba(13,13,13,.85);backdrop-filter:blur(8px);
+    position:sticky;top:0;z-index:10;
+  }
+  .topbar-left{display:flex;align-items:center;gap:2.5rem}
+  .logo{
+    font-family:'Cinzel',serif;font-size:1.2rem;font-weight:900;
+    letter-spacing:.2em;color:var(--oni-light);text-transform:uppercase;
+    display:flex;align-items:center;gap:.5rem;
+  }
+  .logo-dot{width:6px;height:6px;background:var(--oni-red);border-radius:50%;animation:gpulse 2.5s ease-in-out infinite}
+  @keyframes gpulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.4)}}
+
+  nav.main-nav{display:flex;gap:.25rem}
+  nav.main-nav a{
+    font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;
+    color:rgba(240,236,228,.3);text-decoration:none;
+    padding:.5rem .9rem;border-radius:2px;
+    transition:color .2s,background .2s;
+  }
+  nav.main-nav a:hover{color:rgba(240,236,228,.7);background:rgba(255,255,255,.04)}
+  nav.main-nav a.active{color:var(--oni-gold);background:rgba(201,168,76,.06)}
+
+  .topbar-right{display:flex;align-items:center;gap:1rem}
+
+  /* CREATE CAMPAIGN BTN */
+  .btn-create{
+    display:flex;align-items:center;gap:.5rem;
+    padding:.5rem 1.1rem;
+    background:var(--oni-red);border:none;color:var(--oni-light);
+    font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;
+    letter-spacing:.15em;text-transform:uppercase;cursor:pointer;
+    clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));
+    transition:background .2s,transform .1s;
+  }
+  .btn-create:hover{background:#A50D25}
+  .btn-create:active{transform:scale(.97)}
+  .btn-create svg{flex-shrink:0}
+
+  /* AVATAR */
+  .avatar{
+    width:34px;height:34px;border-radius:2px;
+    background:rgba(200,16,46,.15);border:1px solid rgba(200,16,46,.25);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Cinzel',serif;font-size:.75rem;color:var(--oni-red);
+    cursor:pointer;letter-spacing:.05em;
+  }
+
+  /* ── MAIN ── */
+  main{flex:1;padding:2.5rem;max-width:1100px;width:100%;margin:0 auto}
+
+  /* PAGE HEADER */
+  .page-header{margin-bottom:2.5rem;display:flex;align-items:flex-end;justify-content:space-between}
+  .page-title{
+    font-family:'Cinzel',serif;font-size:1.6rem;font-weight:700;
+    color:var(--oni-light);letter-spacing:.08em;
+  }
+  .page-title span{color:var(--oni-red)}
+  .page-eyebrow{
+    font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(240,236,228,.25);margin-bottom:.4rem;
+  }
+  .page-count{
+    font-size:.75rem;color:rgba(240,236,228,.25);letter-spacing:.08em;
+  }
+  .page-count strong{color:var(--oni-gold);font-weight:500}
+
+  /* ── CAMPAIGN GRID ── */
+  .campaigns{display:flex;flex-direction:column;gap:1rem}
+
+  .campaign-card{
+    display:flex;align-items:stretch;
+    border:1px solid rgba(255,255,255,.06);
+    background:rgba(20,20,20,.8);
+    clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+    transition:border-color .25s,transform .2s;
+    cursor:pointer;position:relative;overflow:hidden;
+  }
+  .campaign-card::before{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(200,16,46,.04) 0%,transparent 40%);
+    opacity:0;transition:opacity .3s;
+  }
+  .campaign-card:hover{border-color:rgba(200,16,46,.3);transform:translateX(3px)}
+  .campaign-card:hover::before{opacity:1}
+
+  /* element accent bar */
+  .card-accent{width:3px;flex-shrink:0;background:var(--accent,var(--oni-red))}
+
+  .card-body{flex:1;padding:1.4rem 1.6rem;display:flex;align-items:center;gap:1.5rem}
+
+  /* element icon */
+  .card-icon{
+    width:48px;height:48px;flex-shrink:0;border-radius:2px;
+    background:rgba(var(--accent-rgb,200,16,46),.1);
+    border:1px solid rgba(var(--accent-rgb,200,16,46),.2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.3rem;
+  }
+
+  .card-info{flex:1;min-width:0}
+  .card-name{
+    font-family:'Cinzel',serif;font-size:1rem;font-weight:700;
+    color:var(--oni-light);letter-spacing:.06em;margin-bottom:.25rem;
+  }
+  .card-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .meta-item{
+    font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+    color:rgba(240,236,228,.25);display:flex;align-items:center;gap:.3rem;
+  }
+  .meta-item svg{opacity:.5}
+  .card-desc{
+    font-size:.8rem;color:rgba(240,236,228,.3);line-height:1.5;
+    margin-top:.5rem;max-width:480px;
+  }
+
+  /* badges */
+  .card-badges{display:flex;flex-direction:column;align-items:flex-end;gap:.75rem;padding-right:.5rem}
+  .badge{
+    font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;
+    padding:.25rem .6rem;border-radius:2px;white-space:nowrap;
+  }
+  .badge-active{background:rgba(200,16,46,.12);color:rgba(200,16,46,.8);border:1px solid rgba(200,16,46,.2)}
+  .badge-waiting{background:rgba(201,168,76,.08);color:rgba(201,168,76,.6);border:1px solid rgba(201,168,76,.15)}
+  .badge-new{background:rgba(255,255,255,.05);color:rgba(240,236,228,.4);border:1px solid rgba(255,255,255,.08)}
+
+  .btn-enter-campaign{
+    align-self:center;flex-shrink:0;
+    display:flex;align-items:center;gap:.4rem;
+    padding:.5rem 1.1rem;
+    background:transparent;border:1px solid rgba(200,16,46,.3);
+    color:rgba(200,16,46,.7);font-family:'Cinzel',serif;
+    font-size:.65rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+    cursor:pointer;
+    clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px));
+    transition:background .2s,color .2s,border-color .2s;
+  }
+  .btn-enter-campaign:hover{background:var(--oni-red);color:var(--oni-light);border-color:var(--oni-red)}
+
+  /* players bar */
+  .players-bar{display:flex;gap:.25rem;align-items:center;margin-top:.5rem}
+  .player-dot{
+    width:20px;height:20px;border-radius:2px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+    display:flex;align-items:center;justify-content:center;
+    font-size:.55rem;color:rgba(240,236,228,.3);letter-spacing:.02em;
+    font-family:'Cinzel',serif;
+  }
+  .player-dot.filled{background:rgba(200,16,46,.1);border-color:rgba(200,16,46,.2);color:rgba(200,16,46,.7)}
+
+  /* ── EMPTY STATE / DIVIDER ── */
+  .section-divider{
+    display:flex;align-items:center;gap:1rem;margin:2rem 0 1.5rem;
+  }
+  .section-divider span{
+    font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(240,236,228,.2);white-space:nowrap;
+  }
+  .section-divider::before,.section-divider::after{
+    content:'';flex:1;height:1px;background:rgba(255,255,255,.05);
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.5rem}
+  .stat-card{
+    padding:1rem 1.2rem;
+    background:rgba(20,20,20,.6);
+    border:1px solid rgba(255,255,255,.05);
+    clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));
+  }
+  .stat-label{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(240,236,228,.2);margin-bottom:.4rem}
+  .stat-value{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--oni-light)}
+  .stat-value.red{color:var(--oni-red)}
+  .stat-value.gold{color:var(--oni-gold)}
+  .stat-sub{font-size:.65rem;color:rgba(240,236,228,.2);margin-top:.2rem;letter-spacing:.05em}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+<div class="rune-bg"></div>
+
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        ONIKARA
+      </div>
+      <nav class="main-nav">
+        <a href="#" class="active">Campanhas</a>
+        <a href="#">Personagem</a>
+        <a href="#">Missões</a>
+        <a href="#">Inventário</a>
+        <a href="#">Lore</a>
+      </nav>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-create" onclick="alert('Criar campanha →')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Criar Campanha
+      </button>
+      <div class="avatar" title="Meu perfil">KI</div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div>
+        <div class="page-eyebrow">Portal do Guerreiro</div>
+        <h1 class="page-title">Suas <span>Campanhas</span></h1>
+      </div>
+      <div class="page-count"><strong>3</strong> campanhas ativas</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Sessões jogadas</div>
+        <div class="stat-value red">14</div>
+        <div class="stat-sub">+2 esta semana</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Inimigos derrotados</div>
+        <div class="stat-value">238</div>
+        <div class="stat-sub">em todos os mundos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mana consumida</div>
+        <div class="stat-value gold">4.820</div>
+        <div class="stat-sub">pts acumulados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Nível médio</div>
+        <div class="stat-value">12</div>
+        <div class="stat-sub">entre personagens</div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS -->
+    <div class="section-divider"><span>Entrar em campanha</span></div>
+
+    <div class="campaigns">
+
+      <!-- Campanha X -->
+      <div class="campaign-card" style="--accent:#C8102E;--accent-rgb:200,16,46">
+        <div class="card-accent"></div>
+        <div class="card-body">
+          <div class="card-icon">🔥</div>
+          <div class="card-info">
+            <div class="card-name">Campanha X — As Chamas de Karakura</div>
+            <div class="card-meta">
+              <span class="meta-item">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Última sessão: há 2 dias
+              </span>
+              <span class="meta-item">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M6 1L7.5 4.5H11L8 6.5l1 3.5L6 8l-3 2 1-3.5L1 4.5h3.5Z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></svg>
+                Elemento: Fogo
+              </span>
+              <span class="meta-item">Sessão 7 de 12</span>
+            </div>
+            <div class="card-desc">As montanhas de Karakura ardem sob o selo dos Oni ancestrais. O grupo busca o fragmento de mana perdido antes que o culto o desperte.</div>
+            <div class="players-bar">
+              <div class="player-dot filled">KI</div>
+              <div class="player-dot filled">RY</div>
+              <div class="player-dot filled">SA</div>
+              <div class="player-dot filled">TO</div>
+              <div class="player-dot">—</div>
+            </div>
+          </div>
+          <div class="card-badges">
+            <span class="badge badge-active">● Ativa</span>
+            <button class="btn-enter-campaign">Entrar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campanha Y -->
+      <div class="campaign-card" style="--accent:#4A7BC8;--accent-rgb:74,123,200">
+        <div class="card-accent" style="background:#4A7BC8"></div>
+        <div class="card-body">
+          <div class="card-icon" style="background:rgba(74,123,200,.1);border-color:rgba(74,123,200,.2)">🌊</div>
+          <div class="card-info">
+            <div class="card-name">Campanha Y — O Abismo de Nox</div>
+            <div class="card-meta">
+              <span class="meta-item">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Última sessão: há 1 semana
+              </span>
+              <span class="meta-item">Elemento: Água</span>
+              <span class="meta-item">Sessão 3 de 12</span>
+            </div>
+            <div class="card-desc">Nas profundezas do mar morto de Nox, forças sombrias reescrevem a memória dos vivos. O grupo aguarda o retorno do mestre para continuar.</div>
+            <div class="players-bar">
+              <div class="player-dot filled">KI</div>
+              <div class="player-dot filled">MO</div>
+              <div class="player-dot filled">RY</div>
+              <div class="player-dot">—</div>
+              <div class="player-dot">—</div>
+            </div>
+          </div>
+          <div class="card-badges">
+            <span class="badge badge-waiting">◌ Aguardando</span>
+            <button class="btn-enter-campaign" style="border-color:rgba(74,123,200,.3);color:rgba(74,123,200,.7)">Entrar →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campanha Z -->
+      <div class="campaign-card" style="--accent:#C9A84C;--accent-rgb:201,168,76">
+        <div class="card-accent" style="background:#C9A84C"></div>
+        <div class="card-body">
+          <div class="card-icon" style="background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.15)">⚡</div>
+          <div class="card-info">
+            <div class="card-name">Campanha Z — O Tribunal dos Relâmpagos</div>
+            <div class="card-meta">
+              <span class="meta-item">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 3v3l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Criada hoje
+              </span>
+              <span class="meta-item">Elemento: Raio</span>
+              <span class="meta-item">Sessão 1 de 12</span>
+            </div>
+            <div class="card-desc">Uma nova campanha se inicia. O tribunal dos espíritos convoca os escolhidos para julgar os crimes da era anterior. Aguardando jogadores.</div>
+            <div class="players-bar">
+              <div class="player-dot filled">KI</div>
+              <div class="player-dot">—</div>
+              <div class="player-dot">—</div>
+              <div class="player-dot">—</div>
+              <div class="player-dot">—</div>
+            </div>
+          </div>
+          <div class="card-badges">
+            <span class="badge badge-new">✦ Nova</span>
+            <button class="btn-enter-campaign" style="border-color:rgba(201,168,76,.3);color:rgba(201,168,76,.6)">Entrar →</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+const c=document.getElementById('particles');
+const cols=['#C8102E','#FF1744','#C9A84C','#8B0000'];
+for(let i=0;i<25;i++){
+  const d=document.createElement('div');d.className='ember';
+  const sz=Math.random()*3+1,dur=Math.random()*14+8,del=Math.random()*14;
+  const dx=(Math.random()-.5)*160;
+  d.style.cssText=`width:${sz}px;height:${sz}px;background:${cols[Math.floor(Math.random()*cols.length)]};left:${Math.random()*100}%;bottom:0;animation-duration:${dur}s;animation-delay:${del}s;--dx:${dx}px`;
+  c.appendChild(d);
+}
+</script>
+</body>
+</html>

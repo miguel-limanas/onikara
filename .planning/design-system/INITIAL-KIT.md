@@ -110,6 +110,10 @@ O CSS é mobile-first:
 - `.planning/design-system/tokens.css`
 - `.planning/design-system/components.css`
 - `.planning/design-system/preview.html`
+- `.planning/design-system/MOCKUPS.md`
+- `.planning/design-system/onikara_landing.html`
+- `.planning/design-system/onikara_admin.html`
+- `.planning/design-system/onikara_dashboard.html`
 - `.planning/design-system/assets/README.md`
 
 ## Critério de Evolução
