@@ -221,4 +221,91 @@ on conflict (id) do update set
   target_count = excluded.target_count,
   metadata = excluded.metadata;
 
+insert into public.progression_rules (name, version, status, xp_curve, level_stat_scaling, unlock_rules, notes)
+values (
+  'mvp-default-progression',
+  1,
+  'active',
+  '{"formula": "base_xp * level_multiplier", "base_xp": 100, "level_multiplier": 1.35, "max_level": 20}'::jsonb,
+  '{"warrior": {"hp": 14, "mana": 3, "strength": 3, "defense": 2, "intelligence": 1, "speed": 1}, "mage": {"hp": 8, "mana": 12, "strength": 1, "defense": 1, "intelligence": 4, "speed": 1}}'::jsonb,
+  '{"spell_unlock_source": "class_spells.unlock_level", "minimum_level": 1}'::jsonb,
+  'Initial active progression rule for local MVP balancing.'
+)
+on conflict (name, version) do update set
+  status = excluded.status,
+  xp_curve = excluded.xp_curve,
+  level_stat_scaling = excluded.level_stat_scaling,
+  unlock_rules = excluded.unlock_rules,
+  notes = excluded.notes;
+
+insert into public.mana_rules (name, version, status, regeneration, fatigue, cost_rules, notes)
+values (
+  'mvp-default-mana',
+  1,
+  'active',
+  '{"combat_per_turn": 5, "rest_per_minute": 25, "out_of_combat_multiplier": 5}'::jsonb,
+  '{"legendary_cost_threshold": 70, "physical_penalty_turns": 1, "speed_delta": -2}'::jsonb,
+  '{"fixed_costs": true, "percent_costs_allowed": true, "minimum_remaining_mana": 0}'::jsonb,
+  'Initial active mana rule emphasizing tactical scarcity.'
+)
+on conflict (name, version) do update set
+  status = excluded.status,
+  regeneration = excluded.regeneration,
+  fatigue = excluded.fatigue,
+  cost_rules = excluded.cost_rules,
+  notes = excluded.notes;
+
+insert into public.combat_rules (name, version, status, initiative, damage_formula, critical_rules, mitigation_rules, notes)
+values (
+  'mvp-default-combat',
+  1,
+  'active',
+  '{"order_by": "speed", "tie_breaker": "player_first", "turn_seeded": true}'::jsonb,
+  '{"physical": "strength + power - defense", "magical": "intelligence + power - resistance", "minimum_damage": 1}'::jsonb,
+  '{"base_chance": 0.05, "speed_bonus_step": 0.01, "damage_multiplier": 1.5}'::jsonb,
+  '{"defense_multiplier": 1.0, "elemental_advantage_multiplier": 1.5, "elemental_disadvantage_multiplier": 0.75}'::jsonb,
+  'Initial active combat rule for turn order and damage calculation.'
+)
+on conflict (name, version) do update set
+  status = excluded.status,
+  initiative = excluded.initiative,
+  damage_formula = excluded.damage_formula,
+  critical_rules = excluded.critical_rules,
+  mitigation_rules = excluded.mitigation_rules,
+  notes = excluded.notes;
+
+insert into public.rarity_rules (name, version, status, rarity_weights, upgrade_rules, display_rules, notes)
+values (
+  'mvp-default-rarity',
+  1,
+  'active',
+  '{"common": 0.7, "uncommon": 0.2, "rare": 0.08, "epic": 0.018, "legendary": 0.002}'::jsonb,
+  '{"upgrade_enabled": false, "future_admin_controlled": true}'::jsonb,
+  '{"common": {"tone": "plain"}, "rare": {"tone": "blue"}, "epic": {"tone": "violet"}, "legendary": {"tone": "gold"}}'::jsonb,
+  'Initial active rarity weights for loot and admin balancing.'
+)
+on conflict (name, version) do update set
+  status = excluded.status,
+  rarity_weights = excluded.rarity_weights,
+  upgrade_rules = excluded.upgrade_rules,
+  display_rules = excluded.display_rules,
+  notes = excluded.notes;
+
+insert into public.loot_rules (name, version, status, drop_rates, pity_rules, reward_modifiers, notes)
+values (
+  'mvp-default-loot',
+  1,
+  'active',
+  '{"training": {"common": 1.0}, "standard": {"common": 0.75, "uncommon": 0.2, "rare": 0.05}, "boss": {"common": 0.45, "uncommon": 0.35, "rare": 0.15, "epic": 0.05}}'::jsonb,
+  '{"enabled": false, "future_rule": "campaign_or_event"}'::jsonb,
+  '{"first_quest_bonus": {"health-salve": 2, "mana-tonic": 1}, "xp_multiplier": 1.0}'::jsonb,
+  'Initial active loot rule aligned with first-sparks reward loop.'
+)
+on conflict (name, version) do update set
+  status = excluded.status,
+  drop_rates = excluded.drop_rates,
+  pity_rules = excluded.pity_rules,
+  reward_modifiers = excluded.reward_modifiers,
+  notes = excluded.notes;
+
 commit;
