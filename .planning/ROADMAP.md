@@ -248,7 +248,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
-| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete   | 2026-05-24 |
+| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |
