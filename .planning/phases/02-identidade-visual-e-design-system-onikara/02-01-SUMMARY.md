@@ -1,42 +1,42 @@
 ---
 phase: 02-identidade-visual-e-design-system-onikara
 plan: 01
-status: completed
+status: concluído
 completed_at: 2026-05-24
 subsystem: design-system-brand
 tags:
-  - brand
-  - logo
+  - marca
+  - logotipo
   - assets
   - design-system
 provides:
-  - Onikara brand guide
-  - minimum asset kit inventory
-  - official logo copy for design-system previews
+  - guia de marca Onikara
+  - inventário mínimo do kit de assets
+  - cópia do logotipo oficial para previews do design system
 requirements_completed:
   - identidade visual
 ---
 
-# 02-01 Summary: Onikara Brand Foundation
+# Resumo 02-01: Fundação de Marca Onikara
 
-## Completed
+## Concluído
 
-- Created `.planning/design-system/BRAND.md` with the official logo source, brand personality, color direction, typography direction, mode expression, logo usage rules, do/do-not guidance and out-of-scope boundaries.
-- Created `.planning/design-system/assets/README.md` documenting the minimum asset kit and required future asset names.
-- Copied `.planning/sketches/onikara-logotipo.png` into `.planning/design-system/assets/onikara-logotipo.png`.
+- Criado `.planning/design-system/BRAND.md` com fonte oficial do logotipo, personalidade da marca, direção de cores, direção tipográfica, expressão por modo, regras de uso do logotipo, orientações de faça/não faça e limites de escopo.
+- Criado `.planning/design-system/assets/README.md` com o inventário do kit mínimo de assets e nomes necessários para derivações futuras.
+- Copiado `.planning/sketches/onikara-logotipo.png` para `.planning/design-system/assets/onikara-logotipo.png`.
 
-## Key Decisions Captured
+## Decisões Capturadas
 
-- The canonical logo source remains `.planning/sketches/onikara-logotipo.png`.
-- The logo is treated as an institutional seal, not decorative wallpaper.
-- The base palette is black, crimson and old gold; graphite is only a supporting technical neutral.
-- Typography direction uses the brand serif for identity/authority and an operational sans for dense UI.
-- Admin, player and master are all first-class visual modes for Phase 2.
+- A fonte canônica do logotipo permanece `.planning/sketches/onikara-logotipo.png`.
+- O logotipo é tratado como selo institucional, não como decoração de fundo.
+- A paleta base é preto, carmesim e dourado velho; grafite atua apenas como neutro técnico de apoio.
+- A direção tipográfica usa serifada de marca para identidade/autoridade e sans operacional para UI densa.
+- Admin, player e master são modos visuais de primeira classe já na Fase 2.
 
-## Verification
+## Verificação
 
-- `rg -n "Official Logo|onikara-logotipo.png|black|crimson|old gold|Admin|Player|Master|institutional seal" .planning/design-system/BRAND.md`
+- `rg -n "Logotipo Oficial|onikara-logotipo.png|preto|carmesim|dourado velho|Admin|Player|Master|selo institucional" .planning/design-system/BRAND.md`
 - `Test-Path .planning/design-system/assets/onikara-logotipo.png`
-- `rg -n "onikara-symbol.png|onikara-logo-mono.png|favicon.png|app-icon.png|source of truth|monochrome|isolated symbol" .planning/design-system/assets/README.md`
+- `rg -n "onikara-symbol.png|onikara-logo-mono.png|favicon.png|app-icon.png|fonte de verdade|monocromático|símbolo isolado" .planning/design-system/assets/README.md`
 
-All checks passed.
+Todos os checks passaram.

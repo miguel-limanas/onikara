@@ -1,44 +1,44 @@
-# Onikara Asset Kit
+# Kit de Assets Onikara
 
-## Source of Truth
+## Fonte de Verdade
 
-The official logo source of truth is:
+A fonte oficial do logotipo é:
 
 `.planning/sketches/onikara-logotipo.png`
 
-This directory contains the design-system copy and the required minimum asset inventory for future UI work.
+Este diretório contém a cópia usada pelo design system e o inventário mínimo de assets necessários para trabalhos futuros de interface.
 
-## Current Assets
+## Assets Atuais
 
-| Asset | Path | Status | Use |
-|-------|------|--------|-----|
-| Principal logo | `.planning/design-system/assets/onikara-logotipo.png` | Available | Brand guide, portal, headers, documents and loading states. |
+| Asset | Caminho | Status | Uso |
+|-------|---------|--------|-----|
+| Logotipo principal | `.planning/design-system/assets/onikara-logotipo.png` | Disponível | Guia de marca, portal, cabeçalhos, documentos e estados de carregamento. |
 
-## Required Minimum Kit
+## Kit Mínimo Obrigatório
 
-The Phase 2 execution should maintain or produce the following official asset names:
+A execução da Fase 2 deve manter ou produzir os seguintes nomes oficiais de assets:
 
-| Asset | Intended filename | Purpose |
-|-------|-------------------|---------|
-| Principal logo | `onikara-logotipo.png` | Full official logo, copied from the canonical source. |
-| Isolated symbol | `onikara-symbol.png` | Mask/sigil-only use for compact UI, app surfaces and badges. |
-| Monochrome logo | `onikara-logo-mono.png` | Single-color contexts where full color is not accessible or appropriate. |
-| Favicon | `favicon.png` | Browser tab and small web identity. |
-| App icon | `app-icon.png` | Larger launcher/app identity. |
+| Asset | Nome de arquivo previsto | Finalidade |
+|-------|--------------------------|------------|
+| Logotipo principal | `onikara-logotipo.png` | Logotipo oficial completo, copiado da fonte canônica. |
+| Símbolo isolado | `onikara-symbol.png` | Uso apenas da máscara/sigilo em superfícies compactas, badges e áreas de app. |
+| Logotipo monocromático | `onikara-logo-mono.png` | Contextos de cor única nos quais a versão colorida não for acessível ou apropriada. |
+| Favicon | `favicon.png` | Identidade pequena para aba do navegador. |
+| Ícone de aplicativo | `app-icon.png` | Identidade maior para launcher/app. |
 
-If a vector source becomes available later, these files can be regenerated from that vector. Until then, do not pretend the PNG has perfect vector fidelity.
+Caso uma fonte vetorial fique disponível no futuro, estes arquivos poderão ser regenerados a partir dela. Até lá, não se deve fingir que o PNG possui fidelidade vetorial perfeita.
 
-## Usage Rules
+## Regras de Uso
 
-- Treat the logo as an institutional seal.
-- Do not use it as repeating wallpaper.
-- Do not crop, stretch, blur or recolor casually.
-- Keep enough clear space that the horns and wordmark remain legible.
-- Prefer the full-color logo when it has adequate contrast.
-- Use monochrome variants only for controlled contrast or small-size needs.
+- Tratar o logotipo como selo institucional.
+- Não usá-lo como papel de parede ou padrão repetido.
+- Não cortar, esticar, desfocar ou recolorir casualmente.
+- Manter espaço livre suficiente para que os chifres e o wordmark continuem legíveis.
+- Preferir o logotipo colorido quando houver contraste adequado.
+- Usar variantes monocromáticas apenas para contraste controlado ou necessidades de tamanho reduzido.
 
-## Mode Notes
+## Notas por Modo
 
-- Admin uses the logo as formal platform identity.
-- Player uses the logo sparingly as hunter-system authority.
-- Master uses the logo to indicate campaign console access, not platform administration.
+- Admin usa o logotipo como identidade formal da plataforma.
+- Player usa o logotipo com parcimônia, como autoridade do sistema de caçadores.
+- Master usa o logotipo para indicar acesso ao console da campanha, não administração da plataforma.

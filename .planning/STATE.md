@@ -60,6 +60,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Decisions
 
+- [Project]: Artefatos, resumos, guias, relatórios, decisões e textos de preview devem ser escritos em português brasileiro, com acentuação correta e registro de norma culta. Identificadores técnicos, nomes de arquivos, classes, tokens CSS, comandos e APIs podem permanecer em inglês quando fizerem parte do contrato técnico.
+
 - [Phase 1]: Escolha da arquitetura modular baseada em JavaScript puro para as regras de negócio e motor do jogo.
 - [Phase 1]: Escalonamento definido como MVP de 4 fases para validar o combate estratégico de mana/elementos de forma enxuta.
 - [Phase 1]: Nome do produto definido como Onikara.

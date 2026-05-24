@@ -1,135 +1,135 @@
-# Onikara Brand Guide
+# Guia de Marca Onikara
 
-## Official Logo
+## Logotipo Oficial
 
-Onikara's official logo source is `.planning/sketches/onikara-logotipo.png`.
+A fonte oficial do logotipo da Onikara é `.planning/sketches/onikara-logotipo.png`.
 
-The mark is the primary institutional seal of the system. It should appear where the product needs authority and trust: entry portal, authenticated headers, internal documents, loading states, restricted screens and formal system messages.
+A marca deve funcionar como o selo institucional principal do sistema. Ela deve aparecer quando o produto precisar comunicar autoridade e confiança: portal de entrada, cabeçalhos autenticados, documentos internos, estados de carregamento, telas restritas e mensagens formais do sistema.
 
-The logo reads as:
+A leitura visual do logotipo é:
 
-- a symmetric Oni mask;
-- near-black institutional weight;
-- deep crimson threat/energy;
-- a spaced premium serif wordmark;
-- a restrained supernatural authority rather than a decorative game emblem.
+- máscara Oni simétrica;
+- peso institucional em preto quase absoluto;
+- carmesim profundo como ameaça e energia;
+- wordmark serifado, espaçado e premium;
+- autoridade sobrenatural contida, não emblema decorativo de jogo.
 
-The logo must not be used as wallpaper, repeated ornament, low-contrast background texture, or casual decoration. It should keep clear space and visual authority.
+O logotipo não deve ser usado como papel de parede, ornamento repetido, textura de fundo de baixo contraste ou decoração casual. Ele precisa manter área de respiro e autoridade visual.
 
-## Brand Personality
+## Personalidade da Marca
 
-Onikara should feel like a real supernatural containment operating system: secret, organized, premium, tactical and controlled.
+Onikara deve parecer um sistema operacional real de contenção sobrenatural: secreto, organizado, premium, tático e controlado.
 
-The brand should communicate:
+A marca deve comunicar:
 
-- containment over spectacle;
-- operational authority over generic fantasy;
-- dark elegance over chaotic horror;
-- disciplined tactical reading over visual noise;
-- quiet danger through crimson accents and institutional black.
+- contenção acima de espetáculo;
+- autoridade operacional acima de fantasia genérica;
+- elegância sombria acima de horror caótico;
+- leitura tática disciplinada acima de ruído visual;
+- perigo silencioso por meio de acentos carmesim e preto institucional.
 
-Avoid a colorful anime RPG tone, exaggerated horror, noisy texture, or generic SaaS styling. The result should feel like an authorized interface for a hidden organization that registers, monitors and responds to Oni threats.
+Evite tom de RPG anime colorido, horror exagerado, textura ruidosa ou estética genérica de SaaS. O resultado deve parecer uma interface autorizada de uma organização oculta que registra, monitora e responde a ameaças Oni.
 
-## Color Direction
+## Direção de Cores
 
-Core palette:
+Paleta central:
 
-- **Black**: primary surface, authority, secrecy and institutional weight.
-- **Crimson**: threat, blood, seals, alerts, destructive actions and Oni energy.
-- **Old gold**: hierarchy, rarity, prestige, thin borders, medals, authority markers and special emphasis.
+- **Preto**: superfície primária, autoridade, segredo e peso institucional.
+- **Carmesim**: ameaça, sangue, selos, alertas, ações destrutivas e energia Oni.
+- **Dourado velho**: hierarquia, raridade, prestígio, bordas finas, medalhas, marcadores de autoridade e ênfase especial.
 
-Graphite is not a dominant brand color. It may appear only as a technical or neutral support tone for borders, dividers, muted panels and dense data surfaces.
+Grafite não é cor dominante da marca. Ele pode aparecer apenas como tom técnico ou neutro de apoio para bordas, divisórias, painéis discretos e superfícies de dados densas.
 
-Crimson and old gold should rarely become body text colors. They are accents for state, hierarchy and meaning. Text must remain readable on dark surfaces.
+Carmesim e dourado velho raramente devem virar cor de texto longo. Eles são acentos de estado, hierarquia e significado. O texto precisa permanecer legível em superfícies escuras.
 
-## Typography Direction
+## Direção Tipográfica
 
-Onikara uses a dual typography model:
+Onikara usa um modelo tipográfico duplo:
 
-- **Brand serif**: inspired by the official wordmark. Use for the product name, special headings, access screens, institutional documents and authority moments.
-- **Operational sans**: use for dense UI, forms, tables, filters, menus, controls, body text and repeated reading.
+- **Serifada de marca**: inspirada no wordmark oficial. Usar no nome do produto, títulos especiais, telas de acesso, documentos institucionais e momentos de autoridade.
+- **Sans operacional**: usar em UI densa, formulários, tabelas, filtros, menus, controles, corpo de texto e leitura repetida.
 
-The brand serif should not dominate dense admin controls. Its role is signature and hierarchy, not every label. If the exact wordmark font is unavailable, choose a close premium serif and document it as brand-adjacent rather than claiming it is the source logo font.
+A serifada de marca não deve dominar controles administrativos densos. Seu papel é assinatura e hierarquia, não todos os rótulos. Caso a fonte exata do wordmark não esteja disponível, escolha uma serifada premium próxima e documente-a como adjacente à marca, sem afirmar que é a fonte original do logotipo.
 
-## Mode Expression
+## Expressão por Modo
 
 ### Admin
 
-Admin is a premium minimal panel: dark, elegant, institutional and efficient. It may use crimson, old gold and containment language, but it must not become a cinematic command center that harms CRUD, table or form work.
+Admin é um painel premium minimalista: escuro, elegante, institucional e eficiente. Pode usar carmesim, dourado velho e linguagem de contenção, mas não deve virar uma central cinematográfica que prejudique CRUD, tabelas ou formulários.
 
-Admin screens prioritize:
+Telas de admin priorizam:
 
-- dense tables;
-- predictable navigation;
-- inline validation;
-- audit and status clarity;
-- efficient configuration workflows.
+- tabelas densas;
+- navegação previsível;
+- validação inline;
+- clareza de auditoria e status;
+- fluxos eficientes de configuração.
 
 ### Player
 
-Player is a registered hunter HUD. It is more expressive than admin, but still feels like a field interface issued by the Onikara system.
+Player é um HUD de caçador registrado. Ele é mais expressivo que o admin, mas ainda deve parecer uma interface de campo emitida pelo sistema Onikara.
 
-Player screens emphasize:
+Telas de player enfatizam:
 
-- character identity;
-- HP and mana;
-- mission status;
-- active effects;
-- inventory and equipment;
-- progress and rewards.
+- identidade do personagem;
+- HP e mana;
+- status de missão;
+- efeitos ativos;
+- inventário e equipamento;
+- progresso e recompensas.
 
 ### Master
 
-Master is a campaign regent interface: operational narrator console plus tactical director. It is powerful inside a campaign, but never suggests platform ownership.
+Master é uma interface de regente de campanha: console operacional de narrador com direção tática. Ele é poderoso dentro da campanha, mas nunca sugere posse da plataforma.
 
-Master screens emphasize:
+Telas de master enfatizam:
 
-- campaign files;
-- scenes;
-- mobs and entities;
-- spaces and scenarios;
-- encounter preparation;
-- read-only player sheet summaries.
+- arquivos da campanha;
+- cenas;
+- mobs e entidades;
+- espaços e cenários;
+- preparação de encontros;
+- resumos de fichas dos jogadores em modo somente leitura.
 
-Master must not expose platform admin controls, global settings, backend configuration, catalog governance, permission management, or admin audit logs.
+Master não deve expor controles de admin da plataforma, configurações globais, configuração de backend, governança de catálogos, gestão de permissões ou registros de auditoria administrativa.
 
-## Logo Usage Rules
+## Regras de Uso do Logotipo
 
-Do:
+Faça:
 
-- Use the logo as an institutional seal.
-- Preserve clear space around the mask and wordmark.
-- Prefer full-color usage on neutral/dark or clean light surfaces.
-- Use monochrome only when color would reduce legibility.
-- Pair the logo with concise operational copy.
+- Use o logotipo como selo institucional.
+- Preserve área de respiro ao redor da máscara e do wordmark.
+- Prefira a versão colorida sobre superfícies neutras, escuras ou claras limpas.
+- Use versões monocromáticas apenas quando a cor reduzir a legibilidade.
+- Combine o logotipo com textos operacionais concisos.
 
-Do not:
+Não faça:
 
-- Stretch, skew or crop the logo.
-- Place it behind dense text or tables.
-- Repeat it as a decorative pattern.
-- Apply heavy glow, glitch, blur or texture effects.
-- Use it as a substitute for mode-specific icons.
+- Esticar, distorcer ou cortar o logotipo.
+- Colocá-lo atrás de textos densos ou tabelas.
+- Repeti-lo como padrão decorativo.
+- Aplicar brilho, glitch, desfoque ou textura pesada.
+- Usá-lo como substituto de ícones específicos de modo.
 
-## Do / Do Not
+## Faça / Não Faça
 
-Do:
+Faça:
 
-- Keep black as the dominant foundation.
-- Use crimson for threat, action and Oni energy.
-- Use old gold for premium hierarchy and rare emphasis.
-- Make admin calm and efficient.
-- Make player immediate and readable.
-- Make master campaign-scoped and authoritative.
+- Mantenha o preto como base dominante.
+- Use carmesim para ameaça, ação e energia Oni.
+- Use dourado velho para hierarquia premium e raridade.
+- Faça o admin parecer calmo e eficiente.
+- Faça o player parecer imediato e legível.
+- Faça o master parecer autoritativo e limitado ao escopo da campanha.
 
-Do not:
+Não faça:
 
-- Let graphite become the main palette.
-- Treat master as admin.
-- Use crimson/gold for long text.
-- Make every screen dramatic.
-- Hide focus, labels or error states for aesthetics.
+- Deixar grafite virar a paleta principal.
+- Tratar master como admin.
+- Usar carmesim ou dourado em textos longos.
+- Transformar toda tela em cena dramática.
+- Ocultar foco, rótulos ou estados de erro por estética.
 
-## Out of Scope
+## Fora de Escopo
 
-The minimum Phase 2 brand kit does not include a full ritual ornament system, texture library, animated logo package, illustration set, campaign-map art pack, or complete master campaign tooling.
+O kit mínimo de marca da Fase 2 não inclui sistema completo de ornamentos rituais, biblioteca de texturas, pacote de logotipo animado, conjunto de ilustrações, pacote de arte para mapas de campanha ou ferramental completo de campanhas do master.
