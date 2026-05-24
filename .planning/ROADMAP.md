@@ -86,7 +86,7 @@ Linha de pesquisa visual:
 
 - [x] **Phase 1: Núcleo Supabase, Papéis e Governança** - Formalizar Onikara no schema, roles administrativas, permissões RLS e contratos de dados para admin/player. (completed 2026-05-24)
 - [x] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas. (completed 2026-05-24)
-- [ ] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase.
+- [x] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase. (completed 2026-05-24)
 - [ ] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
 - [ ] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate.
 - [ ] **Phase 6: Observabilidade, Suporte e Polimento** - Métricas, auditoria, ferramentas de suporte, qualidade visual, acessibilidade e UAT.
@@ -169,19 +169,19 @@ Linha de pesquisa visual:
 **Plans**:
 **Wave 1**
 
-- [ ] 03-01: Implementar shell do admin com navegação lateral, autenticação, proteção por role e dashboard operacional.
+- [x] 03-01: Implementar shell do admin com navegação lateral, autenticação, proteção por role e dashboard operacional.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02: Implementar CRUD de catálogos de gameplay com tabelas filtráveis, formulários e validação.
+- [x] 03-02: Implementar CRUD de catálogos de gameplay com tabelas filtráveis, formulários e validação.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-03: Implementar telas de balanceamento: progressão, mana, combate, loot table, raridade e vínculos de desbloqueio.
+- [x] 03-03: Implementar telas de balanceamento: progressão, mana, combate, loot table, raridade e vínculos de desbloqueio.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 03-04: Implementar visualização de jogadores, sessões de combate e ferramentas controladas de suporte.
+- [x] 03-04: Implementar visualização de jogadores, sessões de combate e ferramentas controladas de suporte.
 
 **Cross-cutting constraints:**
 
@@ -276,7 +276,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 |-------|-----------|----------------|--------|-----------|
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
-| 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
+| 3. Área de Administração | v1.0 Admin/Player Foundation | 4/4 | Complete    | 2026-05-24 |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |
 | 6. Observabilidade, Suporte e Polimento | v1.0 Hardening | 0/4 | Not started | - |
