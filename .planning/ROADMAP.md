@@ -145,7 +145,7 @@ Linha de pesquisa visual:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-02: Criar design tokens e componentes base: button, input, select, modal, tabs, table, badge, toast, stat bar e command/action toolbar.
+- [x] 02-02: Criar design tokens e componentes base: button, input, select, modal, tabs, table, badge, toast, stat bar e command/action toolbar.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -248,7 +248,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
-| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 1/3 | In Progress|  |
+| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 2/3 | In Progress|  |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |

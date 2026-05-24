@@ -1,0 +1,339 @@
+* {
+  box-sizing: border-box;
+}
+
+body.ok-preview {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-ui);
+}
+
+.ok-page {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: var(--space-6) 0 var(--space-10);
+}
+
+.ok-brand-header,
+.ok-section,
+.ok-modal {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.ok-brand-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+}
+
+.ok-logo {
+  width: 104px;
+  height: auto;
+  display: block;
+}
+
+.ok-kicker,
+.ok-meta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.ok-title,
+.ok-mode-title {
+  margin: 0;
+  font-family: var(--font-brand);
+  font-weight: 600;
+}
+
+.ok-title {
+  font-size: 2.1rem;
+}
+
+.ok-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.ok-section {
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+}
+
+.ok-stack {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ok-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.ok-button,
+.ok-input,
+.ok-select,
+.ok-tab,
+.ok-toolbar__action {
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: var(--radius-md);
+  font: inherit;
+  transition: border-color var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+}
+
+.ok-button,
+.ok-toolbar__action {
+  border: 1px solid var(--color-border);
+  background: var(--color-panel-raised);
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 0 var(--space-4);
+}
+
+.ok-button--primary {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: var(--color-text);
+}
+
+.ok-button--gold {
+  background: var(--color-warning);
+  border-color: var(--color-warning);
+  color: var(--color-text-inverse);
+}
+
+.ok-button:disabled,
+.ok-input:disabled,
+.ok-select:disabled,
+.is-disabled {
+  cursor: not-allowed;
+  background: var(--color-disabled-surface);
+  border-color: var(--color-border-muted);
+  color: var(--color-disabled);
+}
+
+.ok-button.is-loading::after {
+  content: "...";
+  margin-left: var(--space-1);
+}
+
+.ok-button.is-success,
+.ok-toast.is-success,
+.ok-badge.is-success {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.ok-button.is-error,
+.ok-input.is-error,
+.ok-select.is-error,
+.ok-toast.is-error,
+.ok-badge.is-error {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.ok-button:focus-visible,
+.ok-input:focus-visible,
+.ok-select:focus-visible,
+.ok-tab:focus-visible,
+.ok-toolbar__action:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
+.ok-field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ok-field label {
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+.ok-input,
+.ok-select {
+  width: 100%;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-panel);
+  color: var(--color-text);
+  padding: 0 var(--space-3);
+}
+
+.ok-modal {
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+}
+
+.ok-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border-muted);
+  padding-bottom: var(--space-2);
+}
+
+.ok-tab {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  padding: 0 var(--space-4);
+}
+
+.ok-tab[aria-selected="true"] {
+  border-color: var(--color-border);
+  color: var(--color-focus);
+  background: var(--color-panel);
+}
+
+.ok-table-wrap {
+  overflow-x: auto;
+}
+
+.ok-table {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  color: var(--color-text);
+}
+
+.ok-table th,
+.ok-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border-muted);
+  text-align: left;
+}
+
+.ok-table th {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.ok-empty {
+  border: 1px dashed var(--color-border-muted);
+  color: var(--color-text-muted);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.ok-badge,
+.ok-toast {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-sm);
+  background: var(--color-panel);
+  color: var(--color-text);
+  padding: 0 var(--space-3);
+}
+
+.ok-badge--rare {
+  color: var(--color-rarity-rare);
+  border-color: var(--color-rarity-rare);
+}
+
+.ok-badge--legendary {
+  color: var(--color-rarity-legendary);
+  border-color: var(--color-rarity-legendary);
+}
+
+.ok-toast {
+  width: 100%;
+  justify-content: space-between;
+}
+
+.ok-stat-bar {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.ok-stat-bar__label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
+.ok-stat-bar__track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-disabled-surface);
+}
+
+.ok-stat-bar__fill {
+  display: block;
+  width: var(--value, 50%);
+  height: 100%;
+  background: var(--color-hp);
+}
+
+.ok-stat-bar--mana .ok-stat-bar__fill {
+  background: var(--color-mana);
+}
+
+.ok-mode-shell {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  padding: var(--space-4);
+}
+
+[data-mode="admin"] {
+  --mode-accent: var(--mode-admin);
+  background: var(--mode-admin-surface);
+}
+
+[data-mode="player"] {
+  --mode-accent: var(--mode-player);
+  background: var(--mode-player-surface);
+}
+
+[data-mode="master"] {
+  --mode-accent: var(--mode-master);
+  background: var(--mode-master-surface);
+}
+
+[data-mode] .ok-mode-title,
+[data-mode] .ok-accent {
+  color: var(--mode-accent);
+}
+
+@media (max-width: 780px) {
+  .ok-page {
+    width: min(100% - 20px, 1180px);
+    padding-top: var(--space-3);
+  }
+
+  .ok-brand-header,
+  .ok-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ok-logo {
+    width: 88px;
+  }
+
+  .ok-title {
+    font-size: 1.65rem;
+  }
+}

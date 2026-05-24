@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preview do Design System Onikara</title>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+</head>
+<body class="ok-preview">
+  <main class="ok-page">
+    <header class="ok-brand-header">
+      <img class="ok-logo" src="assets/onikara-logotipo.png" alt="Logotipo oficial da Onikara">
+      <div>
+        <p class="ok-kicker">Selo institucional</p>
+        <h1 class="ok-title">Design System Onikara</h1>
+        <p class="ok-meta">Tokens e componentes base compartilhados pelos shells de admin, player e master.</p>
+      </div>
+      <div class="ok-toolbar" aria-label="Ações do portal">
+        <button class="ok-toolbar__action" aria-label="Abrir shell de admin">Admin</button>
+        <button class="ok-toolbar__action" aria-label="Abrir shell de player">Player</button>
+        <button class="ok-toolbar__action" aria-label="Abrir shell de master">Master</button>
+      </div>
+    </header>
+
+    <section class="ok-section">
+      <p class="ok-kicker">Componentes base</p>
+      <h2 class="ok-mode-title">Controles e estados</h2>
+      <div class="ok-grid">
+        <div class="ok-stack">
+          <button class="ok-button ok-button--primary">Autorizar selo</button>
+          <button class="ok-button ok-button--gold is-loading">Sincronizar registro</button>
+          <button class="ok-button is-success">Salvo</button>
+          <button class="ok-button is-error">Rejeitado</button>
+          <button class="ok-button" disabled>Desabilitado</button>
+        </div>
+        <div class="ok-stack">
+          <div class="ok-field">
+            <label for="hunter-name">Nome do caçador</label>
+            <input class="ok-input" id="hunter-name" value="Akemi Sato">
+          </div>
+          <div class="ok-field">
+            <label for="mission-tier">Nível da missão</label>
+            <select class="ok-select" id="mission-tier">
+              <option>Ameaça registrada</option>
+              <option>Entidade rara</option>
+            </select>
+          </div>
+          <div class="ok-field">
+            <label for="seal-code">Código do selo</label>
+            <input class="ok-input is-error" id="seal-code" value="Expirado">
+          </div>
+        </div>
+        <div class="ok-stack">
+          <div class="ok-tabs" role="tablist" aria-label="Abas do registro">
+            <button class="ok-tab" role="tab" aria-selected="true">Ativos</button>
+            <button class="ok-tab" role="tab" aria-selected="false">Arquivo</button>
+            <button class="ok-tab" role="tab" aria-selected="false">Auditoria</button>
+          </div>
+          <span class="ok-badge ok-badge--rare">Raro</span>
+          <span class="ok-badge ok-badge--legendary">Lendário</span>
+          <div class="ok-toast is-success"><span>Registro atualizado</span><strong>OK</strong></div>
+          <div class="ok-empty">Estado vazio: nenhum incidente ativo.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ok-section">
+      <p class="ok-kicker">Superfície de dados</p>
+      <h2 class="ok-mode-title">Tabela, modal e recursos</h2>
+      <div class="ok-grid">
+        <div class="ok-modal">
+          <p class="ok-kicker">Modal</p>
+          <h3 class="ok-mode-title">Aviso de contenção</h3>
+          <p class="ok-meta">Usar para confirmação focada, perigo e mensagens formais do sistema.</p>
+          <button class="ok-button ok-button--primary">Confirmar</button>
+        </div>
+        <div class="ok-stack">
+          <div class="ok-stat-bar">
+            <div class="ok-stat-bar__label"><span>HP</span><span>72 / 100</span></div>
+            <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 72%"></span></div>
+          </div>
+          <div class="ok-stat-bar ok-stat-bar--mana">
+            <div class="ok-stat-bar__label"><span>Mana</span><span>44 / 60</span></div>
+            <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 73%"></span></div>
+          </div>
+        </div>
+        <div class="ok-table-wrap">
+          <table class="ok-table">
+            <thead>
+              <tr><th>Asset</th><th>Status</th><th>Modo</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Logotipo</td><td>Disponível</td><td>Todos</td></tr>
+              <tr><td>Tokens</td><td>Rascunhados</td><td>Todos</td></tr>
+              <tr><td>Shell master</td><td>Preview</td><td>Campanha</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="ok-grid" aria-label="Previews dos modos">
+      <article class="ok-mode-shell" data-mode="admin">
+        <p class="ok-kicker">/admin</p>
+        <h2 class="ok-mode-title">Admin da plataforma</h2>
+        <p class="ok-meta">Operação premium minimalista para tabelas, formulários, auditoria clara e configuração.</p>
+        <div class="ok-table-wrap">
+          <table class="ok-table">
+            <thead><tr><th>Tabela</th><th>Linhas</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Perfis</td><td>128</td><td>Governado</td></tr>
+              <tr><td>Papéis</td><td>4</td><td>Restrito</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="ok-mode-shell" data-mode="player">
+        <p class="ok-kicker">/play</p>
+        <h2 class="ok-mode-title">HUD do caçador registrado</h2>
+        <p class="ok-meta">Personagem, missão, HP, mana, status e inventário para a operação em campo.</p>
+        <div class="ok-stat-bar">
+          <div class="ok-stat-bar__label"><span>HP</span><span>86 / 100</span></div>
+          <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 86%"></span></div>
+        </div>
+        <div class="ok-stat-bar ok-stat-bar--mana">
+          <div class="ok-stat-bar__label"><span>Mana</span><span>31 / 50</span></div>
+          <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 62%"></span></div>
+        </div>
+        <p><span class="ok-badge ok-badge--rare">Status: marcado</span> <span class="ok-badge">Inventário: 6</span></p>
+      </article>
+
+      <article class="ok-mode-shell" data-mode="master">
+        <p class="ok-kicker">/master</p>
+        <h2 class="ok-mode-title">Console do regente de campanha</h2>
+        <p class="ok-meta">Controle narrativo e tático no escopo da campanha, sem administração da plataforma.</p>
+        <div class="ok-stack">
+          <p><strong>Campanha:</strong> Limiar Carmesim</p>
+          <p><strong>Cena:</strong> Violação do santuário sob chuva noturna</p>
+          <p><strong>Mobs:</strong> 3 Oni menores de cinzas, 1 guardião vinculado</p>
+          <p><strong>Mapa / Ambiente:</strong> torii quebrado, pedra alagada, zonas de sombra</p>
+          <div class="ok-table-wrap">
+            <table class="ok-table">
+              <caption class="ok-meta">Fichas dos jogadores - Somente leitura</caption>
+              <thead><tr><th>Fichas dos jogadores</th><th>HP</th><th>Mana</th><th>Acesso</th></tr></thead>
+              <tbody>
+                <tr><td>Akemi</td><td>86</td><td>31</td><td>Somente leitura</td></tr>
+                <tr><td>Ren</td><td>64</td><td>48</td><td>Somente leitura</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ok-toolbar" aria-label="Ações da campanha">
+            <button class="ok-button ok-button--primary">Avançar Cena</button>
+            <button class="ok-button">Preparar Mobs</button>
+            <button class="ok-button ok-button--gold">Marcar Consequência</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
