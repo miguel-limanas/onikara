@@ -28,6 +28,8 @@ requirements_completed:
 - Criado `.planning/design-system/components.css` com estilos para botão, input, select, modal, tabs, tabela, badge, toast, barra de status e toolbar.
 - Criado `.planning/design-system/preview.html` como página estática em PT-BR, vinculando `tokens.css` e `components.css`.
 - Incluídos previews de admin, player e master, com o master descrito como regente de campanha e com fichas de jogadores em modo somente leitura.
+- Revisado o preview para representar o fluxo correto: autenticação por ID/login, seleção de contexto registrado e abertura isolada do shell correspondente.
+- Adicionados exemplos de aplicação do logotipo e uma composição tipográfica com Cinzel Decorative/Cinzel, caixa alta, espaçamento amplo e losangos nos `A`.
 
 ## Decisões Capturadas
 
@@ -35,6 +37,7 @@ requirements_completed:
 - Componentes usam variáveis CSS semânticas sempre que possível.
 - O modo master mostra campanha, cena, mobs, mapa/ambiente e fichas de jogadores em leitura, sem controles de administração da plataforma.
 - Textos humanos do preview seguem português brasileiro com acentuação e norma culta, preservando classes, tokens e nomes técnicos em inglês.
+- `/admin`, `/player` e `/master` não devem aparecer como fichas simultâneas; eles são destinos isolados após seleção de contexto.
 
 ## Verificação
 

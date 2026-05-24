@@ -38,9 +38,11 @@ Os critérios observados incluem:
 | toast | Usa texto visível e estado de sucesso/erro por classe. | Passou |
 | stat bar | Exibe valores de HP e mana em texto, não apenas por cor. | Passou |
 | toolbar | Possui `aria-label` no grupo e nomes acessíveis nos botões. | Passou |
-| admin preview | Mantém leitura administrativa densa, com tabela e status legíveis. | Passou |
-| player preview | Exibe personagem, HP, mana, status e inventário com texto visível. | Passou |
-| master preview | Exibe campanha, cena, mobs, ambiente e fichas de jogadores em modo somente leitura. | Passou |
+| portal de login | Possui campos com `label` e ação primária de autenticação. | Passou |
+| seleção de contexto | Lista opções disponíveis para um login com botões nomeados por destino. | Passou |
+| admin preview | Aparece como contexto isolado para logins com permissão administrativa. | Passou |
+| player preview | Exibe Akio na Campanha X em shell isolado, com HP, mana, missão e inventário. | Passou |
+| master preview | Exibe Campanha Y em shell isolado, com cena, mobs, ambiente e fichas em modo somente leitura. | Passou |
 
 ## Navegação por Teclado
 
@@ -90,7 +92,7 @@ Os modos admin, player e master usam a mesma grade responsiva e devem empilhar e
 ## Limitações Conhecidas
 
 - Esta revisão é estrutural e manual, sem execução de ferramenta automatizada como axe ou Lighthouse.
-- O preview é estático; tabs e modal não possuem comportamento JavaScript real nesta fase.
+- O preview é estático; tabs, modal, autenticação e troca real de shell não possuem comportamento JavaScript nesta fase.
 - A validação fina de contraste numérico deve ser refeita quando as telas reais forem implementadas sobre estes tokens.
 - A fonte exata do wordmark oficial não foi identificada; a serifada declarada é uma aproximação segura por fallback do sistema.
 

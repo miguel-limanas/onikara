@@ -40,6 +40,105 @@ body.ok-preview {
   display: block;
 }
 
+.ok-logo-sample {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  min-height: 180px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.ok-logo-sample--light {
+  background: var(--oni-ivory);
+  color: var(--color-text-inverse);
+}
+
+.ok-logo-sample--dark {
+  background: var(--oni-black);
+}
+
+.ok-logo-sample--crimson {
+  background: var(--oni-crimson);
+}
+
+.ok-logo-sample--gold {
+  background: var(--oni-gold);
+  color: var(--color-text-inverse);
+}
+
+.ok-logo-proof {
+  width: min(220px, 100%);
+  height: auto;
+  border: 1px dashed rgba(139, 17, 24, 0.42);
+}
+
+.ok-wordmark {
+  margin: 0;
+  color: var(--oni-black);
+  font-family: var(--font-brand);
+  font-size: clamp(2rem, 6vw, 4.4rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.ok-wordmark--dark {
+  color: var(--oni-ivory);
+}
+
+.ok-letter-a {
+  position: relative;
+  display: inline-block;
+}
+
+.ok-letter-a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 0.16em;
+  height: 0.16em;
+  border: 1px solid currentColor;
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: currentColor;
+}
+
+.ok-access-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.ok-access-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: center;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  padding: var(--space-4);
+}
+
+.ok-route-shell {
+  display: grid;
+  gap: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-panel);
+  padding: var(--space-5);
+}
+
+.ok-route-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-muted);
+}
+
 .ok-kicker,
 .ok-meta {
   margin: 0;
@@ -62,6 +161,13 @@ body.ok-preview {
 .ok-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.ok-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4);
   margin-top: var(--space-5);
 }
@@ -325,7 +431,9 @@ body.ok-preview {
   }
 
   .ok-brand-header,
-  .ok-grid {
+  .ok-grid,
+  .ok-grid-2,
+  .ok-access-card {
     grid-template-columns: 1fr;
   }
 

@@ -46,10 +46,26 @@ Carmesim e dourado velho raramente devem virar cor de texto longo. Eles são ace
 
 Onikara usa um modelo tipográfico duplo:
 
-- **Serifada de marca**: inspirada no wordmark oficial. Usar no nome do produto, títulos especiais, telas de acesso, documentos institucionais e momentos de autoridade.
+- **Serifada de marca**: usar `Cinzel Decorative` ou `Cinzel SemiBold` como aproximação operacional do wordmark oficial. Usar no nome do produto, títulos especiais, telas de acesso, documentos institucionais e momentos de autoridade.
 - **Sans operacional**: usar em UI densa, formulários, tabelas, filtros, menus, controles, corpo de texto e leitura repetida.
 
-A serifada de marca não deve dominar controles administrativos densos. Seu papel é assinatura e hierarquia, não todos os rótulos. Caso a fonte exata do wordmark não esteja disponível, escolha uma serifada premium próxima e documente-a como adjacente à marca, sem afirmar que é a fonte original do logotipo.
+A palavra ONIKARA deve aparecer em caixa alta, com espaçamento amplo entre letras e cor preto carvão quando usada sobre fundo claro. O `A` do logotipo oficial parece customizado com losango central; portanto, a fonte pura não deve ser tratada como reprodução fiel do lettering. Quando necessário, a UI pode simular o losango central dos `A` como detalhe manual.
+
+A serifada de marca não deve dominar controles administrativos densos. Seu papel é assinatura e hierarquia, não todos os rótulos. Caso `Trajan Pro` esteja disponível no ambiente de design, ela pode ser avaliada como alternativa de composição, mas o design system usa `Cinzel` por ser acessível via Google Fonts.
+
+Referência tipográfica: https://fonts.google.com/specimen/Cinzel?preview.script=Latn
+
+## Fluxo de Acesso
+
+Os modos `/admin`, `/player` e `/master` não devem aparecer como fichas simultâneas de um mesmo painel operacional. O fluxo correto é:
+
+1. O usuário abre o portal Onikara.
+2. O usuário autentica seu ID/login.
+3. O sistema lista os contextos disponíveis para aquele login.
+4. O usuário escolhe qual contexto deseja acessar.
+5. O sistema abre o shell isolado correspondente.
+
+Exemplo: Miguel pode ter o personagem Akio na Campanha X e também mestrar a Campanha Y. Ao entrar, Miguel deve escolher se quer acessar Akio na Campanha X como player ou a Campanha Y como master. Cada escolha leva para uma navegação isolada, com permissões e interface próprias.
 
 ## Expressão por Modo
 
@@ -102,6 +118,7 @@ Faça:
 - Prefira a versão colorida sobre superfícies neutras, escuras ou claras limpas.
 - Use versões monocromáticas apenas quando a cor reduzir a legibilidade.
 - Combine o logotipo com textos operacionais concisos.
+- Produza uma versão com fundo transparente para aplicação em fundos escuros, claros, carmesim e dourado velho.
 
 Não faça:
 
@@ -110,6 +127,21 @@ Não faça:
 - Repeti-lo como padrão decorativo.
 - Aplicar brilho, glitch, desfoque ou textura pesada.
 - Usá-lo como substituto de ícones específicos de modo.
+- Usar o PNG atual com fundo branco diretamente sobre superfícies escuras como se fosse o asset final.
+
+## Aplicação do Logotipo em Fundos
+
+O arquivo atual `.planning/design-system/assets/onikara-logotipo.png` contém fundo branco e deve ser tratado como referência oficial provisória, não como asset final de aplicação.
+
+O design system precisa prever, no mínimo:
+
+- `onikara-logotipo.png`: referência oficial atual.
+- `onikara-logotipo-transparente.png`: versão principal com fundo transparente.
+- `onikara-logotipo-claro.png`: versão para superfícies escuras.
+- `onikara-logotipo-escuro.png`: versão preto carvão para fundos claros.
+- `onikara-symbol-transparente.png`: símbolo isolado com fundo transparente.
+
+Enquanto esses arquivos não forem redesenhados a partir de fonte vetorial ou recorte manual confiável, qualquer preview deve sinalizar que o fundo branco é uma limitação do asset atual.
 
 ## Faça / Não Faça
 
