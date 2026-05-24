@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: "Phase 01 shipped — PR #1"
-last_updated: "2026-05-24T14:58:33.183Z"
+status: "Phase 02 shipped — PR #2"
+last_updated: "2026-05-24T17:03:14.904Z"
 last_activity: 2026-05-24
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 17
+  completed_phases: 2
+  total_plans: 6
+  completed_plans: 6
+  percent: 33
 ---
 
 # Project State
@@ -20,13 +20,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Prover um motor de combate por turnos modular e facilmente balanceável, onde as fraquezas elementais e a gestão tática de mana sejam determinantes para a vitória.
-**Current focus:** Phase 2 — identidade visual e design system onikara
+**Current focus:** Phase 3 — área de administração   catálogos e balanceamento
 
 ## Current Position
 
-Phase: 2 of 6 (identidade visual e design system onikara)
+Phase: 3 of 6 (área de administração   catálogos e balanceamento)
 Plan: Not started
-Status: Phase 01 shipped — PR #1
+Status: Phase 02 shipped — PR #2
 Last activity: 2026-05-24
 
 Progress: [░░░░░░░░░░] 0%
@@ -35,7 +35,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 6
 - Average duration: 0 min
 - Total execution time: 0.0 hours
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 5. Combate Interativo/Realtime | 0 | 4 | - |
 | 6. Observabilidade/Polimento | 0 | 4 | - |
 | 01 | 3 | - | - |
+| 02 | 3 | - | - |
 
 **Recent Trend:**
 
@@ -59,6 +60,8 @@ Progress: [░░░░░░░░░░] 0%
 ## Accumulated Context
 
 ### Decisions
+
+- [Project]: Artefatos, resumos, guias, relatórios, decisões e textos de preview devem ser escritos em português brasileiro, com acentuação correta e registro de norma culta. Identificadores técnicos, nomes de arquivos, classes, tokens CSS, comandos e APIs podem permanecer em inglês quando fizerem parte do contrato técnico.
 
 - [Phase 1]: Escolha da arquitetura modular baseada em JavaScript puro para as regras de negócio e motor do jogo.
 - [Phase 1]: Escalonamento definido como MVP de 4 fases para validar o combate estratégico de mana/elementos de forma enxuta.
@@ -83,6 +86,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-05-24T07:21:33.714Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-05-24T16:08:24.158Z
+Stopped at: Completed Phase 02 verification
 Resume file: None

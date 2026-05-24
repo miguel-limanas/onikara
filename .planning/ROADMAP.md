@@ -85,7 +85,7 @@ Linha de pesquisa visual:
 ## Phases
 
 - [x] **Phase 1: Núcleo Supabase, Papéis e Governança** - Formalizar Onikara no schema, roles administrativas, permissões RLS e contratos de dados para admin/player. (completed 2026-05-24)
-- [ ] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas.
+- [x] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas. (completed 2026-05-24)
 - [ ] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase.
 - [ ] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
 - [ ] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate.
@@ -134,15 +134,22 @@ Linha de pesquisa visual:
 
 1. O nome Onikara aparece como marca principal do produto.
 2. Tokens de cor, tipografia, espaçamento, radius, sombras, estados, raridades e elementos estão documentados.
-3. Há distinção clara entre linguagem visual do admin e do player sem quebrar consistência de marca.
+3. Há distinção clara entre linguagem visual do admin, do player e do master sem quebrar consistência de marca.
 4. Componentes base têm estados de loading, empty, error, disabled, focus e success.
 5. Contraste, touch targets e navegação por teclado são contemplados desde o início.
 
 **Plans**:
+**Wave 1**
 
-- [ ] 02-01: Pesquisar direção visual Onikara e documentar moodboard textual, paleta, tipografia e princípios de marca.
-- [ ] 02-02: Criar design tokens e componentes base: button, input, select, modal, tabs, table, badge, toast, stat bar e command/action toolbar.
-- [ ] 02-03: Validar responsividade e acessibilidade dos componentes em admin e player.
+- [x] 02-01: Pesquisar direção visual Onikara e documentar moodboard textual, paleta, tipografia e princípios de marca.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 02-02: Criar design tokens e componentes base: button, input, select, modal, tabs, table, badge, toast, stat bar e command/action toolbar.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 02-03: Validar responsividade e acessibilidade dos componentes em admin, player e master.
 
 ### Phase 3: Área de Administração - Catálogos e Balanceamento
 
@@ -241,7 +248,7 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
-| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 0/3 | Not started | - |
+| 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 0/4 | Not started | - |
 | 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |

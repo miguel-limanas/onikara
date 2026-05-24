@@ -41,6 +41,8 @@ Prover um motor de combate por turnos modular e facilmente balanceável, onde as
 
 ## Context
 
+- **Idioma dos artefatos**: documentos, resumos, guias, relatórios, decisões e textos de preview devem ser escritos em português brasileiro, com acentuação correta e registro de norma culta. Nomes técnicos de arquivos, classes, tokens CSS, comandos e APIs podem permanecer em inglês quando fizerem parte do contrato técnico.
+
 - **Arquitetura Recomendada**: Divisão clara entre Backend (regras de jogo, combate, banco de dados) e Frontend (interface, menus e feedback visual).
 - **Abordagem de Desenvolvimento**: Modular, permitindo a inserção simplificada de novas classes, magias e elementos sem a necessidade de reescrever as classes base de regras de jogo.
 - **Supabase como plataforma base**: Auth, Postgres, RLS, PostgREST, Realtime, Storage, migrations e seed devem ser usados como recursos primários antes da criação de serviços próprios.
@@ -61,6 +63,8 @@ Prover um motor de combate por turnos modular e facilmente balanceável, onde as
 | Supabase Self-Hosted em Docker | Utilização de serviços conteinerizados locais (PostgreSQL, Auth, PostgREST) para stack mínima de banco de dados, facilitando setup rápido e portabilidade total. | ✓ Good |
 | Nome do produto: Onikara | Nome memorável com associação direta à linhagem Oni e potencial visual forte para RPG anime/dark fantasy. | ✓ Good |
 | Duas áreas de produto | Separar backoffice operacional da experiência jogável reduz acoplamento de UX, permissões e navegação. | ✓ Good |
+
+| Artefatos em PT-BR | Manter consistência editorial e clareza para o time, usando português brasileiro com acentuação e norma culta nos textos humanos do projeto. | ✓ Good |
 
 ## Evolution
 

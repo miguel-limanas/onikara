@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preview do Design System Onikara</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cinzel+Decorative:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="components.css">
+</head>
+<body class="ok-preview">
+  <a class="ok-skip-link" href="#conteudo">Pular para o conteúdo</a>
+  <main class="ok-page" id="conteudo">
+    <header class="ok-hero">
+      <div class="ok-brand-lockup">
+        <p class="ok-kicker">Selo institucional</p>
+        <p class="ok-wordmark">ONIK<span class="ok-letter-a">A</span>R<span class="ok-letter-a">A</span></p>
+        <h1 class="ok-title">Portal, contexto e shells isolados</h1>
+        <p class="ok-copy">O acesso começa pelo ID/login, passa pela escolha de contexto registrado e só então abre a navegação isolada de admin, player ou master.</p>
+      </div>
+      <div class="ok-logo-frame ok-logo-frame--warning">
+        <img class="ok-logo" src="assets/onikara-logotipo.png" alt="Logotipo oficial atual da Onikara com fundo branco provisório">
+      </div>
+    </header>
+
+    <section class="ok-band" aria-labelledby="fluxo-acesso">
+      <div class="ok-band-header">
+        <p class="ok-kicker">Fluxo de acesso</p>
+        <h2 class="ok-section-title" id="fluxo-acesso">Login primeiro, contexto depois</h2>
+        <p class="ok-copy">Miguel pode jogar com Akio na Campanha X e mestrar a Campanha Y. Cada escolha leva para um shell próprio, com permissões e navegação próprias.</p>
+      </div>
+      <div class="ok-grid-2">
+        <form class="ok-stack" aria-label="Autenticação Onikara">
+          <fieldset class="ok-fieldset">
+            <div class="ok-field">
+              <label for="login-id">ID Onikara</label>
+              <input class="ok-input" id="login-id" type="email" inputmode="email" autocomplete="username" value="miguel@onikara.local">
+              <p class="ok-helper">Use o ID registrado no sistema.</p>
+            </div>
+          </fieldset>
+          <fieldset class="ok-fieldset">
+            <div class="ok-field">
+              <label for="login-password">Senha</label>
+              <input class="ok-input" id="login-password" type="password" autocomplete="current-password" value="containment">
+              <p class="ok-helper">A autenticação libera apenas os contextos permitidos para o usuário.</p>
+            </div>
+          </fieldset>
+          <button class="ok-button ok-button--primary" type="button">Autenticar ID</button>
+        </form>
+
+        <div class="ok-access-list" aria-label="Contextos disponíveis para Miguel">
+          <article class="ok-access-option" data-mode="player">
+            <div>
+              <p class="ok-kicker">Player</p>
+              <h3 class="ok-route-title">Akio na Campanha X</h3>
+              <p class="ok-copy">Entrar como personagem participante, com HUD, ficha própria e missão ativa.</p>
+            </div>
+            <button class="ok-button" type="button">Acessar /player</button>
+          </article>
+          <article class="ok-access-option" data-mode="master">
+            <div>
+              <p class="ok-kicker">Master</p>
+              <h3 class="ok-route-title">Campanha Y</h3>
+              <p class="ok-copy">Entrar como regente da campanha, com cenas, mobs, ambiente e fichas em somente leitura.</p>
+            </div>
+            <button class="ok-button" type="button">Acessar /master</button>
+          </article>
+          <article class="ok-access-option" data-mode="admin">
+            <div>
+              <p class="ok-kicker">Admin</p>
+              <h3 class="ok-route-title">Plataforma Onikara</h3>
+              <p class="ok-copy">Aparece apenas para logins com permissão administrativa da plataforma.</p>
+            </div>
+            <button class="ok-button ok-button--gold" type="button">Acessar /admin</button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="ok-band" aria-labelledby="logo-aplicacao">
+      <div class="ok-band-header">
+        <p class="ok-kicker">Aplicação do logotipo</p>
+        <h2 class="ok-section-title" id="logo-aplicacao">O PNG atual tem fundo branco</h2>
+        <p class="ok-copy">O kit final precisa de versões transparentes para fundos claros, escuros, carmesim e dourado velho.</p>
+      </div>
+      <div class="ok-grid">
+        <article class="ok-logo-sample ok-logo-sample--light">
+          <p class="ok-kicker">Fundo claro</p>
+          <img class="ok-logo-proof" src="assets/onikara-logotipo.png" alt="Logotipo atual sobre fundo claro">
+          <p class="ok-helper">Uso aceitável como referência provisória.</p>
+        </article>
+        <article class="ok-logo-sample ok-logo-sample--dark">
+          <p class="ok-kicker">Fundo escuro</p>
+          <img class="ok-logo-proof" src="assets/onikara-logotipo.png" alt="Logotipo atual com fundo branco visível sobre fundo escuro">
+          <p class="ok-helper">Não usar assim em produto.</p>
+        </article>
+        <article class="ok-logo-sample ok-logo-sample--crimson">
+          <p class="ok-kicker">Redraw tipográfico</p>
+          <p class="ok-wordmark">ONIK<span class="ok-letter-a">A</span>R<span class="ok-letter-a">A</span></p>
+          <p class="ok-helper">Cinzel Decorative, caixa alta, espaçamento amplo e losangos nos A.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="ok-band" aria-labelledby="shell-player">
+      <div class="ok-band-header">
+        <p class="ok-kicker">Shell isolado</p>
+        <h2 class="ok-section-title" id="shell-player">Akio na Campanha X como player</h2>
+      </div>
+      <article class="ok-route-shell" data-mode="player">
+        <nav class="ok-route-nav" aria-label="Navegação do player">
+          <button class="ok-tab" aria-selected="true" type="button">Ficha</button>
+          <button class="ok-tab" aria-selected="false" type="button">Missão</button>
+          <button class="ok-tab" aria-selected="false" type="button">Inventário</button>
+          <button class="ok-tab" aria-selected="false" type="button">Combate</button>
+        </nav>
+        <div class="ok-grid-2">
+          <div class="ok-stack">
+            <p class="ok-kicker">/player</p>
+            <h3 class="ok-route-title">Akio — Campanha X</h3>
+            <p class="ok-copy">Este shell não mostra controles de master nem de admin. Miguel está operando como player.</p>
+            <div class="ok-stat-bar">
+              <div class="ok-stat-bar__label"><span>HP</span><span>86 / 100</span></div>
+              <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 86%"></span></div>
+            </div>
+            <div class="ok-stat-bar ok-stat-bar--mana">
+              <div class="ok-stat-bar__label"><span>Mana</span><span>31 / 50</span></div>
+              <div class="ok-stat-bar__track"><span class="ok-stat-bar__fill" style="--value: 62%"></span></div>
+            </div>
+          </div>
+          <div class="ok-table-wrap">
+            <table class="ok-table">
+              <thead><tr><th>Missão</th><th>Status</th><th>Risco</th></tr></thead>
+              <tbody>
+                <tr><td>Rastro no Santuário</td><td>Ativa</td><td>Raro</td></tr>
+                <tr><td>Inventário</td><td>6 itens</td><td>Estável</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="ok-band" aria-labelledby="shell-master">
+      <div class="ok-band-header">
+        <p class="ok-kicker">Shell isolado</p>
+        <h2 class="ok-section-title" id="shell-master">Campanha Y como master</h2>
+      </div>
+      <article class="ok-route-shell" data-mode="master">
+        <nav class="ok-route-nav" aria-label="Navegação do master">
+          <button class="ok-tab" aria-selected="true" type="button">Campanha</button>
+          <button class="ok-tab" aria-selected="false" type="button">Cena</button>
+          <button class="ok-tab" aria-selected="false" type="button">Mobs</button>
+          <button class="ok-tab" aria-selected="false" type="button">Ambiente</button>
+          <button class="ok-tab" aria-selected="false" type="button">Fichas</button>
+        </nav>
+        <div class="ok-grid-2">
+          <div class="ok-stack">
+            <p class="ok-kicker">/master</p>
+            <h3 class="ok-route-title">Campanha Y — Regência</h3>
+            <p class="ok-copy">Miguel rege a campanha, mas não possui controles globais da plataforma.</p>
+            <p><strong>Cena:</strong> Violação do santuário sob chuva noturna</p>
+            <p><strong>Mobs:</strong> 3 Oni menores de cinzas, 1 guardião vinculado</p>
+            <p><strong>Mapa / Ambiente:</strong> torii quebrado, pedra alagada, zonas de sombra</p>
+          </div>
+          <div class="ok-table-wrap">
+            <table class="ok-table">
+              <caption class="ok-meta">Fichas dos jogadores — Somente leitura</caption>
+              <thead><tr><th>Jogador</th><th>Personagem</th><th>HP</th><th>Acesso</th></tr></thead>
+              <tbody>
+                <tr><td>Miguel</td><td>Akio</td><td>86</td><td>Somente leitura</td></tr>
+                <tr><td>Renata</td><td>Ren</td><td>64</td><td>Somente leitura</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="ok-band" aria-labelledby="componentes">
+      <div class="ok-band-header">
+        <p class="ok-kicker">Componentes base</p>
+        <h2 class="ok-section-title" id="componentes">Estados mínimos para implementação</h2>
+      </div>
+      <div class="ok-grid">
+        <div class="ok-stack">
+          <button class="ok-button ok-button--primary" type="button">Autorizar selo</button>
+          <button class="ok-button ok-button--gold is-loading" type="button">Sincronizar registro</button>
+          <button class="ok-button is-success" type="button">Salvo</button>
+          <button class="ok-button is-error" type="button">Rejeitado</button>
+          <button class="ok-button" type="button" disabled>Desabilitado</button>
+          <div class="ok-toolbar" aria-label="Ações rápidas">
+            <button class="ok-button" type="button">Filtrar</button>
+            <button class="ok-button" type="button">Exportar</button>
+          </div>
+        </div>
+        <div class="ok-stack">
+          <div class="ok-field">
+            <label for="mission-tier">Nível da missão</label>
+            <select class="ok-select" id="mission-tier">
+              <option>Ameaça registrada</option>
+              <option>Entidade rara</option>
+            </select>
+          </div>
+          <span class="ok-badge ok-badge--rare">Raro</span>
+          <span class="ok-badge ok-badge--legendary">Lendário</span>
+        </div>
+        <div class="ok-stack">
+          <div class="ok-modal" role="dialog" aria-labelledby="modal-title">
+            <p class="ok-kicker">Modal</p>
+            <h3 class="ok-route-title" id="modal-title">Aviso de contenção</h3>
+            <p class="ok-copy">Use para confirmação focada, perigo e mensagens formais do sistema.</p>
+            <button class="ok-button ok-button--primary" type="button">Confirmar</button>
+          </div>
+          <div class="ok-toast is-success" aria-live="polite"><span>Registro atualizado</span><strong>OK</strong></div>
+          <div class="ok-empty">Estado vazio: nenhum incidente ativo.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -94,11 +94,11 @@
 | CMBT-01 | Phase 3 | Pending |
 | CMBT-02 | Phase 3 | Pending |
 | CMBT-03 | Phase 3 | Pending |
-| UIDB-01 | Phase 2, Phase 4, Phase 5 | Pending |
+| UIDB-01 | Phase 2, Phase 4, Phase 5 | Complete |
 | UIDB-02 | Phase 1, Phase 4, Phase 5 | Complete |
 | UIDB-03 | Phase 3 | Pending |
 | UIDB-04 | Phase 4, Phase 5 | Pending |
-| UIDB-05 | Phase 2 | Pending |
+| UIDB-05 | Phase 2 | Complete |
 | ADMIN-01 | Phase 1 | Complete |
 | ADMIN-02 | Phase 1, Phase 3, Phase 6 | Complete |
 | ADMIN-03 | Phase 1, Phase 3 | Complete |
