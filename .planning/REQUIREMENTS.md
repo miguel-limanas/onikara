@@ -62,6 +62,16 @@
 
 - **UIDB-01**: Interface Gráfica (HUD completo de HP, Mana, Cooldowns, Menus para inventário/skills).
 - **UIDB-02**: Integração com Banco de Dados modular de salvamento de estado do personagem.
+- **UIDB-03**: Área de administração para configurar catálogos, balanceamento, regras, jogadores e suporte operacional usando Supabase.
+- **UIDB-04**: Área de interação dos jogadores para criação de personagem, progressão, inventário, missões e combate persistido.
+- **UIDB-05**: Identidade visual Onikara aplicada de forma consistente na administração e na área do jogador, com design system acessível.
+
+### Platform Administration (ADMIN)
+
+- **ADMIN-01**: Papéis administrativos seguros com RLS para restringir escrita de catálogos e leitura de dados sensíveis.
+- **ADMIN-02**: Auditoria de alterações administrativas relevantes com usuário, operação, alvo, timestamp e payload de mudança.
+- **ADMIN-03**: Configuração versionada de regras globais de progressão, mana, combate, raridade e loot.
+- **ADMIN-04**: Painéis administrativos com métricas básicas de jogadores, combates, uso de magias e progressão.
 
 ---
 
@@ -84,10 +94,20 @@
 | CMBT-01 | Phase 3 | Pending |
 | CMBT-02 | Phase 3 | Pending |
 | CMBT-03 | Phase 3 | Pending |
+| UIDB-01 | Phase 2, Phase 4, Phase 5 | Pending |
+| UIDB-02 | Phase 1, Phase 4, Phase 5 | Complete |
+| UIDB-03 | Phase 3 | Pending |
+| UIDB-04 | Phase 4, Phase 5 | Pending |
+| UIDB-05 | Phase 2 | Pending |
+| ADMIN-01 | Phase 1 | Complete |
+| ADMIN-02 | Phase 1, Phase 3, Phase 6 | Pending |
+| ADMIN-03 | Phase 1, Phase 3 | Pending |
+| ADMIN-04 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 15 total
-- Mapped to phases: 15
+- Admin/player UI requirements: 9 total
+- Mapped to phases: 24
 - Unmapped: 0 ✓
 
 ---
