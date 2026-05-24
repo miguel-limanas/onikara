@@ -30,6 +30,8 @@ requirements_completed:
 - Incluídos previews de admin, player e master, com o master descrito como regente de campanha e com fichas de jogadores em modo somente leitura.
 - Revisado o preview para representar o fluxo correto: autenticação por ID/login, seleção de contexto registrado e abertura isolada do shell correspondente.
 - Adicionados exemplos de aplicação do logotipo e uma composição tipográfica com Cinzel Decorative/Cinzel, caixa alta, espaçamento amplo e losangos nos `A`.
+- Planejada a responsividade em `.planning/design-system/RESPONSIVE-SPEC.md`, cobrindo mobile pequeno, mobile padrão, tablet, desktop e wide desktop.
+- Atualizado o preview para seguir base mobile-first, com skip link, `100dvh`, campos com `autocomplete`/`inputmode`, touch targets e grids que empilham em mobile.
 
 ## Decisões Capturadas
 
@@ -38,6 +40,7 @@ requirements_completed:
 - O modo master mostra campanha, cena, mobs, mapa/ambiente e fichas de jogadores em leitura, sem controles de administração da plataforma.
 - Textos humanos do preview seguem português brasileiro com acentuação e norma culta, preservando classes, tokens e nomes técnicos em inglês.
 - `/admin`, `/player` e `/master` não devem aparecer como fichas simultâneas; eles são destinos isolados após seleção de contexto.
+- O sistema deve abrir em mobile; telas reais devem partir do layout de uma coluna e ganhar densidade apenas em breakpoints maiores.
 
 ## Verificação
 

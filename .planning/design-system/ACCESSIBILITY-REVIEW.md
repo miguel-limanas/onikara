@@ -86,6 +86,9 @@ Componentes usam os tokens `--motion-fast` e `--motion-ease`, portanto herdam a 
 - `overflow-x: hidden` no corpo do preview para evitar vazamento lateral global;
 - `overflow-x: auto` em wrappers de tabela para preservar leitura em telas estreitas;
 - `@media (max-width: 780px)` para reduzir largura útil, empilhar grids e adaptar cabeçalho/logotipo.
+- `min-height: 100dvh` para respeitar o chrome de navegadores móveis.
+- skip link para usuários de teclado pularem diretamente ao conteúdo principal.
+- campos de login com `autocomplete` e `inputmode` adequados.
 
 Os modos admin, player e master usam a mesma grade responsiva e devem empilhar em viewport estreita.
 

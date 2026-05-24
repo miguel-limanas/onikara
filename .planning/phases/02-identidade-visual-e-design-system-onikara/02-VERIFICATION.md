@@ -25,6 +25,7 @@ A entrega define a fundação visual da Onikara, o kit mínimo de assets, tokens
 | `.planning/design-system/preview.html` | Presente |
 | `.planning/design-system/ACCESSIBILITY-REVIEW.md` | Presente |
 | `.planning/design-system/LOGO-APPLICATIONS.md` | Presente |
+| `.planning/design-system/RESPONSIVE-SPEC.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-01-SUMMARY.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-02-SUMMARY.md` | Presente |
 | `.planning/phases/02-identidade-visual-e-design-system-onikara/02-03-SUMMARY.md` | Presente |
@@ -44,6 +45,7 @@ A entrega define a fundação visual da Onikara, o kit mínimo de assets, tokens
 - A revisão de acessibilidade cobre WCAG 2.2, labels, foco, alvos de toque, estados, responsividade, teclado e `prefers-reduced-motion`.
 - A regra de idioma foi registrada na memória do projeto: artefatos humanos em português brasileiro, com acentuação e norma culta.
 - A limitação do PNG com fundo branco foi registrada, com exigência de versões transparentes e exemplos de aplicação.
+- A responsividade foi planejada como contrato mobile-first para mobile, tablet, desktop e wide desktop.
 
 ## Checks Executados
 

@@ -1,29 +1,48 @@
 :root {
   color-scheme: dark;
 
-  /* Tokens base de cor */
+  /* Cores base da marca */
   --oni-black: #050505;
-  --oni-black-900: #0b0b0d;
-  --oni-black-800: #141417;
+  --oni-black-950: #070708;
+  --oni-black-900: #0d0d10;
+  --oni-black-850: #141419;
+  --oni-black-800: #1b1b21;
+  --oni-charcoal: #18191c;
+  --oni-graphite: #282b31;
+  --oni-graphite-600: #3a3e47;
   --oni-crimson: #8b1118;
-  --oni-crimson-600: #b31623;
-  --oni-crimson-300: #f26d78;
+  --oni-crimson-700: #a41420;
+  --oni-crimson-600: #bd1b29;
+  --oni-crimson-300: #f07782;
   --oni-gold: #b19052;
+  --oni-gold-600: #9a7839;
   --oni-gold-300: #dec47c;
-  --oni-graphite: #24262b;
-  --oni-graphite-600: #383b42;
   --oni-ivory: #f3ede2;
-  --oni-muted: #a8a19a;
+  --oni-parchment: #e4d7c4;
+  --oni-muted: #ada69c;
   --oni-green: #4fb477;
   --oni-blue: #65a9ff;
   --oni-ice: #8bd7f5;
   --oni-shadow: #7761d9;
 
-  /* Tokens base de tipografia, espaçamento e movimento */
+  /* Tipografia */
   --font-brand: "Cinzel Decorative", "Cinzel", Georgia, "Times New Roman", serif;
   --font-brand-sober: "Cinzel", Georgia, "Times New Roman", serif;
   --font-ui: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.35rem;
+  --line-tight: 1.15;
+  --line-normal: 1.55;
+  --tracking-brand: 0.18em;
+  --tracking-label: 0.08em;
+
+  /* Espaçamento e layout */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -32,32 +51,44 @@
   --space-6: 24px;
   --space-8: 32px;
   --space-10: 40px;
+  --space-12: 48px;
+  --container: 1180px;
+  --target-min: 44px;
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  /* Elevação, bordas e movimento */
+  --border-subtle: 1px solid rgba(228, 215, 196, 0.12);
+  --border-strong: 1px solid rgba(177, 144, 82, 0.34);
   --shadow-panel: 0 18px 44px rgba(0, 0, 0, 0.42);
-  --shadow-focus: 0 0 0 3px rgba(222, 196, 124, 0.28);
-  --motion-fast: 120ms;
-  --motion-medium: 180ms;
+  --shadow-popover: 0 26px 70px rgba(0, 0, 0, 0.52);
+  --shadow-focus: 0 0 0 3px rgba(222, 196, 124, 0.3);
+  --motion-fast: 150ms;
+  --motion-medium: 220ms;
+  --motion-slow: 320ms;
   --motion-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  /* Aliases semânticos de interface */
+  /* Aliases semânticos */
   --color-page: var(--oni-black);
   --color-surface: var(--oni-black-900);
+  --color-surface-raised: var(--oni-black-850);
   --color-panel: var(--oni-black-800);
-  --color-panel-raised: #19191d;
-  --color-border: rgba(177, 144, 82, 0.28);
-  --color-border-muted: rgba(168, 161, 154, 0.18);
+  --color-panel-soft: rgba(27, 27, 33, 0.74);
+  --color-border: rgba(177, 144, 82, 0.3);
+  --color-border-muted: rgba(228, 215, 196, 0.13);
   --color-text: var(--oni-ivory);
   --color-text-muted: var(--oni-muted);
+  --color-text-subtle: rgba(243, 237, 226, 0.64);
   --color-text-inverse: #080808;
   --color-focus: var(--oni-gold-300);
-  --color-disabled: rgba(168, 161, 154, 0.38);
-  --color-disabled-surface: rgba(56, 59, 66, 0.48);
+  --color-disabled: rgba(173, 166, 156, 0.42);
+  --color-disabled-surface: rgba(58, 62, 71, 0.45);
   --color-success: var(--oni-green);
   --color-warning: var(--oni-gold);
   --color-danger: var(--oni-crimson-600);
-  --color-danger-soft: rgba(139, 17, 24, 0.22);
+  --color-danger-soft: rgba(139, 17, 24, 0.24);
   --color-hp: var(--oni-crimson-600);
   --color-mana: var(--oni-blue);
   --color-stamina: var(--oni-gold);
@@ -73,16 +104,20 @@
   /* Aliases por modo */
   --mode-admin: var(--oni-gold);
   --mode-admin-surface: #101012;
+  --mode-admin-border: rgba(222, 196, 124, 0.38);
   --mode-player: var(--oni-blue);
-  --mode-player-surface: #0b1116;
-  --mode-master: var(--oni-crimson);
-  --mode-master-surface: #12090b;
+  --mode-player-surface: #091018;
+  --mode-player-border: rgba(101, 169, 255, 0.32);
+  --mode-master: var(--oni-crimson-600);
+  --mode-master-surface: #13090b;
+  --mode-master-border: rgba(189, 27, 41, 0.42);
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --motion-fast: 1ms;
     --motion-medium: 1ms;
+    --motion-slow: 1ms;
     --motion-ease: linear;
   }
 }
