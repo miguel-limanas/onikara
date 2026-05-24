@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Onikara Sketch 001 - Primeiro Viewport</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 12%, rgba(184, 50, 50, 0.16), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(200, 155, 85, 0.12), transparent 30%),
+        linear-gradient(135deg, #08090b 0%, #111016 48%, #070708 100%);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      padding-top: 54px;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .variant-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(8, 9, 11, 0.92);
+      border-bottom: 1px solid var(--color-border);
+      backdrop-filter: blur(14px);
+    }
+    .variant-tab {
+      min-height: 38px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-bg-raised);
+      color: var(--color-text-muted);
+      padding: 0 14px;
+      transition: all 0.15s ease;
+    }
+    .variant-tab:hover, .variant-tab.active {
+      color: var(--color-text);
+      border-color: var(--color-accent);
+      box-shadow: var(--glow-accent);
+    }
+    .viewport { width: 100%; max-width: 1440px; min-height: calc(100vh - 54px); margin: 0 auto; transition: max-width 0.2s ease; }
+    .variant { display: none; min-height: calc(100vh - 54px); }
+    .variant.active { display: block; }
+    .shell { min-height: calc(100vh - 54px); padding: 24px; }
+    .topbar, .panel, .glass, .metric, .action, .card {
+      border: 1px solid var(--color-border);
+      background: var(--color-glass);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: linear-gradient(145deg, rgba(184,50,50,0.32), rgba(200,155,85,0.12));
+      color: var(--color-accent);
+      font-family: var(--font-display);
+      font-weight: 700;
+      box-shadow: var(--glow-primary);
+    }
+    .wordmark { font-family: var(--font-display); font-size: var(--text-xl); line-height: 1; letter-spacing: 0; }
+    .eyebrow { color: var(--color-accent); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 4.8rem); line-height: 0.98; margin-bottom: 18px; letter-spacing: 0; }
+    h2 { font-family: var(--font-display); font-size: var(--text-2xl); letter-spacing: 0; }
+    p { color: var(--color-text-muted); line-height: 1.55; }
+    .btn {
+      min-height: 44px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      padding: 0 16px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--color-accent); }
+    .btn.primary { background: linear-gradient(135deg, var(--color-primary), #792526); border-color: #cf554c; box-shadow: var(--glow-primary); }
+    .pill { display: inline-flex; align-items: center; gap: 8px; min-height: 30px; border: 1px solid var(--color-border); border-radius: var(--radius-full); padding: 0 10px; color: var(--color-text-muted); background: rgba(255,255,255,0.03); font-size: var(--text-sm); }
+    .grid-a { display: grid; grid-template-columns: 240px minmax(0, 1fr) 340px; gap: 18px; }
+    .nav-list { display: grid; gap: 8px; margin-top: 24px; }
+    .nav-item { min-height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-radius: var(--radius-md); color: var(--color-text-muted); border: 1px solid transparent; transition: all 0.15s ease; }
+    .nav-item:hover, .nav-item.active { border-color: var(--color-border-strong); background: rgba(200,155,85,0.08); color: var(--color-text); }
+    .map {
+      min-height: 460px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(rgba(200,155,85,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,155,85,0.055) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(184,50,50,0.28), transparent 23%),
+        #0f1015;
+      background-size: 42px 42px, 42px 42px, auto, auto;
+    }
+    .sigil {
+      position: absolute;
+      inset: 22%;
+      border: 1px solid rgba(200,155,85,0.38);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--color-accent);
+      font-family: var(--font-display);
+      font-size: 4rem;
+      box-shadow: inset 0 0 34px rgba(184,50,50,0.16);
+    }
+    .node { position: absolute; min-width: 120px; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: rgba(8,9,11,0.78); }
+    .node strong { display: block; font-size: var(--text-sm); }
+    .node span { color: var(--color-text-muted); font-size: var(--text-xs); }
+    .metrics { display: grid; gap: 12px; }
+    .metric { border-radius: var(--radius-md); padding: 14px; }
+    .metric b { display: block; font-size: var(--text-2xl); }
+    .bar { height: 8px; border-radius: 999px; background: #28272d; overflow: hidden; margin-top: 10px; }
+    .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); }
+    .hero-b { min-height: calc(100vh - 54px); display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr); gap: 24px; align-items: stretch; padding: 24px; }
+    .briefing { display: flex; flex-direction: column; justify-content: space-between; padding: 26px; border-radius: var(--radius-lg); }
+    .dossier { border-radius: var(--radius-lg); padding: 22px; position: relative; overflow: hidden; }
+    .dossier::before { content: ""; position: absolute; inset: 18px; border: 1px solid rgba(200,155,85,0.22); pointer-events: none; }
+    .hunter-card { display: grid; grid-template-columns: 120px 1fr; gap: 18px; align-items: center; margin: 26px 0; }
+    .portrait { aspect-ratio: 1; border-radius: var(--radius-md); border: 1px solid var(--color-border-strong); background: radial-gradient(circle at 50% 34%, rgba(184,50,50,0.34), transparent 30%), linear-gradient(145deg, #222028, #0c0d10); display: grid; place-items: center; font-family: var(--font-display); color: var(--color-accent); font-size: 2.5rem; }
+    .loadout { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .slot { min-height: 86px; padding: 12px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: rgba(255,255,255,0.03); }
+    .hero-c { min-height: calc(100vh - 54px); display: grid; place-items: center; padding: 24px; }
+    .ritual { width: min(1120px, 100%); display: grid; grid-template-columns: 280px minmax(0, 1fr) 280px; gap: 18px; align-items: center; }
+    .seal { aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle, rgba(184,50,50,0.24), rgba(8,9,11,0.3) 58%, rgba(200,155,85,0.06)); border: 1px solid rgba(200,155,85,0.36); box-shadow: var(--shadow-lg), var(--glow-primary); }
+    .seal-inner { width: 58%; aspect-ratio: 1; border: 1px solid var(--color-border-strong); transform: rotate(45deg); display: grid; place-items: center; }
+    .seal-inner span { transform: rotate(-45deg); font-family: var(--font-display); font-size: clamp(2.5rem, 9vw, 7rem); color: var(--color-accent); }
+    .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(80px); opacity: 0; background: #17181f; border: 1px solid var(--color-accent); color: var(--color-text); padding: 12px 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); transition: all 0.2s ease; z-index: 40; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #sketch-tools { position:fixed; bottom:12px; right:12px; z-index:9999; font-family:system-ui; font-size:12px; background:rgba(0,0,0,0.72); color:white; padding:8px 12px; border-radius:8px; opacity:0.42; transition:opacity 0.2s; display:flex; gap:8px; align-items:center; }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools button, #sketch-tools select { font-size:12px; }
+    @media (max-width: 980px) {
+      .grid-a, .hero-b, .ritual { grid-template-columns: 1fr; }
+      .shell, .hero-b, .hero-c { padding: 16px; }
+      .nav-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .map { min-height: 340px; }
+    }
+    @media (max-width: 560px) {
+      .variant-nav { overflow-x: auto; }
+      .variant-tab { white-space: nowrap; }
+      .hunter-card, .loadout { grid-template-columns: 1fr; }
+      h1 { font-size: 2.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="variant-nav" aria-label="Variantes">
+    <button class="variant-tab active" onclick="showVariant('a', this)">A: Command Bridge</button>
+    <button class="variant-tab" onclick="showVariant('b', this)">B: Hunter Dossier</button>
+    <button class="variant-tab" onclick="showVariant('c', this)">C: Ritual Console</button>
+  </nav>
+
+  <main id="viewport" class="viewport">
+    <section id="variant-a" class="variant active">
+      <div class="shell grid-a">
+        <aside class="panel" style="border-radius: var(--radius-lg); padding: 16px;">
+          <div class="brand"><div class="mark">鬼</div><div><div class="wordmark">Onikara</div><div class="eyebrow">Hunter OS</div></div></div>
+          <div class="nav-list">
+            <button class="nav-item active" onclick="toast('Comando aberto')">Comando <span>01</span></button>
+            <button class="nav-item" onclick="toast('Catálogos em leitura')">Catálogos <span>12</span></button>
+            <button class="nav-item" onclick="toast('Contratos de caça filtrados')">Contratos <span>07</span></button>
+            <button class="nav-item" onclick="toast('Auditoria sincronizada')">Auditoria <span>93%</span></button>
+          </div>
+        </aside>
+        <section>
+          <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:18px; flex-wrap:wrap;">
+            <div>
+              <div class="eyebrow">Setor Kurovale / ameaça classe oni</div>
+              <h1>Operação Ash Gate</h1>
+              <p style="max-width:680px;">Briefing tático para caçadores, balanceamento e progresso vivo. Anime fica no pulso da ação, não no ruído da interface.</p>
+            </div>
+            <button class="btn primary" onclick="toast('Deploy tático simulado')">Iniciar turno</button>
+          </div>
+          <div class="map glass">
+            <div class="sigil">ONI</div>
+            <div class="node" style="left:8%; top:14%;"><strong>Portão Norte</strong><span>risco estável</span></div>
+            <div class="node" style="right:10%; top:20%;"><strong>Boss: Akuma Rei</strong><span>mana instável</span></div>
+            <div class="node" style="left:18%; bottom:12%;"><strong>Esquadra 04</strong><span>pronta</span></div>
+            <div class="node" style="right:18%; bottom:18%;"><strong>Recompensa</strong><span>rara prevista</span></div>
+          </div>
+        </section>
+        <aside class="metrics">
+          <div class="metric"><span class="eyebrow">Nível de ameaça</span><b>82</b><div class="bar"><span style="width:82%"></span></div></div>
+          <div class="metric"><span class="eyebrow">Mana da zona</span><b>64%</b><div class="bar"><span style="width:64%; background:var(--color-mana);"></span></div></div>
+          <div class="metric"><span class="eyebrow">Disciplina</span><b>Alta</b><p>Sem efeitos decorativos concorrendo com decisão tática.</p></div>
+          <button class="btn" onclick="cycleThreat(this)">Ciclar estado</button>
+        </aside>
+      </div>
+    </section>
+
+    <section id="variant-b" class="variant">
+      <div class="hero-b">
+        <section class="briefing glass">
+          <div class="brand"><div class="mark">鬼</div><div><div class="wordmark">Onikara</div><div class="eyebrow">Dossiê ativo</div></div></div>
+          <div>
+            <span class="pill">Contrato S-14</span>
+            <span class="pill">Recompensa épica</span>
+            <h1 style="margin-top:18px;">Caçadores não improvisam.</h1>
+            <p>O primeiro viewport vira uma mesa de decisão: alvo, risco, prontidão, loadout e próximo comando. A fantasia aparece como autoridade visual.</p>
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn primary" onclick="toast('Equipe confirmada')">Confirmar equipe</button>
+            <button class="btn" onclick="toast('Dossiê arquivado')">Arquivar alvo</button>
+          </div>
+        </section>
+        <section class="dossier glass">
+          <div class="eyebrow">Alvo principal</div>
+          <div class="hunter-card">
+            <div class="portrait">怨</div>
+            <div>
+              <h2>Akuma Rei</h2>
+              <p>Entidade oni em acumulação de mana. Vulnerável a selos de fogo disciplinado e interrupção de canalização.</p>
+              <div class="bar"><span style="width:72%"></span></div>
+            </div>
+          </div>
+          <div class="loadout">
+            <button class="slot" onclick="toggleSlot(this)"><b>Selo</b><br><span class="eyebrow">Fogo</span></button>
+            <button class="slot" onclick="toggleSlot(this)"><b>Arma</b><br><span class="eyebrow">Katana negra</span></button>
+            <button class="slot" onclick="toggleSlot(this)"><b>Suporte</b><br><span class="eyebrow">Purificar</span></button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="variant-c" class="variant">
+      <div class="hero-c">
+        <div class="ritual">
+          <aside class="metrics">
+            <div class="metric"><span class="eyebrow">Operação</span><b>Black Sigil</b><p>Composição mais ritualística e menos SaaS.</p></div>
+            <button class="btn primary" onclick="toast('Selo ativado')">Ativar selo</button>
+          </aside>
+          <section class="seal" aria-label="Selo Onikara">
+            <div class="seal-inner"><span>鬼</span></div>
+          </section>
+          <aside class="metrics">
+            <div class="metric"><span class="eyebrow">Estado</span><b>Controlado</b><div class="bar"><span style="width:58%"></span></div></div>
+            <div class="metric"><span class="eyebrow">Leitura</span><b>Média</b><p>Impacto alto, mas pode atrasar reconhecimento de fluxo.</p></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'"><option value="default">Default</option></select>
+    <button onclick="setViewport('375px')">Phone</button>
+    <button onclick="setViewport('768px')">Tablet</button>
+    <button onclick="setViewport('1440px')">Desk</button>
+    <button onclick="setViewport('100%')">Full</button>
+  </div>
+  <script>
+    function showVariant(id, tab) {
+      document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).classList.add('active');
+      tab.classList.add('active');
+    }
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      window.clearTimeout(window.toastTimer);
+      window.toastTimer = window.setTimeout(() => el.classList.remove('show'), 1700);
+    }
+    function setViewport(width) { document.getElementById('viewport').style.maxWidth = width; }
+    function cycleThreat(button) {
+      const states = ['Estado: alerta', 'Estado: ruptura', 'Estado: contido'];
+      button.dataset.i = String(((Number(button.dataset.i) || 0) + 1) % states.length);
+      button.textContent = states[Number(button.dataset.i)];
+      toast(button.textContent);
+    }
+    function toggleSlot(slot) {
+      slot.style.borderColor = slot.style.borderColor ? '' : 'var(--color-accent)';
+      slot.style.boxShadow = slot.style.boxShadow ? '' : 'var(--glow-accent)';
+      toast('Loadout ajustado');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Onikara Sketch 002 - Modos</title>
+  <link rel="stylesheet" href="../themes/default.css">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 80% 10%, rgba(184, 50, 50, 0.12), transparent 28%),
+        linear-gradient(135deg, #08090b, #121118 52%, #08090b);
+      color: var(--color-text);
+      font-family: var(--font-sans);
+      padding-top: 54px;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .variant-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(8, 9, 11, 0.92);
+      border-bottom: 1px solid var(--color-border);
+      backdrop-filter: blur(14px);
+    }
+    .variant-tab {
+      min-height: 38px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-bg-raised);
+      color: var(--color-text-muted);
+      padding: 0 14px;
+      transition: all 0.15s ease;
+    }
+    .variant-tab:hover, .variant-tab.active { color: var(--color-text); border-color: var(--color-accent); box-shadow: var(--glow-accent); }
+    .viewport { width: 100%; max-width: 1440px; min-height: calc(100vh - 54px); margin: 0 auto; transition: max-width 0.2s ease; }
+    .variant { display: none; min-height: calc(100vh - 54px); }
+    .variant.active { display: block; }
+    .shell { min-height: calc(100vh - 54px); padding: 20px; }
+    .glass, .panel, .card, .row, .mode {
+      border: 1px solid var(--color-border);
+      background: var(--color-glass);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: linear-gradient(145deg, rgba(184,50,50,0.32), rgba(200,155,85,0.12));
+      color: var(--color-accent);
+      font-family: var(--font-display);
+      font-weight: 700;
+      box-shadow: var(--glow-primary);
+    }
+    .wordmark { font-family: var(--font-display); font-size: var(--text-xl); line-height: 1; letter-spacing: 0; }
+    .eyebrow { color: var(--color-accent); font-family: var(--font-mono); font-size: var(--text-xs); text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 4rem); line-height: 1; letter-spacing: 0; }
+    h2 { font-family: var(--font-display); letter-spacing: 0; }
+    p { color: var(--color-text-muted); line-height: 1.55; }
+    .btn {
+      min-height: 44px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text);
+      padding: 0 14px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--color-accent); }
+    .btn.primary { background: linear-gradient(135deg, var(--color-primary), #792526); border-color: #cf554c; box-shadow: var(--glow-primary); }
+    .layout-a { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 18px; }
+    .rail { border-radius: var(--radius-lg); padding: 12px; display: grid; grid-template-rows: auto 1fr auto; gap: 16px; align-items: start; }
+    .rail-btn { width: 66px; min-height: 66px; border-radius: var(--radius-md); border: 1px solid transparent; background: rgba(255,255,255,0.03); color: var(--color-text-muted); transition: all 0.15s ease; }
+    .rail-btn:hover, .rail-btn.active { border-color: var(--color-accent); color: var(--color-text); background: rgba(200,155,85,0.08); }
+    .dashboard { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr); gap: 18px; }
+    .topline { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:18px; flex-wrap:wrap; }
+    .table { border-radius: var(--radius-lg); overflow: hidden; }
+    .row { min-height: 58px; display: grid; grid-template-columns: 1.1fr 0.8fr 0.7fr 0.6fr; gap: 12px; align-items: center; padding: 0 14px; border-left: 0; border-right: 0; border-top: 0; box-shadow: none; }
+    .row.header { color: var(--color-text-muted); font-size: var(--text-sm); background: rgba(255,255,255,0.04); }
+    .badge { display:inline-flex; align-items:center; width:max-content; min-height:28px; border-radius:999px; border:1px solid var(--color-border); padding:0 10px; color:var(--color-text-muted); font-size:var(--text-sm); }
+    .badge.fire { border-color: var(--element-fire); color: #ffb2a5; }
+    .badge.gold { border-color: var(--color-accent); color: var(--color-accent); }
+    .inspector { border-radius: var(--radius-lg); padding: 18px; }
+    .meter { height: 8px; border-radius: 999px; background: #29282e; overflow: hidden; margin: 10px 0 18px; }
+    .meter span { display:block; height:100%; background: linear-gradient(90deg, var(--color-primary), var(--color-accent)); }
+    .tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .mode-tab { min-height:44px; border-radius:var(--radius-md); border:1px solid var(--color-border); color:var(--color-text-muted); background:rgba(255,255,255,0.03); padding:0 14px; transition:all 0.15s ease; }
+    .mode-tab.active, .mode-tab:hover { color:var(--color-text); border-color:var(--color-accent); }
+    .mode-panel { display:none; }
+    .mode-panel.active { display:block; }
+    .cards { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
+    .card { border-radius:var(--radius-lg); padding:16px; min-height:170px; }
+    .split { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:14px; }
+    .mode { border-radius:var(--radius-lg); padding:16px; min-height: calc(100vh - 94px); display:flex; flex-direction:column; justify-content:space-between; }
+    .mini-list { display:grid; gap:10px; margin:16px 0; }
+    .mini-item { min-height:46px; padding:10px; border-radius:var(--radius-md); border:1px solid var(--color-border); background:rgba(255,255,255,0.03); }
+    .toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%) translateY(80px); opacity: 0; background: #17181f; border: 1px solid var(--color-accent); color: var(--color-text); padding: 12px 16px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); transition: all 0.2s ease; z-index: 40; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #sketch-tools { position:fixed; bottom:12px; right:12px; z-index:9999; font-family:system-ui; font-size:12px; background:rgba(0,0,0,0.72); color:white; padding:8px 12px; border-radius:8px; opacity:0.42; transition:opacity 0.2s; display:flex; gap:8px; align-items:center; }
+    #sketch-tools:hover { opacity: 1; }
+    #sketch-tools button, #sketch-tools select { font-size:12px; }
+    @media (max-width: 980px) {
+      .layout-a, .dashboard, .cards, .split { grid-template-columns: 1fr; }
+      .rail { grid-template-columns: auto 1fr; grid-template-rows: auto; }
+      .row { grid-template-columns: 1fr; padding: 14px; }
+      .mode { min-height: 360px; }
+    }
+    @media (max-width: 560px) {
+      .variant-nav { overflow-x:auto; }
+      .variant-tab { white-space:nowrap; }
+      .shell { padding: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="variant-nav" aria-label="Variantes">
+    <button class="variant-tab active" onclick="showVariant('a', this)">A: Mode Rail</button>
+    <button class="variant-tab" onclick="showVariant('b', this)">B: Tactical Tabs</button>
+    <button class="variant-tab" onclick="showVariant('c', this)">C: Split Command</button>
+  </nav>
+
+  <main id="viewport" class="viewport">
+    <section id="variant-a" class="variant active">
+      <div class="shell layout-a">
+        <aside class="rail glass">
+          <div class="mark">鬼</div>
+          <div style="display:grid; gap:8px;">
+            <button class="rail-btn active" onclick="setModeCopy('Admin', this)">ADM</button>
+            <button class="rail-btn" onclick="setModeCopy('Player', this)">PLY</button>
+            <button class="rail-btn" onclick="setModeCopy('Mestre', this)">MST</button>
+          </div>
+          <button class="rail-btn" onclick="toast('Sessão bloqueada')">SEC</button>
+        </aside>
+        <section>
+          <div class="topline">
+            <div>
+              <div class="brand"><div><div class="wordmark">Onikara</div><div class="eyebrow" id="mode-copy">Modo Admin</div></div></div>
+              <h1 style="margin-top:14px;">Operação antes do espetáculo.</h1>
+              <p>O trilho deixa claro que existem modos diferentes, enquanto a área principal continua densa e profissional.</p>
+            </div>
+            <button class="btn primary" onclick="toast('Alterações publicadas')">Publicar conteúdo</button>
+          </div>
+          <div class="dashboard">
+            <div class="table">
+              <div class="row header"><span>Catálogo</span><span>Estado</span><span>Risco</span><span>Ações</span></div>
+              <div class="row"><strong>Magias de fogo</strong><span class="badge fire">elemento</span><span>balancear custo</span><button class="btn" onclick="toast('Magia aberta')">Editar</button></div>
+              <div class="row"><strong>Boss Akuma Rei</strong><span class="badge gold">lendário</span><span>alto impacto</span><button class="btn" onclick="toast('Dossiê aberto')">Revisar</button></div>
+              <div class="row"><strong>Quest Ash Gate</strong><span class="badge">rascunho</span><span>faltam rewards</span><button class="btn" onclick="toast('Quest validada')">Validar</button></div>
+            </div>
+            <aside class="inspector glass">
+              <div class="eyebrow">Inspetor tático</div>
+              <h2>Boss Akuma Rei</h2>
+              <p>Admin ganha densidade e auditoria; fantasia aparece em nomes, estados, selos e acentos visuais.</p>
+              <div class="meter"><span style="width:76%"></span></div>
+              <button class="btn" onclick="toast('Snapshot de auditoria criado')">Gerar snapshot</button>
+            </aside>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="variant-b" class="variant">
+      <div class="shell">
+        <div class="topline">
+          <div class="brand"><div class="mark">鬼</div><div><div class="wordmark">Onikara</div><div class="eyebrow">Command surface</div></div></div>
+          <button class="btn primary" onclick="toast('Turno sincronizado')">Sincronizar turno</button>
+        </div>
+        <div class="tabs">
+          <button class="mode-tab active" onclick="showModePanel('admin', this)">Admin</button>
+          <button class="mode-tab" onclick="showModePanel('player', this)">Player</button>
+          <button class="mode-tab" onclick="showModePanel('mestre', this)">Mestre</button>
+        </div>
+        <section id="panel-admin" class="mode-panel active">
+          <h1>Balanceamento e governança</h1>
+          <div class="cards">
+            <div class="card"><div class="eyebrow">Admin</div><h2>Catálogos</h2><p>Tabelas, filtros e revisão rápida. Fantasia contida, leitura máxima.</p></div>
+            <div class="card"><div class="eyebrow">Auditoria</div><h2>93 eventos</h2><p>Estado operacional visível para suporte e publicação.</p></div>
+            <div class="card"><div class="eyebrow">Risco</div><h2>Mana alta</h2><p>Alertas usam vermelho oni com parcimônia.</p></div>
+          </div>
+        </section>
+        <section id="panel-player" class="mode-panel">
+          <h1>Clareza de combate</h1>
+          <div class="cards">
+            <div class="card"><div class="eyebrow">Player</div><h2>Kazuo nível 12</h2><p>HP, mana e cooldowns aparecem antes da ornamentação.</p><div class="meter"><span style="width:68%; background:var(--color-mana);"></span></div></div>
+            <div class="card"><div class="eyebrow">Loadout</div><h2>3 magias</h2><p>Raridade e elemento aparecem como decisão tática.</p></div>
+            <div class="card"><div class="eyebrow">Recompensa</div><h2>Selo raro</h2><p>Momento ideal para mais anime e glow.</p></div>
+          </div>
+        </section>
+        <section id="panel-mestre" class="mode-panel">
+          <h1>Controle narrativo</h1>
+          <div class="cards">
+            <div class="card"><div class="eyebrow">Mestre</div><h2>Diretor de cena</h2><p>Ferramentas para ritmo, inimigos e eventos sem virar painel financeiro.</p></div>
+            <div class="card"><div class="eyebrow">Cena</div><h2>Ash Gate</h2><p>Comandos de spawn, recompensa e diálogo contextual.</p></div>
+            <div class="card"><div class="eyebrow">Pressão</div><h2>Turno 04</h2><p>Ameaça controlada em medidores, não partículas constantes.</p></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="variant-c" class="variant">
+      <div class="shell split">
+        <article class="mode">
+          <div>
+            <div class="eyebrow">Admin</div>
+            <h2>Operar conteúdo</h2>
+            <p>Denso, sóbrio e preciso. Bom para comparar se a fantasia sobrevive no modo mais utilitário.</p>
+            <div class="mini-list">
+              <div class="mini-item">Classes e raças</div>
+              <div class="mini-item">Regras de mana</div>
+              <div class="mini-item">Auditoria</div>
+            </div>
+          </div>
+          <button class="btn" onclick="toast('Admin selecionado')">Entrar no admin</button>
+        </article>
+        <article class="mode" style="border-color:var(--color-border-strong); box-shadow:var(--shadow-lg), var(--glow-primary);">
+          <div>
+            <div class="eyebrow">Player</div>
+            <h2>Sobreviver ao turno</h2>
+            <p>Mais emocional, mas ainda tático. O HUD precisa vencer a ilustração.</p>
+            <div class="mini-list">
+              <div class="mini-item">HP 74 / Mana 42</div>
+              <div class="mini-item">Cooldown: selo flamejante</div>
+              <div class="mini-item">Alvo: Akuma Rei</div>
+            </div>
+          </div>
+          <button class="btn primary" onclick="toast('Combate preparado')">Preparar combate</button>
+        </article>
+        <article class="mode">
+          <div>
+            <div class="eyebrow">Mestre</div>
+            <h2>Conduzir ameaças</h2>
+            <p>Ferramentas internas com aura narrativa. Menos CRUD, mais controle de cena.</p>
+            <div class="mini-list">
+              <div class="mini-item">Spawn: Oni menor</div>
+              <div class="mini-item">Evento: cinzas vermelhas</div>
+              <div class="mini-item">Reward: máscara partida</div>
+            </div>
+          </div>
+          <button class="btn" onclick="toast('Cena marcada')">Marcar cena</button>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="sketch-tools">
+    <select onchange="document.querySelector('link[href*=themes]').href='../themes/'+this.value+'.css'"><option value="default">Default</option></select>
+    <button onclick="setViewport('375px')">Phone</button>
+    <button onclick="setViewport('768px')">Tablet</button>
+    <button onclick="setViewport('1440px')">Desk</button>
+    <button onclick="setViewport('100%')">Full</button>
+  </div>
+  <script>
+    function showVariant(id, tab) {
+      document.querySelectorAll('.variant').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.variant-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('variant-' + id).classList.add('active');
+      tab.classList.add('active');
+    }
+    function showModePanel(id, tab) {
+      document.querySelectorAll('.mode-panel').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('panel-' + id).classList.add('active');
+      tab.classList.add('active');
+    }
+    function setModeCopy(mode, tab) {
+      document.querySelectorAll('.rail-btn').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('mode-copy').textContent = 'Modo ' + mode;
+      toast('Modo ' + mode + ' selecionado');
+    }
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      window.clearTimeout(window.toastTimer);
+      window.toastTimer = window.setTimeout(() => el.classList.remove('show'), 1700);
+    }
+    function setViewport(width) { document.getElementById('viewport').style.maxWidth = width; }
+  </script>
+</body>
+</html>
