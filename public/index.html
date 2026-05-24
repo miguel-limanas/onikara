@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Onikara - Portal</title>
+    <link rel="stylesheet" href="../src/admin/admin.css" />
+  </head>
+  <body class="ok-preview ok-app">
+    <a class="ok-skip-link" href="#portal-main">Pular para o login</a>
+    <main id="portal-main" class="ok-login-page">
+      <section class="ok-login-brand" aria-labelledby="brand-title">
+        <div class="ok-logo-frame">
+          <img class="ok-logo" src="../.planning/design-system/assets/onikara-logotipo.png" alt="Logotipo Onikara" />
+        </div>
+        <div class="ok-stack">
+          <p class="ok-kicker">Portal administrativo</p>
+          <h1 id="brand-title" class="ok-wordmark">ONIKARA</h1>
+          <p class="ok-copy">
+            Sistema de contencao, catalogos e balanceamento. O acesso administrativo
+            exige sessao Supabase com papel <strong>admin</strong>.
+          </p>
+        </div>
+        <div class="ok-grid-2 ok-login-status" aria-label="Estado operacional">
+          <div class="ok-metric"><span>Auth</span><strong>Supabase</strong></div>
+          <div class="ok-metric"><span>RLS</span><strong>Ativo</strong></div>
+          <div class="ok-metric"><span>Shell</span><strong>/admin</strong></div>
+          <div class="ok-metric"><span>Modo</span><strong>Admin</strong></div>
+        </div>
+      </section>
+
+      <section class="ok-login-panel" aria-labelledby="login-title">
+        <p class="ok-kicker">Acesso</p>
+        <h2 id="login-title" class="ok-route-title">Entrar no sistema</h2>
+        <form id="login-form" class="ok-stack" novalidate>
+          <div class="ok-field">
+            <label for="email">E-mail</label>
+            <input id="email" class="ok-input" name="email" type="email" autocomplete="email" inputmode="email" required />
+            <p class="ok-helper">Use o usuario configurado no Supabase local.</p>
+          </div>
+          <div class="ok-field">
+            <label for="password">Senha</label>
+            <input id="password" class="ok-input" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <p id="login-status" class="ok-helper" aria-live="polite"></p>
+          <button id="login-submit" class="ok-button ok-button--primary" type="submit">Entrar no admin</button>
+        </form>
+        <div class="ok-access-list" aria-label="Contextos">
+          <article class="ok-access-option" data-mode="admin">
+            <div>
+              <p class="ok-label">Contexto disponivel</p>
+              <h3 class="ok-route-title">Administracao da plataforma</h3>
+              <p class="ok-helper">Catalogos, balanceamento, auditoria e suporte operacional.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+    <script type="module">
+      import { signInAdmin } from '../src/services/adminAuth.js';
+
+      const form = document.querySelector('#login-form');
+      const submit = document.querySelector('#login-submit');
+      const status = document.querySelector('#login-status');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        status.textContent = '';
+        submit.disabled = true;
+        submit.classList.add('is-loading');
+
+        const result = await signInAdmin({
+          email: form.email.value,
+          password: form.password.value,
+        });
+
+        submit.disabled = false;
+        submit.classList.remove('is-loading');
+
+        if (!result.ok) {
+          status.textContent = result.error.message;
+          status.className = 'ok-helper is-error';
+          return;
+        }
+
+        status.textContent = 'Sessao criada. Abrindo shell administrativo...';
+        status.className = 'ok-helper is-success';
+        window.location.href = './admin.html';
+      });
+    </script>
+  </body>
+</html>

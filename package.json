@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "node scripts/serve-static.js",
+    "serve": "node scripts/serve-static.js",
     "supabase:init": "supabase init",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
