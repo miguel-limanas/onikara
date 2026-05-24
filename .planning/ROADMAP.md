@@ -139,9 +139,16 @@ Linha de pesquisa visual:
 5. Contraste, touch targets e navegação por teclado são contemplados desde o início.
 
 **Plans**:
+**Wave 1**
 
 - [ ] 02-01: Pesquisar direção visual Onikara e documentar moodboard textual, paleta, tipografia e princípios de marca.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-02: Criar design tokens e componentes base: button, input, select, modal, tabs, table, badge, toast, stat bar e command/action toolbar.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-03: Validar responsividade e acessibilidade dos componentes em admin e player.
 
 ### Phase 3: Área de Administração - Catálogos e Balanceamento
