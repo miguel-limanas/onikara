@@ -51,6 +51,7 @@ Prover um motor de combate por turnos modular e facilmente balanceável, onde as
 |----------|-----------|-----------|
 | Arquitetura Modular em JS | Facilitar a adição futura de novos elementos, classes e magias sem quebrar o motor central. | — Pending |
 | MVP com 2 Classes, 4 Elementos e 10 Magias | Validar o motor tático de mana e combate de forma enxuta antes de escalonar o conteúdo completo. | — Pending |
+| Supabase Self-Hosted em Docker | Utilização de serviços conteinerizados locais (PostgreSQL, Auth, PostgREST) para stack mínima de banco de dados, facilitando setup rápido e portabilidade total. | ✓ Good |
 
 ## Evolution
 
