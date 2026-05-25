@@ -217,9 +217,23 @@ Linha de pesquisa visual:
 
 **Plans**:
 
+**Wave 1**
+
 - [ ] 04-01: Implementar autenticação, onboarding e criação de personagem.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 04-02: Implementar painel do personagem, atributos, progressão e estado atual.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 04-03: Implementar inventário, equipamentos, magias equipadas e missões.
+
+**Cross-cutting constraints:**
+
+- D-09: Experiência mobile deve manter leitura rápida por empilhamento e blocos estáveis, sem rolagem horizontal global.
+- D-10: Shell `/play` permanece isolado de `/admin`; controles administrativos nunca aparecem no player.
+- D-26: Supabase Auth, sessão persistida e RLS; `service_role` permanece proibido no navegador.
 
 ### Phase 5: Combate Interativo e Realtime
 
