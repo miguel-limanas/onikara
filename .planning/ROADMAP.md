@@ -227,7 +227,11 @@ Linha de pesquisa visual:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03: Implementar inventário, equipamentos, magias equipadas e missões.
+- [ ] 04-03: Implementar inventário, equipamentos e magias equipadas.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 04-04: Implementar aba de missões do jogador.
 
 **Cross-cutting constraints:**
 
