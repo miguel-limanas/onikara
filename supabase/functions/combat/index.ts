@@ -248,6 +248,30 @@ async function loadCampaignSession(admin: any, campaignId: string) {
   return session ? hydrate(admin, session) : null;
 }
 
+// Sessão por id para quem participa (jogador/mestre), mesmo depois de encerrada.
+async function loadSessionForViewer(admin: any, user: any, profile: any, sessionId: string) {
+  const session = await must(admin.from('combat_sessions').select('*').eq('id', sessionId).maybeSingle());
+  if (!session) return null;
+  let isMaster = false;
+  let allowed = Boolean(profile && session.profile_id === profile.id);
+  if (!allowed && session.campaign_id) {
+    const campaign: any = await must(admin.from('campaigns').select('master_user_id').eq('id', session.campaign_id).maybeSingle());
+    if (campaign?.master_user_id === user.id) {
+      allowed = true;
+      isMaster = true;
+    }
+  }
+  if (!allowed && profile) {
+    const rows: any[] = await must(
+      admin.from('combat_participants').select('id').eq('combat_session_id', sessionId).eq('profile_id', profile.id),
+    );
+    allowed = rows.length > 0;
+  }
+  if (!allowed) return null;
+  const loaded = await hydrate(admin, session);
+  return { ...loaded, isMaster };
+}
+
 async function ownedCampaign(admin: any, userId: string, campaignId: string) {
   const campaign: any = await must(admin.from('campaigns').select('*').eq('id', campaignId).maybeSingle());
   if (!campaign || campaign.master_user_id !== userId) return null;
@@ -526,6 +550,17 @@ Deno.serve(async (request: Request) => {
         if (!profile) return fail(request, 404, 'no_profile', 'Crie seu personagem antes de lutar.');
         return await startSolo(request, admin, profile, body, isTest);
       case 'state': {
+        if (body.sessionId) {
+          const found: any = await loadSessionForViewer(admin, user, profile, String(body.sessionId));
+          if (!found) return json(request, 200, { ok: true, active: false });
+          const viewer = viewerFor(found.state, profile, found.isMaster);
+          return json(request, 200, {
+            ok: true,
+            active: found.session.status === 'active',
+            ...publicView(found.session, found.state, viewer),
+            status: found.session.status,
+          });
+        }
         const caller: any = await resolveCaller(admin, user, profile, body);
         if (caller.error === 'not_master') return fail(request, 403, 'not_master', 'Você não é o mestre desta campanha.');
         if (caller.error === 'no_profile' || !caller.loaded) return json(request, 200, { ok: true, active: false });

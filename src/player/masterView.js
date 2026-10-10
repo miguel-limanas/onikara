@@ -15,7 +15,7 @@ import {
   setSpellGranted,
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
-import { mountFight } from './fightScreen.js';
+import { attachLive, mountFight } from './fightScreen.js';
 
 function feedbackLine(node, message, tone = '') {
   if (!node) return;
@@ -213,7 +213,7 @@ export async function renderMasterView(container, { session }) {
     if (active.ok && active.data.active) {
       const log = await loadSessionLog(active.data.sessionId);
       const driver = createRemoteDriver(active.data, { log, campaignId: campaign.id });
-      mountFight(combatHost, {
+      const fight = mountFight(combatHost, {
         driver,
         perspective: 'master',
         title: 'Combate da campanha',
@@ -226,6 +226,7 @@ export async function renderMasterView(container, { session }) {
         },
         onExit: () => renderCombatArea(),
       });
+      attachLive({ driver, fight, container: combatHost });
       return;
     }
 

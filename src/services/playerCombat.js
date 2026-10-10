@@ -143,8 +143,8 @@ async function callCombat(body) {
 }
 
 // Jogador: combate ativo (solo ou da campanha). Mestre: informe campaignId.
-export function fetchActiveCombat({ campaignId } = {}) {
-  return callCombat({ op: 'state', campaignId });
+export function fetchActiveCombat({ campaignId, sessionId } = {}) {
+  return callCombat({ op: 'state', campaignId, sessionId });
 }
 
 export function startRemoteCombat(enemyIds) {
@@ -226,12 +226,79 @@ export function createRemoteDriver(view, { log = [], campaignId = null } = {}) {
     },
     // Reconsulta o servidor (usado por Realtime e polling). Devolve true se algo mudou.
     async sync() {
-      const result = await fetchActiveCombat({ campaignId });
-      if (!result.ok || !result.data.active) return { changed: false, ended: result.ok && !result.data.active };
-      if (result.data.version === current.version) return { changed: false, ended: false };
+      const result = await fetchActiveCombat({ campaignId, sessionId: current.sessionId });
+      if (!result.ok || !result.data.state) return { changed: false, ended: false };
+      if (result.data.version === current.version) return { changed: false, ended: current.status !== 'active' };
       current = result.data;
       return { changed: true, ended: result.data.status !== 'active' };
     },
     knownSeqs: known,
   };
+}
+
+// ---- Realtime (plano 05-06) ----------------------------------------------------------
+// Escuta eventos e a sessão; a RLS de leitura garante que só participantes e o mestre recebem.
+// Em caso de falha do canal, cai para consulta periódica (sem erro visível).
+
+let activeWatch = null;
+
+export function watchCombat(sessionId, { onChange, onStatus = () => {}, pollMs = 4000 }) {
+  if (activeWatch) activeWatch();
+  let closed = false;
+  let timer = null;
+  let live = false;
+
+  function startPolling() {
+    if (timer || closed) return;
+    timer = setInterval(() => onChange(), pollMs);
+  }
+
+  function stopPolling() {
+    if (timer) clearInterval(timer);
+    timer = null;
+  }
+
+  const channel = supabase
+    .channel(`combat:${sessionId}`)
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'combat_events', filter: `combat_session_id=eq.${sessionId}` },
+      () => onChange(),
+    )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'combat_sessions', filter: `id=eq.${sessionId}` },
+      () => onChange(),
+    )
+    .subscribe((status) => {
+      if (closed) return;
+      if (status === 'SUBSCRIBED') {
+        live = true;
+        stopPolling();
+        onStatus('live');
+        onChange();
+      } else if (['CHANNEL_ERROR', 'TIMED_OUT', 'CLOSED'].includes(status)) {
+        live = false;
+        onStatus('polling');
+        startPolling();
+      }
+    });
+
+  // Se o canal não confirmar em alguns segundos, usa a consulta periódica.
+  const fallback = setTimeout(() => {
+    if (!live && !closed) {
+      onStatus('polling');
+      startPolling();
+    }
+  }, 6000);
+
+  const stop = () => {
+    closed = true;
+    clearTimeout(fallback);
+    stopPolling();
+    supabase.removeChannel(channel);
+    if (activeWatch === stop) activeWatch = null;
+  };
+  activeWatch = stop;
+  return stop;
 }

@@ -1,4 +1,5 @@
 import { previewElemental } from '../engine/combat/index.js';
+import { loadSessionLog, watchCombat } from '../services/playerCombat.js';
 import { escapeHtml, html } from '../ui/components.js';
 import { logMarkup } from './combatLog.js';
 
@@ -127,7 +128,7 @@ function actionButton(action, state, targetId) {
 // driver: { kind, getState, getViewer, actionsFor, act, [suggest], [sessionId] }
 // perspective: 'player' (age pelo próprio personagem) | 'master' (age pelo inimigo da vez)
 export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true }) {
-  const ui = { targetId: null, busy: false, message: '' };
+  const ui = { targetId: null, busy: false, message: '', connection: '' };
   let logHtml = '';
 
   function actingParticipant(state) {
@@ -169,6 +170,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
       <section class="ok-panel ok-combat" aria-labelledby="combat-title">
         <div class="ok-combat__top">
           <h2 id="combat-title" class="ok-section-title">${escapeHtml(title)} · Rodada ${state.round}</h2>
+          ${ui.connection ? `<span class="ok-badge ${ui.connection === 'live' ? 'is-success' : ''}">${ui.connection === 'live' ? 'Ao vivo' : 'Atualizando a cada poucos segundos'}</span>` : ''}
           ${finished ? '' : `<ol class="ok-combat-order" aria-label="Ordem de turno">${orderStrip(state)}</ol>`}
         </div>
         <div class="ok-combat__field">
@@ -329,5 +331,47 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     refresh(events = []) {
       render(events);
     },
+    // Reconstrói o registro a partir do histórico do servidor.
+    replaceLog(events) {
+      logHtml = '';
+      render(events);
+    },
+    isBusy: () => ui.busy,
+    setConnection(status) {
+      if (ui.connection === status) return;
+      ui.connection = status;
+      if (!ui.busy) render();
+    },
   };
+}
+
+// Mantém a tela sincronizada com o servidor (Realtime, com consulta periódica de reserva).
+export function attachLive({ driver, fight, container }) {
+  let pending = false;
+  let stop = () => {};
+
+  async function sync() {
+    if (pending || fight.isBusy()) return;
+    if (!container.isConnected) {
+      stop();
+      return;
+    }
+    pending = true;
+    try {
+      const result = await driver.sync();
+      if (result.changed) {
+        const log = await loadSessionLog(driver.sessionId);
+        fight.replaceLog(log);
+      }
+      if (result.ended) stop();
+    } finally {
+      pending = false;
+    }
+  }
+
+  stop = watchCombat(driver.sessionId, {
+    onChange: sync,
+    onStatus: (status) => fight.setConnection(status),
+  });
+  return stop;
 }

@@ -9,7 +9,7 @@ import {
   startRemoteCombat,
 } from '../services/playerCombat.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
-import { mountFight } from './fightScreen.js';
+import { attachLive, mountFight } from './fightScreen.js';
 
 const ELEMENT_LABELS = {
   fire: 'Fogo',
@@ -35,7 +35,7 @@ export async function renderCombatView(container, { profile, session }) {
   const canTrain = isTestAccount(session);
 
   function openFight(driver, { remote, inCampaign = false }) {
-    mountFight(container, {
+    const fight = mountFight(container, {
       driver,
       perspective: 'player',
       title: remote ? 'Combate' : 'Treino local',
@@ -46,6 +46,7 @@ export async function renderCombatView(container, { profile, session }) {
       onExit: () => renderSelect(),
       onLeave: remote && !inCampaign ? () => leave(driver) : null,
     });
+    if (remote) attachLive({ driver, fight, container });
   }
 
   async function leave(driver) {
