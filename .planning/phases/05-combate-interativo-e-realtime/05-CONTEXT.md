@@ -1,7 +1,7 @@
 # Phase 5: Combate Interativo e Realtime - Context
 
 **Gathered:** 2026-10-10
-**Status:** Planejada, aguardando validação das decisões em aberto (seção "Decisões em aberto")
+**Status:** Planejada, com decisões confirmadas em 2026-10-10; pronta para executar 05-01
 
 <domain>
 ## Phase Boundary
@@ -113,18 +113,17 @@ O projeto não tem testes. A Fase 5 introduz o mínimo viável, sem dependência
 - Conteúdo escasso (2 inimigos, 8 magias) limita a diversão. Mitigação: conteúdo é do mestre (D-14); o seed cobre o mínimo até o mestre cadastrar.
 - Mudar RLS pode quebrar telas da Fase 4 (onboarding, equipar). Mitigação: 05-08 isolado, com UAT de regressão de `/play` e `/admin`.
 
-## Decisões em aberto (dono do produto)
+## Decisões confirmadas na rodada 2 (2026-10-10)
 
-Confirmadas em 2026-10-10: D-01 (servidor como autoridade), D-10 a D-18 acima.
+- **D-19 (inimigos):** o mestre controla os inimigos. A IA simples do motor (05-02) fica como apoio opcional: sugere ou executa a ação quando o mestre pedir.
+- **D-20 (campanha):** um jogador pertence a uma campanha por vez no MVP.
+- **D-21 (início e recompensa):** o mestre inicia o combate e o mestre concede as recompensas. O servidor calcula o valor sugerido (XP e loot do inimigo) e o mestre confirma ou ajusta; a concessão é idempotente.
+- **D-22 (turnos):** ordem automática por velocidade; o mestre pode pausar, pular e encerrar.
+- **D-23 (ataque básico):** o dado vem da arma equipada (1d4 a 1d10); sem arma, 1d4.
+- **D-24 (medicina e regeneração):** teste de medicina é d20 + inteligência contra uma DT variável (definida pelo mestre; padrão 12 quando ele não define). A regeneração de HP por dia também é variável (rolagem configurável por regra), e poções recuperam instantaneamente.
+- **D-25 (conteúdo):** nada de conteúdo novo nesta fase; vale só o que existe (2 inimigos, 8 magias, itens do seed). Cadastro pelo mestre fica para uma fase própria.
 
-Ainda abertas, cada uma com padrão proposto:
-
-- **A. Quem controla os inimigos na luta?** Padrão proposto: IA simples por padrão (05-02); o mestre pode assumir a ação de qualquer inimigo no seu turno. Alternativa: só o mestre, sem IA.
-- **B. Campanha:** padrão proposto: o mestre cria uma campanha e convida jogadores; cada jogador pertence a uma campanha por vez no MVP (tabelas `campaigns` e `campaign_members`). Alternativa: jogadores em várias campanhas.
-- **C. Quem inicia o combate e quem recebe a recompensa?** Padrão proposto: só o mestre inicia; XP e loot saem automáticos por regra no fim da luta e o mestre pode conceder extras depois.
-- **D. Ordem de turno:** padrão proposto: automática por velocidade (como no balanceamento) e o mestre pode pausar, pular ou encerrar. Alternativa: o mestre define a ordem.
-- **E. Dado do ataque básico (1d4 a 1d10):** padrão proposto: definido pela arma equipada (sem arma, 1d4). Alternativa: definido pela classe.
-- **F. Teste de medicina:** padrão proposto: d20 + inteligência contra uma DT fixada na regra (por exemplo, 12); passou, recupera 25% do HP máximo, no máximo uma vez por dia. Alternativa: o mestre define a DT.
+Não há decisões abertas bloqueando o 05-01.
 </decisions>
 
 <canonical_refs>
