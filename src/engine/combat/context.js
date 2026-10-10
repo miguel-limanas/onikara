@@ -49,11 +49,15 @@ function finiteOrNull(value) {
 }
 
 // `data`: { rows: {items, enemies, enemySpells}, classSpells, rpgClass, characterSpells, inventory, equipment }
-export function buildParticipants(data, profile, { enemyIds, idFor = (kind, index) => (kind === 'player' ? 'player-1' : `enemy-${index + 1}`) }) {
+export function buildPlayerParticipant(data, profile, { id, extraSpellIds = [] }) {
   const gear = equipmentSummary({ items: data.rows.items, inventory: data.inventory, equipment: data.equipment });
   const state = profile.current_state || {};
-  const player = playerParticipant({
-    id: idFor('player', 0),
+  const spells = combatSpellIds(data, profile.level);
+  for (const spellId of extraSpellIds) {
+    if (!spells.includes(spellId)) spells.push(spellId);
+  }
+  return playerParticipant({
+    id,
     name: profile.character_name,
     profileId: profile.id,
     baseStats: profile.base_stats,
@@ -61,19 +65,26 @@ export function buildParticipants(data, profile, { enemyIds, idFor = (kind, inde
     level: profile.level,
     equipmentStats: gear.bonus,
     elementId: profile.element_id || null,
-    spells: combatSpellIds(data, profile.level),
+    spells,
     items: consumableStacks({ items: data.rows.items, inventory: data.inventory }),
     weaponDie: gear.weaponDie,
     currentHp: finiteOrNull(state.hp),
     currentMana: finiteOrNull(state.mana),
   });
-  const enemies = enemyIds.map((enemyId, index) => {
-    const enemy = data.rows.enemies.find((row) => row.id === enemyId);
+}
+
+export function buildEnemyParticipants(rows, { enemyIds, idFor }) {
+  return enemyIds.map((enemyId, index) => {
+    const enemy = rows.enemies.find((row) => row.id === enemyId);
     return enemyParticipant({
       id: idFor('enemy', index),
       enemy,
-      spellRows: data.rows.enemySpells.filter((row) => row.enemy_id === enemyId),
+      spellRows: rows.enemySpells.filter((row) => row.enemy_id === enemyId),
     });
   });
-  return [player, ...enemies];
+}
+
+export function buildParticipants(data, profile, { enemyIds, idFor = (kind, index) => (kind === 'player' ? 'player-1' : `enemy-${index + 1}`) }) {
+  const player = buildPlayerParticipant(data, profile, { id: idFor('player', 0) });
+  return [player, ...buildEnemyParticipants(data.rows, { enemyIds, idFor })];
 }

@@ -100,6 +100,7 @@ export function createLocalDriver(context, profile, { enemyIds, seed = newSeed()
   return {
     kind: 'local',
     seed,
+    getViewer: () => ({ role: 'player', participantId: 'player-1' }),
     getState: () => state,
     getLog: () => log,
     actionsFor: (actorId) => listActions(state, actorId),
@@ -114,7 +115,12 @@ export function createLocalDriver(context, profile, { enemyIds, seed = newSeed()
   };
 }
 
-// ---- Combate autoritativo (Edge Function `combat`, plano 05-04) ------------------------
+// ---- Combate autoritativo (Edge Function `combat`, planos 05-04 e 05-05) ------------------
+
+const UNAVAILABLE = {
+  code: 'unavailable',
+  message: 'O servidor de combate não respondeu. Tente de novo em instantes.',
+};
 
 async function callCombat(body) {
   try {
@@ -127,33 +133,30 @@ async function callCombat(body) {
         detail = null;
       }
       if (detail?.error) return { ok: false, data: detail, error: detail.error };
-      return {
-        ok: false,
-        data: null,
-        error: { code: 'unavailable', message: 'O servidor de combate não respondeu. Tente de novo em instantes.' },
-      };
+      return { ok: false, data: null, error: UNAVAILABLE };
     }
     if (data?.ok === false) return { ok: false, data, error: data.error };
     return { ok: true, data, error: null };
   } catch {
-    return {
-      ok: false,
-      data: null,
-      error: { code: 'unavailable', message: 'O servidor de combate não respondeu. Tente de novo em instantes.' },
-    };
+    return { ok: false, data: null, error: UNAVAILABLE };
   }
 }
 
-export function fetchActiveCombat() {
-  return callCombat({ op: 'state' });
+// Jogador: combate ativo (solo ou da campanha). Mestre: informe campaignId.
+export function fetchActiveCombat({ campaignId } = {}) {
+  return callCombat({ op: 'state', campaignId });
 }
 
 export function startRemoteCombat(enemyIds) {
   return callCombat({ op: 'start', enemyIds });
 }
 
-export function abandonRemoteCombat(sessionId) {
-  return callCombat({ op: 'abandon', sessionId });
+export function startCampaignCombat(campaignId, enemyIds) {
+  return callCombat({ op: 'start', campaignId, enemyIds });
+}
+
+export function abandonRemoteCombat(sessionId, { campaignId } = {}) {
+  return callCombat({ op: 'abandon', sessionId, campaignId });
 }
 
 export async function loadSessionLog(sessionId) {
@@ -165,32 +168,42 @@ export async function loadSessionLog(sessionId) {
       .order('seq'),
   );
   if (!result.ok) return [];
-  return result.data.map((row) => ({
+  return result.data.map((row) => toEngineEvent(row));
+}
+
+export function toEngineEvent(row) {
+  return {
     type: row.event_type,
     round: row.turn_number,
     actorId: row.actor_participant_id,
     targetId: row.target_participant_id,
     payload: row.payload || {},
-  }));
+    seq: row.seq ?? null,
+  };
 }
 
 // Mesma forma do driver local; as decisões vêm do servidor e o estado é só espelhado aqui.
-export function createRemoteDriver(view, { log = [] } = {}) {
+// Com `campaignId` o driver age como mestre (pelo inimigo da vez).
+export function createRemoteDriver(view, { log = [], campaignId = null } = {}) {
   let current = view;
   let events = [...log, ...(view.events || [])];
+  const known = new Set(events.map((event) => event.seq).filter((seq) => seq !== null));
 
   return {
     kind: 'remote',
-    sessionId: view.sessionId,
+    get sessionId() {
+      return current.sessionId;
+    },
     getState: () => current.state,
+    getViewer: () => current.viewer || { role: 'player', participantId: null },
     getLog: () => events,
     getVersion: () => current.version,
     actionsFor: (actorId) => listActions(current.state, actorId),
-    initialEvents: events,
     async act(action) {
       const { actorId, ...move } = action;
       const result = await callCombat({
         op: 'act',
+        campaignId,
         sessionId: current.sessionId,
         version: current.version,
         move,
@@ -202,8 +215,23 @@ export function createRemoteDriver(view, { log = [] } = {}) {
         throw error;
       }
       current = result.data;
-      events = events.concat(result.data.events || []);
-      return { state: current.state, events: result.data.events || [] };
+      const fresh = result.data.events || [];
+      events = events.concat(fresh);
+      return { state: current.state, events: fresh };
     },
+    async suggest() {
+      const result = await callCombat({ op: 'suggest', campaignId });
+      if (!result.ok) throw new Error(result.error?.message || 'Sem sugestão disponível.');
+      return result.data.move;
+    },
+    // Reconsulta o servidor (usado por Realtime e polling). Devolve true se algo mudou.
+    async sync() {
+      const result = await fetchActiveCombat({ campaignId });
+      if (!result.ok || !result.data.active) return { changed: false, ended: result.ok && !result.data.active };
+      if (result.data.version === current.version) return { changed: false, ended: false };
+      current = result.data;
+      return { changed: true, ended: result.data.status !== 'active' };
+    },
+    knownSeqs: known,
   };
 }

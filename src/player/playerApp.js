@@ -1,8 +1,9 @@
-import { requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
+import { getAppRole, requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
 import { errorBlock, escapeHtml, html } from '../ui/components.js';
 import { renderCombatView } from './combatView.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
+import { renderMasterView } from './masterView.js';
 import { renderQuestsView } from './questsView.js';
 import { renderSpellsView } from './spellsView.js';
 import { renderOnboardingView } from './onboardingView.js';
@@ -14,17 +15,28 @@ const state = {
   profile: null,
 };
 
-const sections = [
+const allSections = [
   { id: 'personagem', label: 'Personagem', render: (container) => renderDashboardView(container, { profile: state.profile }) },
   { id: 'inventario', label: 'Inventário', render: (container) => renderInventoryView(container, { profile: state.profile }) },
   { id: 'magias', label: 'Magias', render: (container) => renderSpellsView(container, { profile: state.profile }) },
   { id: 'combate', label: 'Combate', render: (container) => renderCombatView(container, { profile: state.profile, session: state.session }) },
   { id: 'missoes', label: 'Missões', render: (container) => renderQuestsView(container, { profile: state.profile }) },
+  { id: 'mestre', label: 'Mestre', role: 'master', render: (container) => renderMasterView(container, { session: state.session }) },
 ];
+
+// Mestre sem personagem só enxerga a seção do mestre; jogador nunca vê controles de mestre.
+function visibleSections() {
+  const isMaster = getAppRole(state.session) === 'master';
+  return allSections.filter((section) => {
+    if (section.role === 'master') return isMaster;
+    return Boolean(state.profile);
+  });
+}
 
 function currentSectionId() {
   const hash = window.location.hash.replace('#', '');
-  return sections.some((section) => section.id === hash) ? hash : 'personagem';
+  const sections = visibleSections();
+  return sections.some((section) => section.id === hash) ? hash : sections[0].id;
 }
 
 function mountParticles() {
@@ -67,7 +79,7 @@ function renderShell() {
           <span class="ok-player-brand__text">Onikara</span>
         </a>
         <nav class="ok-player-nav" aria-label="Seções do jogador">
-          ${sections
+          ${visibleSections()
             .map(
               (section) =>
                 `<a class="ok-player-nav__link" href="#${section.id}" data-section="${section.id}">${escapeHtml(section.label)}</a>`,
@@ -75,7 +87,7 @@ function renderShell() {
             .join('')}
         </nav>
         <div class="ok-player-topbar__user">
-          <span class="ok-player-topbar__name">${escapeHtml(state.profile.character_name)}</span>
+          <span class="ok-player-topbar__name">${escapeHtml(state.profile?.character_name || state.session.user.email)}</span>
           <button id="player-logout" class="ok-button" type="button">Sair</button>
         </div>
       </header>
@@ -94,7 +106,7 @@ async function showSection() {
     else link.removeAttribute('aria-current');
   });
   const container = document.querySelector('#player-main');
-  const section = sections.find((item) => item.id === id);
+  const section = visibleSections().find((item) => item.id === id);
   try {
     await section.render(container);
   } catch (error) {
@@ -136,7 +148,8 @@ async function boot() {
   state.session = auth.session;
   state.profile = auth.profile;
 
-  if (auth.status === 'needs_profile') {
+  // O mestre não precisa de personagem para conduzir a campanha.
+  if (auth.status === 'needs_profile' && getAppRole(auth.session) !== 'master') {
     await showOnboarding();
     return;
   }
