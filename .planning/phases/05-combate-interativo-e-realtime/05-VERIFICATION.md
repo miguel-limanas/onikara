@@ -33,7 +33,7 @@ Usuários de teste (todos `@onikara.local`, mesma senha de desenvolvimento): `jo
 - Publicação da Edge Function (`supabase functions deploy`) e empacotamento de produção; a importação de `src/engine` foi validada só no `functions serve` local.
 - Dois navegadores/usuários ao mesmo tempo (o login compartilha o armazenamento do navegador); a ação do jogador chegando na tela do mestre foi verificada só pela API.
 - Reconexão forçada do canal Realtime e o modo de consulta periódica.
-- Telas do `/admin` (login de admin, catálogos, balanceamento, jogadores e sessões) após as mudanças de RLS; as políticas de leitura do admin foram mantidas por SQL, mas a interface não foi reaberta.
+- Telas do `/admin` no navegador (sem a senha do admin local). Por SQL, com o papel admin: leitura de perfis, inventário, equipamento, missões, sessões, participantes, eventos, recompensas, campanhas e auditoria funciona, e a escrita em catálogos continua permitida.
 - Botão "Usar" do inventário e botão de medicina pela interface (verificados só pela RPC), recompensas com subida de nível pela interface, acessibilidade por teclado completa e mobile do mestre.
 - Efeitos de custo percentual de mana, esquiva e `scales_with: power` em dano por turno (fora do escopo, ver `05-ENGINE-SPEC.md`).
 
