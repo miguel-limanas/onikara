@@ -88,7 +88,7 @@ Linha de pesquisa visual:
 - [x] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas. (completed 2026-05-24)
 - [x] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase. (completed 2026-05-24)
 - [x] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
-- [ ] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate.
+- [x] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate. (implementada em 2026-10-10, ver `05-VERIFICATION.md`)
 - [ ] **Phase 6: Observabilidade, Suporte e Polimento** - Métricas, auditoria, ferramentas de suporte, qualidade visual, acessibilidade e UAT.
 
 ---
@@ -260,35 +260,35 @@ Linha de pesquisa visual:
 
 **Wave 1**
 
-- [ ] 05-01: Motor de combate puro e testado: iniciativa, ação, dano com fraqueza elemental, mana, recarga e simulador de terminal.
+- [x] 05-01: Motor de combate puro e testado: iniciativa, ação, dano com fraqueza elemental, mana, recarga e simulador de terminal.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02: Motor: efeitos de status, consumíveis, fuga e IA simples dos inimigos, com simulação em lote.
+- [x] 05-02: Motor: efeitos de status, consumíveis, fuga e IA simples dos inimigos, com simulação em lote.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03: Aba Combate em `/play`: HUD, ordem de turno, ações, recargas e log, em modo treino local sem recompensas.
+- [x] 05-03: Aba Combate em `/play`: HUD, ordem de turno, ações, recargas e log, em modo treino local sem recompensas.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 05-04: Combate autoritativo (Edge Function com o mesmo motor), RLS somente leitura e persistência de sessões, participantes e eventos.
+- [x] 05-04: Combate autoritativo (Edge Function com o mesmo motor), RLS somente leitura e persistência de sessões, participantes e eventos.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 05-05: Campanha e papel do mestre: sessões multi-jogador conduzidas pelo mestre, atribuição de inimigos e magias aos jogadores da campanha e RLS por perfil (admin, mestre, jogador).
+- [x] 05-05: Campanha e papel do mestre: sessões multi-jogador conduzidas pelo mestre, atribuição de inimigos e magias aos jogadores da campanha e RLS por perfil (admin, mestre, jogador).
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 05-06: Realtime do combate entre mestre e jogadores.
+- [x] 05-06: Realtime do combate entre mestre e jogadores.
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 05-07: Recompensas: XP e nível, loot, recuperação de HP, aceitar missão, progresso por combate e resgate de recompensa.
+- [x] 05-07: Recompensas: XP e nível, loot, recuperação de HP, aceitar missão, progresso por combate e resgate de recompensa.
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 05-08: Anti-trapaça: `create_character` por RPC e escrita direta restrita em perfil, inventário e missões.
+- [x] 05-08: Anti-trapaça: `create_character` por RPC e escrita direta restrita em perfil, inventário e missões.
 
 **Cross-cutting constraints:**
 
@@ -333,5 +333,5 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 4/4 | Complete    | 2026-05-24 |
 | 4. Área do Jogador | v1.0 Player MVP | 4/4 | Complete | 2026-10-10 |
-| 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/8 | Planned | - |
+| 5. Combate Interativo e Realtime | v1.0 Player MVP | 8/8 | Implemented (sem UAT formal) | 2026-10-10 |
 | 6. Observabilidade, Suporte e Polimento | v1.0 Hardening | 0/4 | Not started | - |
