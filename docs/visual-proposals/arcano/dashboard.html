@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Onikara · Arcano · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="shell"><aside class="rail"><a class="rail__logo" href="dashboard.html"><img src="../../../.planning/design-system/assets/onikara-logotipo.png" alt="Onikara" /></a><nav><a class="rail__item is-active" href="dashboard.html" title="Dashboard"><i>◈</i><span>Dashboard</span></a><a class="rail__item" href="catalogs.html" title="Auditoria"><i>≡</i><span>Auditoria</span></a><a class="rail__item" href="catalogs.html" title="Classes"><i>⚔</i><span>Classes</span></a><a class="rail__item" href="catalogs.html" title="Raças"><i>☆</i><span>Raças</span></a><a class="rail__item" href="catalogs.html" title="Elementos"><i>✶</i><span>Elementos</span></a><a class="rail__item" href="catalogs.html" title="Magias"><i>♨</i><span>Magias</span></a><a class="rail__item" href="catalogs.html" title="Itens & Equipamentos"><i>▣</i><span>Itens & Equipamentos</span></a><a class="rail__item" href="catalogs.html" title="Inimigos & NPCs"><i>△</i><span>Inimigos & NPCs</span></a><a class="rail__item" href="catalogs.html" title="Missões"><i>☑</i><span>Missões</span></a><a class="rail__item" href="player.html" title="Jogador"><i>◉</i><span>Jogador</span></a></nav></aside><div class="main"><header class="hud"><div class="hud__stat"><small>Reino</small><b>Onikara</b></div><div class="hud__bar"><span>Mana global</span><div><i style="--v:72%"></i></div></div><div class="hud__stat"><small>Papel</small><b>Admin</b></div><a class="btn btn--ghost" href="login.html">Sair</a></header><main class="content"><div class="page-head"><p class="eyebrow">Onikara Control</p><h1>Dashboard <em>operacional</em></h1></div>
+  <section class="metrics">
+    <div class="metric"><span class="metric__label">Catálogos</span><strong class="metric__value">35</strong><small>conteúdo governado</small><i class="metric__bar" style="--v:78%"></i></div>
+    <div class="metric metric--gold"><span class="metric__label">Regras ativas</span><strong class="metric__value">5</strong><small>publicadas</small><i class="metric__bar" style="--v:62%"></i></div>
+    <div class="metric metric--red"><span class="metric__label">Drafts</span><strong class="metric__value">0</strong><small>pendentes</small><i class="metric__bar" style="--v:6%"></i></div>
+    <div class="metric metric--blue"><span class="metric__label">Auditoria</span><strong class="metric__value">3</strong><small>eventos recentes</small><i class="metric__bar" style="--v:30%"></i></div>
+  </section>
+  <section class="split">
+    <div class="panel">
+      <header class="panel__head"><h2>Status de catálogos</h2><a class="btn btn--ghost" href="catalogs.html">Abrir catálogos</a></header>
+      <table class="data"><thead><tr><th>Tabela</th><th>Registros</th><th>Estado</th></tr></thead><tbody>
+        <tr><td>rpg_classes</td><td>2</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>rpg_races</td><td>4</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>elements</td><td>6</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>status_effects</td><td>6</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>spells</td><td>8</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>items</td><td>6</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>enemies</td><td>2</td><td><span class="badge badge--ok">Ativo</span></td></tr><tr><td>quests</td><td>1</td><td><span class="badge badge--ok">Ativo</span></td></tr>
+      </tbody></table>
+    </div>
+    <div class="stack">
+      <div class="panel">
+        <header class="panel__head"><h2>Reserva de mana do reino</h2></header>
+        <div class="gauge"><div class="gauge__ring"><b>72%</b><small>sincronia</small></div>
+          <ul class="legend"><li><i style="--c:var(--fire)"></i>Fogo 34%</li><li><i style="--c:var(--water)"></i>Água 26%</li><li><i style="--c:var(--ice)"></i>Gelo 18%</li><li><i style="--c:var(--shadow)"></i>Sombra 22%</li></ul></div>
+      </div>
+      <div class="panel">
+        <header class="panel__head"><h2>Auditoria recente</h2><a class="btn btn--ghost" href="catalogs.html">Ver logs</a></header>
+        <ul class="feed"><li><time>10/10 16:40</time><span><span class="badge badge--ok">insert</span></span><em>spells</em><code>frost-lance</code></li><li><time>10/10 16:12</time><span><span class="badge badge--warn">update</span></span><em>mana_rules</em><code>v3</code></li><li><time>10/10 15:58</time><span><span class="badge badge--warn">update</span></span><em>rpg_races</em><code>oni-ember</code></li></ul>
+      </div>
+    </div>
+  </section></main></div></div>
+<script src="fx.js"></script></body></html>
