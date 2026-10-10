@@ -19,6 +19,7 @@ function resolvePath(url) {
   const routeMap = {
     '/': '/public/index.html',
     '/admin': '/public/admin.html',
+    '/play': '/public/play.html',
   };
   const requested = normalize(routeMap[cleanUrl] || cleanUrl);
   let filePath = resolve(join(root, requested));
@@ -39,6 +40,8 @@ createServer((request, response) => {
     '/public/index.html': '/',
     '/admin.html': '/admin',
     '/public/admin.html': '/admin',
+    '/play.html': '/play',
+    '/public/play.html': '/play',
   };
 
   if (redirects[cleanUrl]) {

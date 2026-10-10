@@ -671,7 +671,7 @@
     </main>
 
     <script type="module">
-      import { signInAdmin } from '../src/services/adminAuth.js';
+      import { resolveDestination, signInPlayer } from '../src/services/playerAuth.js';
 
       const form = document.querySelector('#login-form');
       const submit = document.querySelector('#login-submit');
@@ -683,7 +683,7 @@
         status.className = 'login-status';
         submit.disabled = true;
 
-        const result = await signInAdmin({
+        const result = await signInPlayer({
           email: form.email.value,
           password: form.password.value,
         });
@@ -696,9 +696,11 @@
           return;
         }
 
-        status.textContent = 'Sessão criada. Abrindo painel de controle...';
+        const destination = resolveDestination(result.session);
+        status.textContent =
+          destination === '/admin' ? 'Sessão criada. Abrindo painel de controle...' : 'Sessão criada. Abrindo seu mundo...';
         status.className = 'login-status is-success';
-        window.location.href = '/admin';
+        window.location.href = destination;
       });
     </script>
   </body>

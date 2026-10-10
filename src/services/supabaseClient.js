@@ -15,22 +15,22 @@ export function normalizeSupabaseError(error) {
   const lower = message.toLowerCase();
 
   if (lower.includes('jwt') || lower.includes('session')) {
-    return { code: 'session', message: 'Sessao expirada. Entre novamente.' };
+    return { code: 'session', message: 'Sessão expirada. Entre novamente.' };
   }
 
   if (lower.includes('permission') || lower.includes('policy') || lower.includes('rls')) {
     return {
       code: 'forbidden',
-      message: 'Seu usuario nao tem permissao para esta acao administrativa.',
+      message: 'Seu usuário não tem permissão para esta ação.',
     };
   }
 
   if (lower.includes('duplicate') || lower.includes('unique')) {
-    return { code: 'conflict', message: 'Ja existe um registro com esse identificador.' };
+    return { code: 'conflict', message: 'Já existe um registro com esse identificador.' };
   }
 
   if (lower.includes('violates') || lower.includes('constraint')) {
-    return { code: 'invalid', message: 'Revise os campos: ha uma regra do banco impedindo o salvamento.' };
+    return { code: 'invalid', message: 'Revise os campos: há uma regra do banco impedindo o salvamento.' };
   }
 
   return { code: error.code || 'supabase_error', message };
