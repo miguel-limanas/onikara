@@ -1,0 +1,76 @@
+{
+  "combatRules": {
+    "initiative": { "order_by": "speed", "tie_breaker": "player_first", "turn_seeded": true },
+    "damage_formula": {
+      "physical": "strength + power - defense",
+      "magical": "intelligence + power - resistance",
+      "minimum_damage": 1
+    },
+    "critical_rules": { "base_chance": 0.05, "speed_bonus_step": 0.01, "damage_multiplier": 1.5 },
+    "mitigation_rules": {
+      "defense_multiplier": 1.0,
+      "elemental_advantage_multiplier": 1.5,
+      "elemental_disadvantage_multiplier": 0.75
+    }
+  },
+  "manaRules": {
+    "regeneration": { "combat_per_turn": 5, "rest_per_minute": 25, "out_of_combat_multiplier": 5 },
+    "fatigue": { "legendary_cost_threshold": 70, "physical_penalty_turns": 1, "speed_delta": -2 },
+    "cost_rules": { "fixed_costs": true, "percent_costs_allowed": true, "minimum_remaining_mana": 0 }
+  },
+  "elements": [
+    { "id": "fire", "name": "Fogo", "strong_against": ["nature"], "weak_against": ["water"], "status_effect": "burn" },
+    { "id": "water", "name": "Agua", "strong_against": ["fire"], "weak_against": ["storm"], "status_effect": "soak" },
+    { "id": "storm", "name": "Tempestade", "strong_against": ["water"], "weak_against": ["earth"], "status_effect": "shock" },
+    { "id": "earth", "name": "Terra", "strong_against": ["storm"], "weak_against": ["nature"], "status_effect": "guard_break" },
+    { "id": "nature", "name": "Natureza", "strong_against": ["earth"], "weak_against": ["fire"], "status_effect": "poison" },
+    { "id": "neutral", "name": "Neutro", "strong_against": [], "weak_against": [], "status_effect": null }
+  ],
+  "statusEffects": [
+    { "id": "burn", "name": "Queimadura", "effect_type": "damage_over_time", "default_duration_turns": 3, "stackable": true, "rules": { "damage_per_turn": 6, "scales_with": "power" } },
+    { "id": "soak", "name": "Encharcado", "effect_type": "debuff", "default_duration_turns": 2, "stackable": false, "rules": { "storm_damage_multiplier": 1.25 } },
+    { "id": "shock", "name": "Choque", "effect_type": "control", "default_duration_turns": 1, "stackable": false, "rules": { "skip_action_chance": 0.25 } },
+    { "id": "guard_break", "name": "Guarda Quebrada", "effect_type": "debuff", "default_duration_turns": 2, "stackable": false, "rules": { "defense_multiplier": 0.75 } },
+    { "id": "poison", "name": "Veneno", "effect_type": "damage_over_time", "default_duration_turns": 4, "stackable": true, "rules": { "damage_per_turn": 4 } },
+    { "id": "slow", "name": "Lentidao", "effect_type": "debuff", "default_duration_turns": 2, "stackable": false, "rules": { "speed_delta": -2 } }
+  ],
+  "spells": [
+    { "id": "ember-strike", "name": "Golpe de Brasa", "element_id": "fire", "status_effect_id": null, "rarity": "common", "mana_cost": 12, "cooldown_turns": 1, "power": 24, "target_type": "enemy", "effects": { "status_chance": 0.2 } },
+    { "id": "fireball", "name": "Bola de Fogo", "element_id": "fire", "status_effect_id": null, "rarity": "uncommon", "mana_cost": 24, "cooldown_turns": 2, "power": 42, "target_type": "enemy", "effects": { "area": "small", "status_chance": 0.35 } },
+    { "id": "water-veil", "name": "Veu de Agua", "element_id": "water", "status_effect_id": null, "rarity": "common", "mana_cost": 14, "cooldown_turns": 2, "power": 0, "target_type": "self", "effects": { "shield": 18, "cleanse": ["burn"] } },
+    { "id": "tidal-cut", "name": "Corte da Mare", "element_id": "water", "status_effect_id": null, "rarity": "uncommon", "mana_cost": 20, "cooldown_turns": 2, "power": 34, "target_type": "enemy", "effects": { "mana_drain": 4 } },
+    { "id": "spark", "name": "Centelha", "element_id": "storm", "status_effect_id": null, "rarity": "common", "mana_cost": 10, "cooldown_turns": 1, "power": 22, "target_type": "enemy", "effects": { "status_chance": 0.18 } },
+    { "id": "stone-guard", "name": "Guarda de Pedra", "element_id": "earth", "status_effect_id": null, "rarity": "common", "mana_cost": 16, "cooldown_turns": 3, "power": 0, "target_type": "self", "effects": { "defense_bonus": 6, "duration_turns": 2 } },
+    { "id": "vine-snare", "name": "Laco de Vinhas", "element_id": "nature", "status_effect_id": null, "rarity": "common", "mana_cost": 18, "cooldown_turns": 2, "power": 18, "target_type": "enemy", "effects": { "slow": 2, "duration_turns": 1 } },
+    { "id": "focused-slash", "name": "Corte Focado", "element_id": "neutral", "status_effect_id": null, "rarity": "common", "mana_cost": 6, "cooldown_turns": 0, "power": 20, "target_type": "enemy", "effects": { "scales_with": "strength" } }
+  ],
+  "classes": [
+    { "id": "warrior", "name": "Guerreiro", "base_stats": { "hp": 120, "mana": 35, "strength": 16, "defense": 14, "intelligence": 6, "speed": 8 }, "scaling": { "hp": 14, "mana": 3, "strength": 3, "defense": 2, "intelligence": 1, "speed": 1 } },
+    { "id": "mage", "name": "Mago", "base_stats": { "hp": 80, "mana": 100, "strength": 6, "defense": 7, "intelligence": 18, "speed": 10 }, "scaling": { "hp": 8, "mana": 12, "strength": 1, "defense": 1, "intelligence": 4, "speed": 1 } }
+  ],
+  "classSpells": [
+    { "class_id": "warrior", "spell_id": "focused-slash", "unlock_level": 1 },
+    { "class_id": "warrior", "spell_id": "stone-guard", "unlock_level": 2 },
+    { "class_id": "warrior", "spell_id": "ember-strike", "unlock_level": 3 },
+    { "class_id": "mage", "spell_id": "spark", "unlock_level": 1 },
+    { "class_id": "mage", "spell_id": "water-veil", "unlock_level": 1 },
+    { "class_id": "mage", "spell_id": "fireball", "unlock_level": 2 },
+    { "class_id": "mage", "spell_id": "tidal-cut", "unlock_level": 3 },
+    { "class_id": "mage", "spell_id": "vine-snare", "unlock_level": 3 }
+  ],
+  "items": [
+    { "id": "training-sword", "name": "Espada de Treino", "item_type": "weapon", "stats": { "strength": 2 }, "effects": {} },
+    { "id": "apprentice-staff", "name": "Cajado de Aprendiz", "item_type": "weapon", "stats": { "intelligence": 2, "mana": 10 }, "effects": {} },
+    { "id": "patched-armor", "name": "Armadura Remendada", "item_type": "armor", "stats": { "defense": 2, "hp": 10 }, "effects": {} },
+    { "id": "mana-tonic", "name": "Tonico de Mana", "item_type": "consumable", "stats": {}, "effects": { "restore_mana": 25 } },
+    { "id": "health-salve", "name": "Unguento Vital", "item_type": "consumable", "stats": {}, "effects": { "restore_hp": 35 } }
+  ],
+  "enemies": [
+    { "id": "training-dummy", "name": "Boneco de Treino", "level": 1, "element_id": "neutral", "base_stats": { "hp": 60, "mana": 0, "strength": 4, "defense": 4, "intelligence": 1, "speed": 1 }, "behavior": { "strategy": "passive" }, "xp_reward": 10 },
+    { "id": "ash-imp", "name": "Imp de Cinzas", "level": 2, "element_id": "fire", "base_stats": { "hp": 75, "mana": 30, "strength": 8, "defense": 5, "intelligence": 7, "speed": 11 }, "behavior": { "strategy": "aggressive", "preferred_element": "fire" }, "xp_reward": 35 }
+  ],
+  "enemySpells": [
+    { "enemy_id": "ash-imp", "spell_id": "ember-strike", "weight": 3 },
+    { "enemy_id": "ash-imp", "spell_id": "focused-slash", "weight": 1 }
+  ]
+}
