@@ -6,3 +6,4 @@ export { DEFAULT_RULES, evaluateFormula, normalizeRules, parseFormula } from './
 export { buildCatalog, buildRules, buildScenario, unlockedSpellIds } from './scenario.js';
 export { createCombat, getActiveParticipant, isFinished } from './state.js';
 export { chooseEnemyAction, runUntilPlayerTurn } from './ai.js';
+export { buildParticipants, combatSpellIds, consumableStacks, equipmentSummary } from './context.js';

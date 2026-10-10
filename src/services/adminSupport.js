@@ -17,7 +17,7 @@ export async function loadProfileSupport(profileId) {
   let combatEvents = { ok: true, data: [] };
   if (sessions.ok && sessions.data[0]) {
     combatEvents = await runSupabase((client) =>
-      client.from('combat_events').select('*').eq('combat_session_id', sessions.data[0].id).order('turn_number'),
+      client.from('combat_events').select('*').eq('combat_session_id', sessions.data[0].id).order('seq'),
     );
   }
 

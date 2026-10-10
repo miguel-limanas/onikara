@@ -1,5 +1,14 @@
 import { previewElemental } from '../engine/combat/index.js';
-import { createLocalDriver, isTestAccount, loadCombatContext } from '../services/playerCombat.js';
+import {
+  abandonRemoteCombat,
+  createLocalDriver,
+  createRemoteDriver,
+  fetchActiveCombat,
+  isTestAccount,
+  loadCombatContext,
+  loadSessionLog,
+  startRemoteCombat,
+} from '../services/playerCombat.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { logMarkup } from './combatLog.js';
 
@@ -131,9 +140,42 @@ export async function renderCombatView(container, { profile, session }) {
     return;
   }
   const canTrain = isTestAccount(session);
-  const ui = { driver: null, targetId: null, busy: false, announce: '' };
+  const ui = { driver: null, targetId: null, busy: false };
 
-  function renderSelect() {
+  async function renderSelect(notice = '') {
+    const active = await fetchActiveCombat();
+    if (active.ok && active.data.active) {
+      container.innerHTML = html`
+        <section class="ok-panel ok-combat-select" aria-labelledby="combat-title">
+          <h2 id="combat-title" class="ok-section-title">Combate em andamento</h2>
+          <p class="ok-copy">Você tem um combate registrado no servidor. Continue de onde parou ou abandone-o.</p>
+          <div class="ok-toolbar">
+            <button class="ok-button ok-button--primary" type="button" data-resume>Continuar combate</button>
+            <button class="ok-button" type="button" data-abandon>Abandonar</button>
+          </div>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback></p>
+        </section>
+      `;
+      container.querySelector('[data-resume]').addEventListener('click', async () => {
+        const log = await loadSessionLog(active.data.sessionId);
+        ui.driver = createRemoteDriver(active.data, { log });
+        pickTarget();
+        renderFight(ui.driver.initialEvents);
+      });
+      container.querySelector('[data-abandon]').addEventListener('click', async () => {
+        const result = await abandonRemoteCombat(active.data.sessionId);
+        if (!result.ok) {
+          container.querySelector('[data-feedback]').textContent = result.error.message;
+          return;
+        }
+        renderSelect('Combate abandonado.');
+      });
+      return;
+    }
+    renderChoice(notice, active.ok ? '' : active.error?.message || '');
+  }
+
+  function renderChoice(notice = '', serverProblem = '') {
     const enemies = context.data.rows.enemies;
     container.innerHTML = html`
       <section class="ok-panel ok-combat-select" aria-labelledby="combat-title">
@@ -142,9 +184,11 @@ export async function renderCombatView(container, { profile, session }) {
           canTrain
             ? html`
                 <p class="ok-copy">
-                  Treino local para contas de teste: nada é gravado e não há recompensas. Combates reais são conduzidos
-                  pelo mestre da sua campanha.
+                  Treino para contas de teste. O combate do servidor fica registrado; o treino local não grava nada.
+                  Combates reais são conduzidos pelo mestre da sua campanha.
                 </p>
+                ${notice ? `<p class="ok-helper is-success" role="status">${escapeHtml(notice)}</p>` : ''}
+                ${serverProblem ? `<p class="ok-helper is-error" role="alert">${escapeHtml(serverProblem)} O treino local continua disponível.</p>` : ''}
                 ${
                   enemies.length
                     ? `<ul class="ok-combat-enemies">${enemies
@@ -157,9 +201,14 @@ export async function renderCombatView(container, { profile, session }) {
                                 <span class="ok-badge">Nível ${enemy.level}</span>
                               </div>
                               <p class="ok-copy">${escapeHtml(enemy.description || '')}</p>
-                              <button class="ok-button ok-button--primary" type="button" data-start="${escapeHtml(enemy.id)}">
-                                Iniciar treino
-                              </button>
+                              <div class="ok-toolbar">
+                                <button class="ok-button ok-button--primary" type="button" data-start="${escapeHtml(enemy.id)}" data-mode="remote">
+                                  Iniciar combate
+                                </button>
+                                <button class="ok-button" type="button" data-start="${escapeHtml(enemy.id)}" data-mode="local">
+                                  Treino local
+                                </button>
+                              </div>
                             </li>
                           `,
                         )
@@ -178,15 +227,31 @@ export async function renderCombatView(container, { profile, session }) {
       </section>
     `;
     container.querySelectorAll('[data-start]').forEach((button) => {
-      button.addEventListener('click', () => start(button.dataset.start));
+      button.addEventListener('click', async () => {
+        const { start: enemyId, mode } = button.dataset;
+        if (mode === 'local') {
+          ui.driver = createLocalDriver(context.data, profile, { enemyIds: [enemyId] });
+          pickTarget();
+          renderFight(ui.driver.initialEvents);
+          return;
+        }
+        button.disabled = true;
+        button.classList.add('is-loading');
+        const result = await startRemoteCombat([enemyId]);
+        if (!result.ok) {
+          renderChoice('', result.error.message);
+          return;
+        }
+        ui.driver = createRemoteDriver(result.data);
+        pickTarget();
+        renderFight(ui.driver.initialEvents);
+      });
     });
   }
 
-  function start(enemyId) {
-    ui.driver = createLocalDriver(context.data, profile, { enemyIds: [enemyId] });
+  function pickTarget() {
     const state = ui.driver.getState();
     ui.targetId = state.participants.find((item) => item.team === 'enemy' && item.stats.hp > 0)?.id || null;
-    renderFight(ui.driver.initialEvents);
   }
 
   function renderFight(newEvents = []) {
@@ -208,7 +273,7 @@ export async function renderCombatView(container, { profile, session }) {
     container.innerHTML = html`
       <section class="ok-panel ok-combat" aria-labelledby="combat-title">
         <div class="ok-combat__top">
-          <h2 id="combat-title" class="ok-section-title">Treino · Rodada ${state.round}</h2>
+          <h2 id="combat-title" class="ok-section-title">${ui.driver.kind === 'remote' ? 'Combate' : 'Treino local'} · Rodada ${state.round}</h2>
           ${finished ? "" : `<ol class="ok-combat-order" aria-label="Ordem de turno">${orderStrip(state)}</ol>`}
         </div>
         <div class="ok-combat__field">
@@ -236,9 +301,13 @@ export async function renderCombatView(container, { profile, session }) {
             ? html`
                 <div class="ok-combat-end is-${state.status}" role="status">
                   <h3 class="ok-route-title">${END_TITLES[state.status]}</h3>
-                  <p class="ok-copy">Treino local: nada foi gravado e não há recompensas.</p>
+                  <p class="ok-copy">${
+                    ui.driver.kind === 'remote'
+                      ? 'Combate registrado no servidor. As recompensas chegam com a próxima etapa.'
+                      : 'Treino local: nada foi gravado e não há recompensas.'
+                  }</p>
                   <div class="ok-toolbar">
-                    <button class="ok-button ok-button--primary" type="button" data-again>Novo treino</button>
+                    <button class="ok-button ok-button--primary" type="button" data-again>Novo combate</button>
                   </div>
                 </div>
               `
@@ -250,6 +319,7 @@ export async function renderCombatView(container, { profile, session }) {
                       ? `<ul class="ok-combat-action-list">${actions.map((action) => actionButton(action, state, ui.targetId)).join('')}</ul>`
                       : '<p class="ok-copy">Os inimigos estão agindo.</p>'
                   }
+                  ${ui.driver.kind === 'remote' ? '<div class="ok-toolbar"><button class="ok-button" type="button" data-leave>Abandonar combate</button></div>' : ''}
                 </div>
               `
         }
@@ -274,7 +344,19 @@ export async function renderCombatView(container, { profile, session }) {
       });
     });
     const again = container.querySelector('[data-again]');
-    if (again) again.addEventListener('click', renderSelect);
+    if (again) again.addEventListener('click', () => renderSelect());
+    const leave = container.querySelector('[data-leave]');
+    if (leave) {
+      leave.addEventListener('click', async () => {
+        leave.disabled = true;
+        const result = await abandonRemoteCombat(ui.driver.sessionId);
+        if (!result.ok) {
+          leave.disabled = false;
+          return;
+        }
+        renderSelect('Combate abandonado.');
+      });
+    }
 
     container.querySelectorAll('[data-action-type]').forEach((button) => {
       button.addEventListener('click', async () => {
@@ -299,6 +381,7 @@ export async function renderCombatView(container, { profile, session }) {
           renderFight(result.events);
         } catch (error) {
           ui.busy = false;
+          pickTarget();
           renderFight();
           const log = container.querySelector('.ok-combat-log');
           log.insertAdjacentHTML('beforeend', `<li class="ok-combat-log__entry is-error">${escapeHtml(error.message || 'Ação inválida.')}</li>`);
@@ -310,5 +393,5 @@ export async function renderCombatView(container, { profile, session }) {
     if (first && !ui.busy) first.focus({ preventScroll: true });
   }
 
-  renderSelect();
+  await renderSelect();
 }

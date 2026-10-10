@@ -3,21 +3,17 @@ import {
   buildCatalog,
   buildRules,
   createCombat,
-  enemyParticipant,
+  buildParticipants,
   listActions,
-  playerParticipant,
   runUntilPlayerTurn,
-  weaponDieFor,
 } from '../engine/combat/index.js';
-import { runSupabase } from './supabaseClient.js';
+import { runSupabase, supabase } from './supabaseClient.js';
 
 // Treino local: o motor roda no navegador, sem gravar nada e sem recompensas.
 // A autoridade real (servidor) entra no plano 05-04; esta interface de "driver" é a mesma.
 
 export const TEST_ACCOUNT_DOMAIN = '@onikara.local';
-export const MAX_COMBAT_SPELLS = 8;
 
-const WEAPON_SLOTS = new Set(['main_hand']);
 
 export function isTestAccount(session) {
   return String(session?.user?.email || '').toLowerCase().endsWith(TEST_ACCOUNT_DOMAIN);
@@ -76,73 +72,6 @@ export async function loadCombatContext(profile) {
   };
 }
 
-// Magias do combate: equipadas e desbloqueadas; sem nenhuma equipada, as desbloqueadas (até 8).
-export function combatSpellIds(context, profile) {
-  const unlocked = context.classSpells
-    .filter((row) => row.unlock_level <= profile.level)
-    .sort((a, b) => a.unlock_level - b.unlock_level)
-    .map((row) => row.spell_id);
-  const equipped = context.characterSpells
-    .filter((row) => row.equipped && unlocked.includes(row.spell_id))
-    .sort((a, b) => (a.slot ?? 99) - (b.slot ?? 99))
-    .map((row) => row.spell_id);
-  return (equipped.length ? equipped : unlocked).slice(0, MAX_COMBAT_SPELLS);
-}
-
-// Bônus dos itens equipados (arma na mão principal; demais conforme o slot) e dado da arma.
-export function equipmentSummary(context) {
-  const itemById = new Map(context.rows.items.map((item) => [item.id, item]));
-  const inventoryById = new Map(context.inventory.map((row) => [row.id, row]));
-  const bonus = {};
-  let weapon = null;
-  for (const slot of context.equipment) {
-    const item = itemById.get(inventoryById.get(slot.inventory_id)?.item_id);
-    if (!item) continue;
-    for (const [key, value] of Object.entries(item.stats || {})) {
-      const number = Number(value);
-      if (Number.isFinite(number)) bonus[key] = (bonus[key] || 0) + number;
-    }
-    if (WEAPON_SLOTS.has(slot.slot) && item.item_type === 'weapon') weapon = item;
-  }
-  return { bonus, weaponDie: weaponDieFor(weapon), weapon };
-}
-
-export function consumableStacks(context) {
-  const itemById = new Map(context.rows.items.map((item) => [item.id, item]));
-  return context.inventory
-    .filter((row) => itemById.get(row.item_id)?.item_type === 'consumable')
-    .map((row) => ({ itemId: row.item_id, quantity: row.quantity }));
-}
-
-export function buildLocalParticipants(context, profile, { enemyIds }) {
-  const gear = equipmentSummary(context);
-  const state = profile.current_state || {};
-  const player = playerParticipant({
-    id: 'player-1',
-    name: profile.character_name,
-    profileId: profile.id,
-    baseStats: profile.base_stats,
-    scaling: context.rpgClass.scaling,
-    level: profile.level,
-    equipmentStats: gear.bonus,
-    elementId: profile.element_id || null,
-    spells: combatSpellIds(context, profile),
-    items: consumableStacks(context),
-    weaponDie: gear.weaponDie,
-    currentHp: Number.isFinite(Number(state.hp)) ? Number(state.hp) : null,
-    currentMana: Number.isFinite(Number(state.mana)) ? Number(state.mana) : null,
-  });
-  const enemies = enemyIds.map((enemyId, index) => {
-    const enemy = context.rows.enemies.find((row) => row.id === enemyId);
-    return enemyParticipant({
-      id: `enemy-${index + 1}`,
-      enemy,
-      spellRows: context.rows.enemySpells.filter((row) => row.enemy_id === enemyId),
-    });
-  });
-  return [player, ...enemies];
-}
-
 function newSeed() {
   if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
   return `local-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
@@ -154,7 +83,7 @@ export function createLocalDriver(context, profile, { enemyIds, seed = newSeed()
     seed,
     rules: buildRules(context.rows),
     catalog: buildCatalog(context.rows),
-    participants: buildLocalParticipants(context, profile, { enemyIds }),
+    participants: buildParticipants(context, profile, { enemyIds }),
   });
   let state = setup.state;
   let log = [...setup.events];
@@ -181,6 +110,100 @@ export function createLocalDriver(context, profile, { enemyIds, seed = newSeed()
       log = log.concat(step.events);
       const enemyEvents = settle();
       return { state, events: step.events.concat(enemyEvents) };
+    },
+  };
+}
+
+// ---- Combate autoritativo (Edge Function `combat`, plano 05-04) ------------------------
+
+async function callCombat(body) {
+  try {
+    const { data, error } = await supabase.functions.invoke('combat', { body });
+    if (error) {
+      let detail = null;
+      try {
+        detail = await error.context?.json?.();
+      } catch {
+        detail = null;
+      }
+      if (detail?.error) return { ok: false, data: detail, error: detail.error };
+      return {
+        ok: false,
+        data: null,
+        error: { code: 'unavailable', message: 'O servidor de combate não respondeu. Tente de novo em instantes.' },
+      };
+    }
+    if (data?.ok === false) return { ok: false, data, error: data.error };
+    return { ok: true, data, error: null };
+  } catch {
+    return {
+      ok: false,
+      data: null,
+      error: { code: 'unavailable', message: 'O servidor de combate não respondeu. Tente de novo em instantes.' },
+    };
+  }
+}
+
+export function fetchActiveCombat() {
+  return callCombat({ op: 'state' });
+}
+
+export function startRemoteCombat(enemyIds) {
+  return callCombat({ op: 'start', enemyIds });
+}
+
+export function abandonRemoteCombat(sessionId) {
+  return callCombat({ op: 'abandon', sessionId });
+}
+
+export async function loadSessionLog(sessionId) {
+  const result = await runSupabase((client) =>
+    client
+      .from('combat_events')
+      .select('event_type, actor_participant_id, target_participant_id, turn_number, payload, seq')
+      .eq('combat_session_id', sessionId)
+      .order('seq'),
+  );
+  if (!result.ok) return [];
+  return result.data.map((row) => ({
+    type: row.event_type,
+    round: row.turn_number,
+    actorId: row.actor_participant_id,
+    targetId: row.target_participant_id,
+    payload: row.payload || {},
+  }));
+}
+
+// Mesma forma do driver local; as decisões vêm do servidor e o estado é só espelhado aqui.
+export function createRemoteDriver(view, { log = [] } = {}) {
+  let current = view;
+  let events = [...log, ...(view.events || [])];
+
+  return {
+    kind: 'remote',
+    sessionId: view.sessionId,
+    getState: () => current.state,
+    getLog: () => events,
+    getVersion: () => current.version,
+    actionsFor: (actorId) => listActions(current.state, actorId),
+    initialEvents: events,
+    async act(action) {
+      const { actorId, ...move } = action;
+      const result = await callCombat({
+        op: 'act',
+        sessionId: current.sessionId,
+        version: current.version,
+        move,
+      });
+      if (!result.ok) {
+        if (result.error?.code === 'version_conflict' && result.data?.current) current = result.data.current;
+        const error = new Error(result.error?.message || 'Ação recusada pelo servidor.');
+        error.code = result.error?.code;
+        throw error;
+      }
+      current = result.data;
+      events = events.concat(result.data.events || []);
+      return { state: current.state, events: result.data.events || [] };
     },
   };
 }
