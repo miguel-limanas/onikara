@@ -60,9 +60,10 @@ Ficam fora da fase: PvP, grupos/co-op, IA avançada que analisa vantagens elemen
 - **D-07 (ações do jogador):** ataque básico (físico, sem custo), magia equipada e desbloqueada (ou, sem nenhuma equipada, as desbloqueadas até 8), usar consumível e fugir. Cada ação consome o turno.
 - **D-08 (persistência):** `combat_participants.current_stats` guarda HP/mana/atributos efetivos; `status_effects` guarda efeitos ativos; recargas, escudo, cursor do PRNG e turno ativo ficam em `snapshot`. Eventos usam os tipos já permitidos; detalhes extras vão em `payload.kind` (sem alterar o `check`).
 - **D-09 (segurança):** o jogador passa a ter **somente leitura** nas tabelas de combate; escrita só pela Edge Function (chave de serviço existe apenas no servidor, nunca no cliente). Recompensas e missões por função SQL transacional e idempotente, restrita a `service_role`.
-- **D-10 (HP/mana entre combates):** MVP restaura HP e mana ao iniciar cada combate; derrota não tem penalidade além de não ganhar recompensa. (Decisão aberta 1 e 2.)
-- **D-11 (elementos do jogador):** personagem é `neutral` na defesa; o elemento ofensivo vem da magia. (Decisão aberta 3.)
-- **D-12 (equipamento):** bônus de `items.stats` dos itens equipados (slot compatível com o tipo) somam aos atributos no início do combate. (Decisão aberta 4.)
+- **D-10 (HP/mana entre combates) — CONFIRMADO em 2026-10-10, com pontos pendentes:** HP persiste entre combates (`profiles.current_state`). Derrota não tira HP extra, XP nem itens: a única penalidade é a mana gasta, que fica gasta. Implica definir como HP e mana se recuperam fora de combate e com quanto HP o jogador volta após uma derrota (decisão aberta B).
+- **D-11 (elemento do personagem) — CONFIRMADO em 2026-10-10:** o personagem tem elemento próprio, usado como elemento defensivo (e ofensivo no ataque básico). A origem do elemento está em aberto (decisão aberta C) e exige coluna nova no schema.
+- **D-12 (equipamento) — CONFIRMADO em 2026-10-10:** bônus de `items.stats` dos itens equipados (slot compatível com o tipo) somam aos atributos no início do combate.
+- **D-14 (conteúdo é do mestre) — CONFIRMADO em 2026-10-10:** cadastrar inimigos, magias e itens é função do papel `master`, não do `admin`. Hoje as políticas de escrita dos catálogos são `is_admin()` e não existe área do mestre (fora desta fase). Ver decisão aberta D.
 - **D-13 (Realtime):** não é necessário para o combate solo (a resposta da ação já traz os eventos). Entra por último e só como sincronização do log, observação pelo admin e base para co-op futuro. (Decisão aberta 9.)
 
 ## Alternativas consideradas para a autoridade do combate
@@ -101,23 +102,22 @@ O projeto não tem testes. A Fase 5 introduz o mínimo viável, sem dependência
 
 - Primeira Edge Function do projeto (Deno, importação do motor, CORS, JWT). Mitigação: spike como primeira tarefa de 05-04 e plano B descrito acima.
 - Rebalanceamento: regras em texto livre podem divergir do parser. Mitigação: validação de fórmula no admin (item de backlog) e fallback com aviso.
-- Conteúdo escasso (2 inimigos, 8 magias) limita a diversão. Mitigação: criar conteúdo pelo admin, sem código (decisão aberta 5).
+- Conteúdo escasso (2 inimigos, 8 magias) limita a diversão. Mitigação: conteúdo é do mestre (D-14, decisão aberta D); o seed cobre o mínimo.
 - Mudar RLS pode quebrar telas da Fase 4 (onboarding, equipar). Mitigação: 05-06 isolado, com UAT de regressão de `/play` e `/admin`.
 
 ## Decisões em aberto (dono do produto)
 
-Cada uma já tem um padrão adotado; só muda o plano se a resposta for diferente.
+Confirmadas em 2026-10-10 (resposta do Léo): HP persiste (D-10), personagem tem elemento (D-11), equipamento soma atributos (D-12), conteúdo é do mestre (D-14) e servidor como autoridade (D-01, antiga decisão 8).
 
-1. **HP persiste entre combates?** Padrão: não, restaura a cada combate. Alternativa: desgaste real (exige descanso/consumíveis e regra de recuperação).
-2. **O que acontece na derrota?** Padrão: nada se perde. Alternativas: perder parte do XP do nível, ou ouro/itens.
-3. **Personagem tem elemento?** Padrão: neutro na defesa. Alternativa: afinidade por classe, raça ou arma, para que fraquezas valham também contra o jogador.
-4. **Equipamento soma atributos no combate?** Padrão: sim (hoje o painel não soma).
-5. **Conteúdo mínimo do primeiro combate?** Padrão: cadastrar pelo admin 2 a 3 inimigos de elementos diferentes e 1 magia de dano de água ou terra no nível 1, para a fraqueza aparecer logo.
-6. **Ataque básico existe?** Padrão: sim, físico, sem custo, para não travar quando a mana acabar.
-7. **XP infinito no boneco de treino?** Padrão: XP decrescente quando o nível do jogador supera o do inimigo (`xp * max(0.1, 1 - 0.25 * diferença)`).
-8. **Autoridade no servidor (Edge Function)?** Recomendado. Confirmar antes de 05-04, pois exige Docker e CLI do Supabase funcionando para quem for desenvolver.
-9. **Realtime agora?** Padrão: depois, como último plano opcional.
-10. **Resistência mágica:** padrão 0 até existir atributo. Alternativa: usar `defense` ou criar `resistance` por classe.
+Ainda abertas, cada uma com padrão proposto:
+
+- **B. Recuperação fora de combate e HP após derrota:** padrão proposto: regeneração lenta por tempo (como a mana em `rest_per_minute`) mais consumíveis; derrota deixa o jogador com 1 de HP, para ninguém travar. Alternativas: só consumíveis, ou um descanso gratuito com tempo de espera.
+- **C. Origem do elemento do personagem:** padrão proposto: escolhido na criação do personagem (campo novo `profiles.element_id`). Alternativas: por classe, por raça ou pela arma equipada.
+- **D. Quem cadastra conteúdo (mestre):** o conteúdo do combate é cadastrado pelo jogador-mestre, não pelo admin. Hoje não há área nem permissão do mestre (catálogos só aceitam `is_admin()`). Padrão proposto: os planos da Fase 5 não dependem de cadastro novo; o conteúdo mínimo vem do seed, e o papel `master` ganha escrita em inimigos, magias e itens (migration) mais uma área do mestre como fase própria. Alternativa: incluir uma tela mínima do mestre dentro da Fase 5.
+- **E. Ataque básico existe?** Padrão: sim, físico, sem custo, para não travar quando a mana acabar.
+- **F. XP infinito no boneco de treino?** Padrão: XP decrescente quando o nível do jogador supera o do inimigo (`xp * max(0.1, 1 - 0.25 * diferença)`).
+- **G. Realtime agora?** Padrão: depois, como último plano opcional.
+- **H. Resistência mágica:** padrão 0 até existir atributo. Alternativa: usar `defense` ou criar `resistance` por classe.
 </decisions>
 
 <canonical_refs>

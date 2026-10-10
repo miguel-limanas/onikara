@@ -44,7 +44,7 @@ CombatState {
 Participant {
   id, team: 'player'|'enemy'|'neutral', name,
   refType: 'profile'|'enemy', refId,
-  elementId: string|null,
+  elementId: string|null,          // personagem: profiles.element_id (D-11); null = neutral
   stats: { hp, maxHp, mana, maxMana, strength, defense, intelligence, speed },
   statuses: [{ id, stacks, remainingTurns, sourceId }],
   shield: number,
@@ -81,11 +81,11 @@ Valores entre parênteses são os do seed atual.
 **Dano base.**
 
 - Física quando `spell.effects.scales_with === 'strength'` ou ataque básico; mágica nos demais casos (não existe coluna dedicada).
-- Física: `strength + power - defense`; mágica: `intelligence + power - resistance` (`resistance = 0`, decisão aberta 10). Ataque básico usa `power = 0`.
+- Física: `strength + power - defense`; mágica: `intelligence + power - resistance` (`resistance = 0`, decisão aberta H). Ataque básico usa `power = 0`.
 - `defense` efetiva = `defense * mitigation.defense_multiplier (1.0) * modificadores de status (guard_break 0.75) + defense_bonus ativo`.
 - Piso: `minimum_damage (1)`.
 
-**Elemental.** Atacante = elemento da magia (ataque básico: `neutral`). Defensor = `participant.elementId`.
+**Elemental.** Atacante = elemento da magia (ataque básico: elemento do atacante). Defensor = `participant.elementId`.
 `elements[atacante].strong_against` contém defensor -> x`elemental_advantage_multiplier (1.5)`; `weak_against` contém defensor -> x`elemental_disadvantage_multiplier (0.75)`; senão x1. `neutral` não tem relações.
 
 **Crítico.** Chance = `base_chance (0.05) + speed_bonus_step (0.01) * max(0, speedAtacante - speedDefensor)`, limitada a 0.5. Sucesso -> x`damage_multiplier (1.5)`. Sorteio só quando houver dano.
