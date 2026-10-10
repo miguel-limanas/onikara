@@ -227,7 +227,7 @@ Linha de pesquisa visual:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03: Implementar inventário, equipamentos e magias equipadas.
+- [x] 04-03: Implementar inventário, equipamentos e magias equipadas.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
