@@ -1,6 +1,8 @@
 import { requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
 import { emptyBlock, errorBlock, escapeHtml, html } from '../ui/components.js';
 import { renderDashboardView } from './dashboardView.js';
+import { renderInventoryView } from './inventoryView.js';
+import { renderSpellsView } from './spellsView.js';
 import { renderOnboardingView } from './onboardingView.js';
 
 const root = document.querySelector('#player-root');
@@ -12,8 +14,8 @@ const state = {
 
 const sections = [
   { id: 'personagem', label: 'Personagem', render: (container) => renderDashboardView(container, { profile: state.profile }) },
-  { id: 'inventario', label: 'Inventário', render: renderComingSoon('Inventário') },
-  { id: 'magias', label: 'Magias', render: renderComingSoon('Magias') },
+  { id: 'inventario', label: 'Inventário', render: (container) => renderInventoryView(container, { profile: state.profile }) },
+  { id: 'magias', label: 'Magias', render: (container) => renderSpellsView(container, { profile: state.profile }) },
   { id: 'missoes', label: 'Missões', render: renderComingSoon('Missões') },
 ];
 

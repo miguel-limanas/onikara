@@ -517,3 +517,142 @@ body.ok-player-body {
 .ok-player-body .ok-section-title {
   color: var(--player-gold-light);
 }
+
+/* Inventário, equipamentos e magias ----------------------------------- */
+
+.ok-inventory {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: clamp(14px, 2vw, 24px);
+  align-items: start;
+}
+
+.ok-slot-list,
+.ok-item-list,
+.ok-spell-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+  list-style: none;
+}
+
+.ok-item-list,
+.ok-spell-list {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.ok-slot,
+.ok-item,
+.ok-spell {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color var(--motion-fast, 150ms);
+}
+
+.ok-slot__label {
+  color: var(--player-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ok-slot__empty {
+  color: var(--player-muted);
+  font-style: italic;
+}
+
+.ok-slot.is-filled,
+.ok-item.is-equipped,
+.ok-spell.is-equipped {
+  border-color: var(--player-gold);
+}
+
+.ok-item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ok-item__name {
+  font-family: Cinzel, serif;
+  letter-spacing: 0.04em;
+}
+
+.ok-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+}
+
+.ok-chip {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--player-line);
+  color: var(--player-muted);
+  font-size: 0.74rem;
+}
+
+.ok-rarity--uncommon {
+  color: var(--color-success);
+}
+
+.ok-rarity--rare {
+  color: var(--color-rarity-rare);
+}
+
+.ok-rarity--epic {
+  color: var(--color-rarity-epic);
+}
+
+.ok-rarity--legendary {
+  color: var(--color-rarity-legendary);
+}
+
+.ok-item__action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ok-item__feedback {
+  min-height: 1.2em;
+}
+
+.ok-spell.is-locked {
+  opacity: 0.62;
+  border-style: dashed;
+}
+
+.ok-spell[data-element="fire"] .ok-chip--element {
+  color: var(--color-element-fire);
+}
+
+.ok-spell[data-element="water"] .ok-chip--element {
+  color: var(--color-element-water);
+}
+
+.ok-spell[data-element="ice"] .ok-chip--element {
+  color: var(--color-element-ice);
+}
+
+.ok-spell[data-element="shadow"] .ok-chip--element {
+  color: var(--color-element-shadow);
+}
+
+@media (max-width: 760px) {
+  .ok-inventory {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

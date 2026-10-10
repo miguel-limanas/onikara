@@ -41,9 +41,32 @@ export function previewStats(rpgClass, race) {
   );
 }
 
+// Kit inicial entregue na criação: arma da classe, armadura e consumíveis básicos.
+// Itens ausentes do catálogo são ignorados para não bloquear a criação.
+const STARTER_WEAPON_BY_CLASS = { warrior: 'training-sword', mage: 'apprentice-staff' };
+const STARTER_COMMON_ITEMS = [
+  { item_id: 'patched-armor', quantity: 1 },
+  { item_id: 'health-salve', quantity: 2 },
+  { item_id: 'mana-tonic', quantity: 1 },
+];
+
+async function grantStarterKit(profileId, classId) {
+  const weapon = STARTER_WEAPON_BY_CLASS[classId];
+  const wanted = [...(weapon ? [{ item_id: weapon, quantity: 1 }] : []), ...STARTER_COMMON_ITEMS];
+  const catalog = await runSupabase((client) =>
+    client.from('items').select('id').in('id', wanted.map((entry) => entry.item_id)),
+  );
+  if (!catalog.ok) return;
+  const known = new Set(catalog.data.map((row) => row.id));
+  const rows = wanted
+    .filter((entry) => known.has(entry.item_id))
+    .map((entry) => ({ profile_id: profileId, ...entry }));
+  if (rows.length) await runSupabase((client) => client.from('inventory').insert(rows));
+}
+
 export async function createProfile({ userId, characterName, rpgClass, race }) {
   const stats = previewStats(rpgClass, race);
-  return runSupabase((client) =>
+  const created = await runSupabase((client) =>
     client
       .from('profiles')
       .insert({
@@ -62,4 +85,6 @@ export async function createProfile({ userId, characterName, rpgClass, race }) {
       .select('*')
       .single(),
   );
+  if (created.ok) await grantStarterKit(created.data.id, rpgClass.id);
+  return created;
 }
