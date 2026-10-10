@@ -330,3 +330,190 @@ body.ok-player-body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Navegação e painel -------------------------------------------------- */
+
+.ok-player-nav {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  gap: 4px;
+}
+
+.ok-player-nav__link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 2px solid transparent;
+  color: var(--player-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color var(--motion-fast, 150ms), border-color var(--motion-fast, 150ms);
+}
+
+.ok-player-nav__link:hover {
+  color: var(--player-ivory);
+}
+
+.ok-player-nav__link.is-active {
+  border-bottom-color: var(--player-red);
+  color: var(--player-ivory);
+  text-shadow: 0 0 14px rgba(200, 16, 46, 0.6);
+}
+
+.ok-player-nav__link:focus-visible,
+.ok-shortcut:focus-visible,
+.ok-player-brand:focus-visible {
+  outline: 2px solid var(--color-focus, #dec47c);
+  outline-offset: 2px;
+}
+
+.ok-dashboard {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.ok-hero-sheet,
+.ok-shortcuts {
+  grid-column: 1 / -1;
+}
+
+.ok-hero-sheet {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(16px, 3vw, 28px);
+  align-items: center;
+}
+
+.ok-hero-sheet__meters {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ok-stat-bar__fill {
+  transition: width var(--motion-slow, 320ms) var(--motion-ease, ease);
+}
+
+.ok-stat-bar--xp .ok-stat-bar__fill {
+  background: var(--color-stamina, #b19052);
+}
+
+.ok-level-badge {
+  display: grid;
+  min-width: 84px;
+  justify-items: center;
+  padding: 10px 14px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ok-level-badge small {
+  color: var(--player-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.ok-level-badge strong {
+  color: var(--player-gold-light);
+  font-family: Cinzel, serif;
+  font-size: 2.4rem;
+  line-height: 1.1;
+}
+
+.ok-section-title {
+  margin: 0 0 12px;
+  padding-left: 12px;
+  border-left: 3px solid var(--player-red);
+  color: var(--player-gold-light);
+  font-family: Cinzel, serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ok-effect-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-shortcuts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 2vw, 16px);
+}
+
+.ok-shortcut {
+  display: grid;
+  min-height: 44px;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--player-ivory);
+  text-decoration: none;
+  transition: border-color var(--motion-fast, 150ms), background var(--motion-fast, 150ms);
+}
+
+.ok-shortcut:hover {
+  border-color: var(--player-gold);
+  background: rgba(200, 16, 46, 0.1);
+}
+
+.ok-shortcut strong {
+  font-family: Cinzel, serif;
+  letter-spacing: 0.08em;
+}
+
+.ok-shortcut span {
+  color: var(--player-muted);
+  font-size: 0.86rem;
+}
+
+@media (max-width: 760px) {
+  .ok-player-topbar {
+    flex-wrap: wrap;
+  }
+
+  .ok-player-nav {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+    overflow-x: auto;
+  }
+
+  .ok-player-nav__link {
+    padding: 0 8px;
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+  }
+
+  .ok-dashboard,
+  .ok-shortcuts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ok-hero-sheet {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+  }
+}
+
+/* Cor de títulos: o modo player do design system pinta h1/h2 de azul;
+   o jogador usa marfim e dourado da identidade Brasa Oni. */
+.ok-player-body .ok-route-title {
+  color: var(--player-ivory);
+}
+
+.ok-player-body .ok-section-title {
+  color: var(--player-gold-light);
+}

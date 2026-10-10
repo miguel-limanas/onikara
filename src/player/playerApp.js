@@ -1,5 +1,5 @@
 import { requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
-import { errorBlock, escapeHtml, html } from '../ui/components.js';
+import { emptyBlock, errorBlock, escapeHtml, html } from '../ui/components.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderOnboardingView } from './onboardingView.js';
 
@@ -9,6 +9,24 @@ const state = {
   session: null,
   profile: null,
 };
+
+const sections = [
+  { id: 'personagem', label: 'Personagem', render: (container) => renderDashboardView(container, { profile: state.profile }) },
+  { id: 'inventario', label: 'Inventário', render: renderComingSoon('Inventário') },
+  { id: 'magias', label: 'Magias', render: renderComingSoon('Magias') },
+  { id: 'missoes', label: 'Missões', render: renderComingSoon('Missões') },
+];
+
+function renderComingSoon(title) {
+  return (container) => {
+    container.innerHTML = emptyBlock(`${title} chega nos próximos passos da jornada.`);
+  };
+}
+
+function currentSectionId() {
+  const hash = window.location.hash.replace('#', '');
+  return sections.some((section) => section.id === hash) ? hash : 'personagem';
+}
 
 function mountParticles() {
   const host = document.querySelector('#player-particles');
@@ -49,6 +67,14 @@ function renderShell() {
           <img src="../.planning/design-system/assets/onikara-logotipo.png" alt="" class="ok-player-brand__logo" />
           <span class="ok-player-brand__text">Onikara</span>
         </a>
+        <nav class="ok-player-nav" aria-label="Seções do jogador">
+          ${sections
+            .map(
+              (section) =>
+                `<a class="ok-player-nav__link" href="#${section.id}" data-section="${section.id}">${escapeHtml(section.label)}</a>`,
+            )
+            .join('')}
+        </nav>
         <div class="ok-player-topbar__user">
           <span class="ok-player-topbar__name">${escapeHtml(state.profile.character_name)}</span>
           <button id="player-logout" class="ok-button" type="button">Sair</button>
@@ -60,9 +86,27 @@ function renderShell() {
   document.querySelector('#player-logout').addEventListener('click', logout);
 }
 
+async function showSection() {
+  const id = currentSectionId();
+  document.querySelectorAll('.ok-player-nav__link').forEach((link) => {
+    const active = link.dataset.section === id;
+    link.classList.toggle('is-active', active);
+    if (active) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
+  });
+  const container = document.querySelector('#player-main');
+  const section = sections.find((item) => item.id === id);
+  try {
+    await section.render(container);
+  } catch (error) {
+    container.innerHTML = errorBlock('Não foi possível carregar esta seção. Tente novamente.');
+  }
+}
+
 async function showDashboard() {
   renderShell();
-  await renderDashboardView(document.querySelector('#player-main'), { profile: state.profile });
+  window.addEventListener('hashchange', showSection);
+  await showSection();
 }
 
 async function showOnboarding() {
