@@ -48,6 +48,12 @@ test('magias', () => {
   }
 });
 
+test('magias de suporte miram o conjurador', () => {
+  assert.ok(seed.includes("set target_type = 'self'"));
+  assert.ok(seed.includes("where id in ('water-veil', 'stone-guard')"));
+  for (const spell of rows.spells.filter((item) => item.power === 0)) assert.equal(spell.target_type, 'self');
+});
+
 test('inimigos', () => {
   for (const enemy of rows.enemies) {
     const pattern = new RegExp(`'${enemy.id}',\\s*'[^']*',\\s*'[^']*',\\s*(\\d+),\\s*'(\\w+)',\\s*'(\\{[^']*\\})'::jsonb,\\s*'(\\{[^']*\\})'::jsonb`);

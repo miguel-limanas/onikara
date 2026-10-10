@@ -1,4 +1,4 @@
-import { effectiveStat } from './effects.js';
+import { effectiveStat, incomingElementMultiplier } from './effects.js';
 import { evaluateFormula, parseFormula } from './rules.js';
 
 // Vantagem: o elemento do atacante é forte contra o do defensor; desvantagem: é fraco contra ele.
@@ -42,7 +42,11 @@ export function rollDamage(state, rng, { attacker, defender, power, elementId, p
   const base = baseDamage(state, { attacker, defender, power, physical });
   const relation = elementalRelation(state, elementId, defender.elementId);
   const crit = rng.chance(criticalChance(state, attacker, defender));
-  const scaled = base * elementalMultiplier(state, relation) * (crit ? state.rules.critical.multiplier : 1);
+  const scaled =
+    base *
+    elementalMultiplier(state, relation) *
+    incomingElementMultiplier(state, defender, elementId) *
+    (crit ? state.rules.critical.multiplier : 1);
   const amount = Math.max(state.rules.damage.minimum, Math.floor(scaled));
   return { amount, crit, relation, base };
 }

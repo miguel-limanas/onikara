@@ -1,7 +1,7 @@
 // Simulador de combate no terminal (usa o motor puro e a fixture do seed).
 // Exemplo: npm run combat:sim -- --class mage --enemy ash-imp --seed abc --level 3
 import { readFileSync } from 'node:fs';
-import { applyAction, buildScenario, createCombat, listActions } from '../src/engine/combat/index.js';
+import { applyAction, buildScenario, chooseEnemyAction, createCombat, listActions } from '../src/engine/combat/index.js';
 
 const rows = JSON.parse(readFileSync(new URL('../tests/fixtures/rules.mvp.json', import.meta.url), 'utf8'));
 
@@ -60,10 +60,6 @@ function chooseAction(state, actorId) {
   return { type: pick.type, actorId, spellId: pick.spellId, targetId: pick.targets[0] };
 }
 
-function chooseEnemyAction(state, actorId) {
-  return { type: 'pass', actorId };
-}
-
 function simulate(args, seed) {
   const scenario = buildScenario(rows, {
     classId: args.class,
@@ -71,7 +67,7 @@ function simulate(args, seed) {
     enemyIds: [args.enemy],
     seed,
   });
-  let { state, events } = createCombat(scenario);
+  let { state } = createCombat(scenario);
   const log = [];
   let guard = 0;
   while (state.status === 'active' && guard < 400) {

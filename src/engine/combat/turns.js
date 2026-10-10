@@ -1,4 +1,5 @@
-import { effectiveStat } from './effects.js';
+import { applyDamage } from './damage.js';
+import { effectiveStat, expireStatuses } from './effects.js';
 import { isAlive, makeEvent, resolveOutcome } from './state.js';
 
 // Ordem por velocidade efetiva (maior primeiro); empate favorece o jogador e depois a ordem original.
@@ -29,8 +30,14 @@ export function cooldownRemaining(state, participantId, spellId) {
   return state.cooldowns[participantId]?.[spellId] || 0;
 }
 
-export function beginTurn(state, events) {
-  const participant = state.participants.find((item) => item.id === state.order[state.activeIndex]);
+function activeOf(state) {
+  return state.participants.find((item) => item.id === state.order[state.activeIndex]);
+}
+
+// Abre o turno do participante ativo: recargas, fadiga, dano por turno e perda de ação.
+// Pode encerrar o turno sozinho (morte por efeito ou ação perdida).
+export function beginTurn(state, events, rng) {
+  const participant = activeOf(state);
   const owned = state.cooldowns[participant.id];
   if (owned) {
     for (const spellId of Object.keys(owned)) {
@@ -38,20 +45,58 @@ export function beginTurn(state, events) {
       if (owned[spellId] === 0) delete owned[spellId];
     }
   }
+  if (participant.flags.fatiguedTurns > 0) participant.flags.fatiguedTurns -= 1;
+
   events.push(makeEvent(state, 'turn_start', { actorId: participant.id, payload: { round: state.round, activeId: participant.id } }));
+
+  for (const status of participant.statuses) {
+    const perTurn = state.catalog.statusEffects[status.id]?.rules?.damage_per_turn;
+    if (!perTurn) continue;
+    const amount = perTurn * status.stacks;
+    const { dealt, absorbed } = applyDamage(participant, amount);
+    events.push(
+      makeEvent(state, 'damage', {
+        actorId: status.sourceId,
+        targetId: participant.id,
+        payload: { amount, dealt, absorbed, crit: false, elemental: null, source: 'status', statusId: status.id },
+      }),
+    );
+    if (!isAlive(participant)) {
+      events.push(makeEvent(state, 'defeat', { targetId: participant.id, payload: { participantId: participant.id } }));
+      break;
+    }
+  }
+
+  if (!isAlive(participant)) {
+    endTurn(state, events, rng);
+    return;
+  }
+
+  for (const status of participant.statuses) {
+    const chance = state.catalog.statusEffects[status.id]?.rules?.skip_action_chance;
+    if (chance && rng.chance(chance)) {
+      events.push(makeEvent(state, 'system', { actorId: participant.id, payload: { kind: 'status_skipped', statusId: status.id } }));
+      endTurn(state, events, rng);
+      return;
+    }
+  }
 }
 
-// Fecha o turno do ator ativo: regenera mana, avança a ordem e abre o próximo turno.
-export function endTurn(state, events) {
-  const actor = state.participants.find((item) => item.id === state.order[state.activeIndex]);
+// Fecha o turno do ator ativo: regenera mana, expira efeitos, avança a ordem e abre o próximo turno.
+export function endTurn(state, events, rng) {
+  const actor = activeOf(state);
   let regen = 0;
   if (isAlive(actor)) {
-    regen = Math.min(state.rules.mana.combatPerTurn, actor.stats.maxMana - actor.stats.mana);
-    actor.stats.mana += Math.max(0, regen);
+    regen = Math.max(0, Math.min(state.rules.mana.combatPerTurn, actor.stats.maxMana - actor.stats.mana));
+    actor.stats.mana += regen;
+    expireStatuses(state, events, actor);
   }
-  events.push(makeEvent(state, 'turn_end', { actorId: actor.id, payload: { manaRegen: Math.max(0, regen) } }));
+  events.push(makeEvent(state, 'turn_end', { actorId: actor.id, payload: { manaRegen: regen } }));
 
-  if (resolveOutcome(state)) return;
+  if (resolveOutcome(state)) {
+    if (state.status !== 'escaped') events.push(makeEvent(state, 'system', { payload: { kind: state.status } }));
+    return;
+  }
 
   let nextIndex = state.activeIndex;
   do {
@@ -63,5 +108,5 @@ export function endTurn(state, events) {
     }
   } while (!isAlive(state.participants.find((item) => item.id === state.order[nextIndex])));
   state.activeIndex = nextIndex;
-  beginTurn(state, events);
+  beginTurn(state, events, rng);
 }

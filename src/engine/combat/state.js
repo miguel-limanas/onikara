@@ -91,7 +91,9 @@ export function createCombat({ seed, rules, catalog, participants }) {
   state.order = computeOrder(state);
   state.activeIndex = 0;
   const events = [];
-  beginTurn(state, events);
+  const rng = rngOf(state);
+  beginTurn(state, events, rng);
+  commitRng(state, rng);
   return { state, events };
 }
 
