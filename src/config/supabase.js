@@ -1,7 +1,10 @@
+const pageHost = globalThis.location?.hostname || '';
+const isLocalHost = !pageHost || pageHost === 'localhost' || pageHost === '127.0.0.1' || pageHost === '[::1]';
+
 export const supabaseUrl =
   globalThis.ONIKARA_SUPABASE_URL ||
   localStorage.getItem('ONIKARA_SUPABASE_URL') ||
-  'http://127.0.0.1:54321';
+  (isLocalHost ? 'http://127.0.0.1:54321' : `http://${pageHost}:54321`);
 
 export const supabaseAnonKey =
   globalThis.ONIKARA_SUPABASE_ANON_KEY ||
