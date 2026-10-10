@@ -2,16 +2,20 @@ import {
   abandonRemoteCombat,
   createRemoteDriver,
   fetchActiveCombat,
+  awardRewards,
   loadSessionLog,
+  previewRewards,
   startCampaignCombat,
 } from '../services/playerCombat.js';
 import {
   addMember,
   createCampaign,
   loadCampaignDetails,
+  loadLastCombatSession,
   loadOwnCampaign,
   removeMember,
   setEnemyReleased,
+  setMedicineDt,
   setSpellGranted,
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
@@ -140,6 +144,11 @@ export async function renderMasterView(container, { session }) {
           <input id="member-name" name="name" type="text" required />
           <button class="ok-button ok-button--primary" type="submit">Convidar</button>
         </form>
+        <form class="ok-field" data-form="dt">
+          <label for="medicine-dt">DT do teste de medicina (1 a 40; vazio usa o padrão 12)</label>
+          <input id="medicine-dt" name="dt" type="number" min="1" max="40" value="${campaign.medicine_dt ?? ''}" />
+          <button class="ok-button" type="submit">Salvar DT</button>
+        </form>
         <p class="ok-helper" role="status" aria-live="polite" data-feedback="members"></p>
         ${membersMarkup(details)}
       </section>
@@ -167,6 +176,18 @@ export async function renderMasterView(container, { session }) {
       return;
     }
     reload();
+  });
+
+  container.querySelector('[data-form="dt"]').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const raw = String(new FormData(event.currentTarget).get('dt') || '').trim();
+    const value = raw === '' ? null : Number(raw);
+    if (value !== null && (!Number.isInteger(value) || value < 1 || value > 40)) {
+      feedbackLine(membersFeedback, 'Informe um número inteiro de 1 a 40.', 'is-error');
+      return;
+    }
+    const result = await setMedicineDt(campaign.id, value);
+    feedbackLine(membersFeedback, result.ok ? 'DT salva.' : result.error.message, result.ok ? 'is-success' : 'is-error');
   });
 
   container.querySelectorAll('[data-member]').forEach((card) => {
@@ -208,6 +229,101 @@ export async function renderMasterView(container, { session }) {
 
   const combatHost = container.querySelector('#master-combat');
 
+  async function renderRewardsPanel(node, driver, state) {
+    if (state.status !== 'victory') return;
+    node.innerHTML = '<p class="ok-helper" role="status">Calculando a sugestão de recompensas...</p>';
+    const result = await previewRewards(campaign.id, driver.sessionId);
+    if (!result.ok) {
+      node.innerHTML = `<p class="ok-helper is-error" role="alert">${escapeHtml(result.error.message)}</p>`;
+      return;
+    }
+    const itemName = (id) => state.catalog.items[id]?.name || id;
+    if (result.data.awarded) {
+      const lines = (result.data.summary.awards || []).map((award) => {
+        const player = state.participants.find((p) => p.refId === award.profile_id);
+        const items = (award.items || []).map((item) => `${escapeHtml(itemName(item.item_id))} x${item.quantity}`).join(', ');
+        const level = award.level_after > award.level_before ? ` · subiu para o nível ${award.level_after}` : '';
+        return `<li>${escapeHtml(player?.name || 'Jogador')}: ${award.xp} XP${items ? ' · ' + items : ''}${level}</li>`;
+      });
+      node.innerHTML = `<h4 class="ok-combat__heading">Recompensas concedidas</h4><ul class="ok-copy">${lines.join('')}</ul>`;
+      return;
+    }
+
+    const players = result.data.suggestion.players;
+    node.innerHTML = html`
+      <h4 class="ok-combat__heading">Recompensas sugeridas</h4>
+      <p class="ok-copy">Ajuste o que quiser e conceda. O XP total foi dividido igualmente entre os jogadores.</p>
+      <ul class="ok-combat-enemies">
+        ${players
+          .map(
+            (player) => html`
+              <li class="ok-combatant" data-reward="${escapeHtml(player.profileId)}">
+                <strong>${escapeHtml(player.name)}</strong>
+                <label class="ok-helper" for="xp-${escapeHtml(player.profileId)}">XP</label>
+                <input id="xp-${escapeHtml(player.profileId)}" type="number" min="0" max="10000" value="${player.xp}" data-xp />
+                ${
+                  player.items.length
+                    ? player.items
+                        .map(
+                          (item) => `<label class="ok-helper"><input type="checkbox" checked data-item="${escapeHtml(item.item_id)}" data-quantity="${item.quantity}" />
+                            ${escapeHtml(itemName(item.item_id))} x${item.quantity}</label>`,
+                        )
+                        .join('')
+                    : '<span class="ok-helper">Sem itens</span>'
+                }
+              </li>
+            `,
+          )
+          .join('')}
+      </ul>
+      <div class="ok-toolbar"><button class="ok-button ok-button--primary" type="button" data-award>Conceder recompensas</button></div>
+      <p class="ok-helper" role="status" aria-live="polite" data-award-feedback></p>
+    `;
+    node.querySelector('[data-award]').addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      button.disabled = true;
+      const adjustments = [...node.querySelectorAll('[data-reward]')].map((row) => ({
+        profileId: row.dataset.reward,
+        xp: Number(row.querySelector('[data-xp]').value || 0),
+        items: [...row.querySelectorAll('[data-item]:checked')].map((input) => ({
+          item_id: input.dataset.item,
+          quantity: Number(input.dataset.quantity),
+        })),
+      }));
+      const outcome = await awardRewards(campaign.id, driver.sessionId, adjustments);
+      if (!outcome.ok) {
+        button.disabled = false;
+        node.querySelector('[data-award-feedback]').textContent = outcome.error.message;
+        return;
+      }
+      renderRewardsPanel(node, driver, state);
+    });
+  }
+
+  let dismissedSession = null;
+
+  // Mostra o resultado da última vitória (e as recompensas) até o mestre fechar.
+  async function renderLastVictory() {
+    const last = await loadLastCombatSession(campaign.id);
+    if (!last.ok || !last.data || last.data.status !== 'victory' || last.data.id === dismissedSession) return false;
+    const view = await fetchActiveCombat({ campaignId: campaign.id, sessionId: last.data.id });
+    if (!view.ok || !view.data.state) return false;
+    const driver = createRemoteDriver(view.data, { campaignId: campaign.id });
+    mountFight(combatHost, {
+      driver,
+      perspective: 'master',
+      title: 'Último combate',
+      endNote: 'Combate registrado no servidor.',
+      initialEvents: await loadSessionLog(last.data.id),
+      onExit: () => {
+        dismissedSession = last.data.id;
+        renderCombatArea();
+      },
+      renderEndExtra: (node, { state }) => renderRewardsPanel(node, driver, state),
+    });
+    return true;
+  }
+
   async function renderCombatArea() {
     const active = await fetchActiveCombat({ campaignId: campaign.id });
     if (active.ok && active.data.active) {
@@ -225,10 +341,13 @@ export async function renderMasterView(container, { session }) {
           renderCombatArea();
         },
         onExit: () => renderCombatArea(),
+        renderEndExtra: (node, { state }) => renderRewardsPanel(node, driver, state),
       });
       attachLive({ driver, fight, container: combatHost });
       return;
     }
+
+    if (!(active.ok && active.data.active) && (await renderLastVictory())) return;
 
     const released = details.enemies.filter((enemy) => details.releasedEnemyIds.has(enemy.id));
     combatHost.innerHTML = html`

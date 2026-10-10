@@ -94,3 +94,22 @@ export async function setSpellGranted(campaignId, profileId, spellId, granted) {
       .eq('spell_id', spellId),
   );
 }
+
+// DT do teste de medicina dos jogadores da campanha (vazio = padrão da regra de recuperação).
+export async function setMedicineDt(campaignId, dt) {
+  return runSupabase((client) =>
+    client.from('campaigns').update({ medicine_dt: dt }).eq('id', campaignId).select('id').single(),
+  );
+}
+
+export async function loadLastCombatSession(campaignId) {
+  return runSupabase((client) =>
+    client
+      .from('combat_sessions')
+      .select('id, status')
+      .eq('campaign_id', campaignId)
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  );
+}

@@ -1,5 +1,7 @@
 import { STAT_KEYS, STAT_LABELS, loadCharacterCatalogs } from '../services/playerProfile.js';
 import { loadActiveEffects, loadProgressionContext, normalizeCharacter } from '../services/playerProgression.js';
+import { loadOwnProfile } from '../services/playerProfile.js';
+import { attemptMedicine, recoverRest } from '../services/playerRecovery.js';
 import { errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { renderCharacterPortrait } from './characterLook.js';
 
@@ -48,8 +50,13 @@ function shortcut(section, title, text) {
   `;
 }
 
-export async function renderDashboardView(container, { profile }) {
+export async function renderDashboardView(container, { profile, notice = '' }) {
   container.innerHTML = loadingBlock('Carregando seu personagem...');
+
+  // Regeneração pelo tempo (servidor) e perfil atualizado antes de desenhar.
+  await recoverRest();
+  const refreshed = await loadOwnProfile(profile.user_id);
+  if (refreshed.ok && refreshed.data) Object.assign(profile, refreshed.data);
 
   const catalogs = await loadCharacterCatalogs();
   if (!catalogs.ok) {
@@ -121,7 +128,12 @@ export async function renderDashboardView(container, { profile }) {
         ${effectsBlock(character.effects)}
         <p class="ok-helper">
           A mana é seu recurso tático: ela recupera com o descanso e é gasta a cada magia em combate.
+          O HP volta devagar com os dias; poções e cuidados médicos aceleram a recuperação.
         </p>
+        <div class="ok-toolbar">
+          <button class="ok-button" type="button" data-medicine>Cuidar dos ferimentos (medicina)</button>
+        </div>
+        <p class="ok-helper ${notice ? 'is-success' : ''}" role="status" aria-live="polite" data-recovery-feedback>${escapeHtml(notice)}</p>
       </section>
 
       <nav class="ok-shortcuts" aria-label="Atalhos do personagem">
@@ -131,4 +143,24 @@ export async function renderDashboardView(container, { profile }) {
       </nav>
     </div>
   `;
+
+  const medicine = container.querySelector('[data-medicine]');
+  medicine.addEventListener('click', async () => {
+    const feedback = container.querySelector('[data-recovery-feedback]');
+    medicine.disabled = true;
+    feedback.className = 'ok-helper';
+    feedback.textContent = 'Rolando o teste de medicina...';
+    const outcome = await attemptMedicine();
+    if (!outcome.ok) {
+      medicine.disabled = false;
+      feedback.className = 'ok-helper is-error';
+      feedback.textContent = outcome.error.message;
+      return;
+    }
+    const r = outcome.data;
+    const text = `d20: ${r.roll} ${r.modifier >= 0 ? '+' : '-'} ${Math.abs(r.modifier)} = ${r.total} contra DT ${r.dt}. ${
+      r.success ? (r.healed > 0 ? `Sucesso: recuperou ${r.healed} de HP.` : 'Sucesso, mas você já estava com o HP cheio.') : 'Não foi dessa vez.'
+    }`;
+    await renderDashboardView(container, { profile, notice: text });
+  });
 }

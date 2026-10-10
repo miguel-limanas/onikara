@@ -1,4 +1,5 @@
 import { ITEM_TYPE_LABELS, equipItem, loadInventory, unequipItem } from '../services/playerInventory.js';
+import { useConsumable } from '../services/playerRecovery.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { rarityBadge, statChips } from './playerUi.js';
 
@@ -24,6 +25,8 @@ function itemMarkup(entry) {
     action = `<button class="ok-button" type="button" data-action="unequip" data-slot="${escapeHtml(entry.equippedSlot)}">Desequipar</button>`;
   } else if (entry.slot) {
     action = `<button class="ok-button ok-button--primary" type="button" data-action="equip" data-inventory="${escapeHtml(entry.inventoryId)}">Equipar</button>`;
+  } else if (item.item_type === 'consumable' && (item.effects?.restore_hp || item.effects?.restore_mana)) {
+    action = `<button class="ok-button ok-button--primary" type="button" data-action="use" data-item="${escapeHtml(item.id)}">Usar</button>`;
   } else {
     action = '<span class="ok-helper">Não equipável</span>';
   }
@@ -81,15 +84,18 @@ export async function renderInventoryView(container, { profile }) {
       const feedback = card.querySelector('.ok-item__feedback');
       const entry = items.find((candidate) => candidate.inventoryId === card.dataset.inventory);
       const equipping = button.dataset.action === 'equip';
+      const using = button.dataset.action === 'use';
 
       button.disabled = true;
       button.classList.add('is-loading');
       feedback.className = 'ok-helper ok-item__feedback';
-      feedback.textContent = equipping ? 'Equipando...' : 'Desequipando...';
+      feedback.textContent = using ? 'Usando...' : equipping ? 'Equipando...' : 'Desequipando...';
 
-      const outcome = equipping
-        ? await equipItem(profile.id, entry)
-        : await unequipItem(profile.id, button.dataset.slot);
+      const outcome = using
+        ? await useConsumable(button.dataset.item)
+        : equipping
+          ? await equipItem(profile.id, entry)
+          : await unequipItem(profile.id, button.dataset.slot);
 
       if (!outcome.ok) {
         button.disabled = false;
@@ -103,7 +109,7 @@ export async function renderInventoryView(container, { profile }) {
       const refreshed = container.querySelector(`[data-inventory="${entry.inventoryId}"] .ok-item__feedback`);
       if (refreshed) {
         refreshed.className = 'ok-helper ok-item__feedback is-success';
-        refreshed.textContent = equipping ? 'Item equipado.' : 'Item desequipado.';
+        refreshed.textContent = using ? 'Item usado.' : equipping ? 'Item equipado.' : 'Item desequipado.';
       }
     });
   });

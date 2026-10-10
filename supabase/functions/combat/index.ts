@@ -7,6 +7,7 @@
 //   act      – ação (`move`) do jogador na própria vez; o mestre age pelos inimigos
 //   suggest  – o mestre pede a sugestão da IA para o inimigo da vez
 //   abandon  – encerra o combate (jogador solo ou mestre)
+//   rewards_preview / rewards_award – o mestre revisa e concede XP e itens de uma vitória
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import {
   applyAction,
@@ -18,6 +19,7 @@ import {
   chooseEnemyAction,
   CombatError,
   createCombat,
+  createRng,
   getActiveParticipant,
   runUntilPlayerTurn,
 } from '../../../src/engine/combat/index.js';
@@ -249,6 +251,70 @@ async function loadCampaignSession(admin: any, campaignId: string) {
 }
 
 // Sessão por id para quem participa (jogador/mestre), mesmo depois de encerrada.
+// Encerrou? grava HP/mana no perfil (D-10) e, no treino solo, concede as recompensas na hora.
+async function afterPersist(admin: any, session: any, state: any, userId: string) {
+  if (state.status === 'active') return;
+  const settled = await admin.rpc('settle_combat_vitals', { p_session_id: session.id });
+  if (settled.error) console.error('settle_combat_vitals', settled.error.message);
+  if (state.status === 'victory' && !session.campaign_id) {
+    const suggestion = await suggestRewards(admin, session, state);
+    const awarded = await admin.rpc('award_combat_rewards', {
+      p_session_id: session.id,
+      p_awarded_by: userId,
+      p_awards: toAwards(suggestion),
+    });
+    if (awarded.error) console.error('award_combat_rewards', awarded.error.message);
+  }
+}
+
+function toAwards(suggestion: any) {
+  return suggestion.players.map((player: any) => ({
+    profile_id: player.profileId,
+    xp: player.xp,
+    items: player.items,
+  }));
+}
+
+// Sugestão de recompensa: XP dividido igualmente e loot sorteado com a semente do combate.
+async function suggestRewards(admin: any, session: any, state: any) {
+  const players = state.participants.filter((p: any) => p.team === 'player' && p.refType === 'profile');
+  const defeated = state.participants.filter((p: any) => p.team === 'enemy' && p.stats.hp <= 0);
+  const enemyIds = [...new Set(defeated.map((p: any) => p.refId))];
+  const enemies: any[] = enemyIds.length ? await must(admin.from('enemies').select('*').in('id', enemyIds)) : [];
+  const lootRule: any = await must(admin.from('active_loot_rules').select('*').maybeSingle());
+  const multiplier = Number(lootRule?.reward_modifiers?.xp_multiplier ?? 1) || 1;
+
+  let total = 0;
+  const rng = createRng(`${session.seed}:loot`);
+  const drops: { item_id: string; quantity: number }[] = [];
+  for (const enemy of defeated) {
+    const row = enemies.find((item) => item.id === enemy.refId);
+    if (!row) continue;
+    total += Math.floor(Number(row.xp_reward || 0) * multiplier);
+    for (const entry of row.loot_table || []) {
+      if (entry?.item_id && rng.chance(Number(entry.chance ?? 0))) {
+        drops.push({ item_id: String(entry.item_id), quantity: Math.max(1, Number(entry.quantity ?? 1)) });
+      }
+    }
+  }
+  const perPlayer = players.length ? Math.floor(total / players.length) : 0;
+  const ordered = [...players].sort((a: any, b: any) => String(a.refId).localeCompare(String(b.refId)));
+  const result = ordered.map((player: any) => ({
+    profileId: player.refId,
+    name: player.name,
+    xp: perPlayer,
+    items: [] as { item_id: string; quantity: number }[],
+  }));
+  drops.forEach((drop, index) => {
+    if (!result.length) return;
+    const target = result[index % result.length];
+    const existing = target.items.find((item) => item.item_id === drop.item_id);
+    if (existing) existing.quantity += drop.quantity;
+    else target.items.push({ ...drop });
+  });
+  return { totalXp: total, players: result };
+}
+
 async function loadSessionForViewer(admin: any, user: any, profile: any, sessionId: string) {
   const session = await must(admin.from('combat_sessions').select('*').eq('id', sessionId).maybeSingle());
   if (!session) return null;
@@ -310,12 +376,14 @@ async function startSolo(request: Request, admin: any, profile: any, body: any, 
     return json(request, 200, { ok: true, resumed: true, ...publicView(existing.session, existing.state, viewer) });
   }
 
-  const data: any = await loadCatalogRows(admin, profile);
+  await admin.rpc('recover_profile', { p_profile: profile.id });
+  const fresh: any = await must(admin.from('profiles').select('*').eq('id', profile.id).single());
+  const data: any = await loadCatalogRows(admin, fresh);
   if (!data.rpgClass) return fail(request, 422, 'missing_class', 'Classe do personagem não encontrada.');
   const known = new Set(data.rows.enemies.map((enemy: any) => enemy.id));
   if (enemyIds.some((id) => !known.has(id))) return fail(request, 422, 'invalid_enemies', 'Inimigo desconhecido.');
 
-  const participants = buildParticipants(data, profile, { enemyIds, idFor: () => crypto.randomUUID() });
+  const participants = buildParticipants(data, fresh, { enemyIds, idFor: () => crypto.randomUUID() });
   const setup = createCombat({
     seed: crypto.randomUUID(),
     rules: buildRules(data.rows),
@@ -380,6 +448,7 @@ async function startCampaign(request: Request, admin: any, user: any, body: any)
 
   const members: any[] = await must(admin.from('campaign_members').select('profile_id').eq('campaign_id', campaign.id));
   if (!members.length) return fail(request, 422, 'no_members', 'A campanha ainda não tem jogadores.');
+  for (const member of members) await admin.rpc('recover_profile', { p_profile: member.profile_id });
   const profiles: any[] = await must(admin.from('profiles').select('*').in('id', members.map((m) => m.profile_id)));
   const granted: any[] = await must(admin.from('campaign_member_spells').select('*').eq('campaign_id', campaign.id));
 
@@ -489,6 +558,7 @@ async function act(request: Request, admin: any, user: any, profile: any, body: 
   const settled = session.campaign_id ? { state: step.state, events: [] } : runUntilPlayerTurn(step.state);
   const events = [...step.events, ...settled.events];
   const version = await persist(admin, session.id, session.version, settled.state, events);
+  await afterPersist(admin, session, settled.state, user.id);
   return json(request, 200, { ok: true, ...publicView({ ...session, version }, settled.state, viewer, events) });
 }
 
@@ -504,6 +574,67 @@ async function suggest(request: Request, admin: any, user: any, body: any) {
   return json(request, 200, { ok: true, move, version: loaded.session.version });
 }
 
+async function masterSession(admin: any, user: any, body: any) {
+  const campaign = await ownedCampaign(admin, user.id, String(body.campaignId));
+  if (!campaign) return { error: 'not_master' as const };
+  const session: any = await must(
+    admin.from('combat_sessions').select('*').eq('id', String(body.sessionId)).eq('campaign_id', campaign.id).maybeSingle(),
+  );
+  if (!session) return { error: 'no_session' as const };
+  return { session, ...(await hydrate(admin, session)) };
+}
+
+async function rewardsPreview(request: Request, admin: any, user: any, body: any) {
+  const found: any = await masterSession(admin, user, body);
+  if (found.error === 'not_master') return fail(request, 403, 'not_master', 'Você não é o mestre desta campanha.');
+  if (found.error) return fail(request, 404, 'no_session', 'Combate não encontrado.');
+  const existing: any = await must(
+    admin.from('combat_rewards').select('summary').eq('combat_session_id', found.session.id).maybeSingle(),
+  );
+  if (existing) return json(request, 200, { ok: true, awarded: true, summary: existing.summary });
+  if (found.session.status !== 'victory') {
+    return fail(request, 422, 'not_victory', 'Só há recompensa quando o grupo vence o combate.');
+  }
+  const suggestion = await suggestRewards(admin, found.session, found.state);
+  return json(request, 200, { ok: true, awarded: false, suggestion });
+}
+
+async function rewardsAward(request: Request, admin: any, user: any, body: any) {
+  const found: any = await masterSession(admin, user, body);
+  if (found.error === 'not_master') return fail(request, 403, 'not_master', 'Você não é o mestre desta campanha.');
+  if (found.error) return fail(request, 404, 'no_session', 'Combate não encontrado.');
+  if (found.session.status !== 'victory') {
+    return fail(request, 422, 'not_victory', 'Só há recompensa quando o grupo vence o combate.');
+  }
+
+  const suggestion = await suggestRewards(admin, found.session, found.state);
+  let awards = toAwards(suggestion);
+  if (Array.isArray(body.adjustments)) {
+    const allowed = new Set(suggestion.players.map((player: any) => player.profileId));
+    const items: any[] = await must(admin.from('items').select('id'));
+    const knownItems = new Set(items.map((item) => item.id));
+    awards = body.adjustments
+      .filter((entry: any) => allowed.has(entry.profileId))
+      .map((entry: any) => ({
+        profile_id: entry.profileId,
+        xp: Math.min(10000, Math.max(0, Math.floor(Number(entry.xp) || 0))),
+        items: (Array.isArray(entry.items) ? entry.items : [])
+          .filter((item: any) => knownItems.has(item.item_id))
+          .map((item: any) => ({
+            item_id: item.item_id,
+            quantity: Math.min(99, Math.max(1, Math.floor(Number(item.quantity) || 1))),
+          })),
+      }));
+  }
+  const { data, error } = await admin.rpc('award_combat_rewards', {
+    p_session_id: found.session.id,
+    p_awarded_by: user.id,
+    p_awards: awards,
+  });
+  if (error) return fail(request, 422, 'award_failed', error.message);
+  return json(request, 200, { ok: true, awarded: true, summary: data });
+}
+
 async function abandon(request: Request, admin: any, user: any, profile: any, body: any) {
   const caller: any = await resolveCaller(admin, user, profile, body);
   if (caller.error === 'not_master') return fail(request, 403, 'not_master', 'Você não é o mestre desta campanha.');
@@ -517,6 +648,7 @@ async function abandon(request: Request, admin: any, user: any, profile: any, bo
   const next = { ...state, status: 'abandoned' };
   const events = [{ type: 'system', round: state.round, actorId: null, targetId: null, payload: { kind: 'abandoned' } }];
   const version = await persist(admin, session.id, session.version, next, events);
+  await afterPersist(admin, session, next, user.id);
   return json(request, 200, {
     ok: true,
     ...publicView({ ...session, version }, next, viewerFor(next, profile, caller.isMaster), events),
@@ -573,6 +705,10 @@ Deno.serve(async (request: Request) => {
         return await suggest(request, admin, user, body);
       case 'abandon':
         return await abandon(request, admin, user, profile, body);
+      case 'rewards_preview':
+        return await rewardsPreview(request, admin, user, body);
+      case 'rewards_award':
+        return await rewardsAward(request, admin, user, body);
       default:
         return fail(request, 400, 'unknown_op', 'Operação desconhecida.');
     }

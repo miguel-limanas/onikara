@@ -270,6 +270,11 @@ export function watchCombat(sessionId, { onChange, onStatus = () => {}, pollMs =
       { event: 'UPDATE', schema: 'public', table: 'combat_sessions', filter: `id=eq.${sessionId}` },
       () => onChange(),
     )
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'combat_rewards', filter: `combat_session_id=eq.${sessionId}` },
+      () => onChange({ rewards: true }),
+    )
     .subscribe((status) => {
       if (closed) return;
       if (status === 'SUBSCRIBED') {
@@ -301,4 +306,21 @@ export function watchCombat(sessionId, { onChange, onStatus = () => {}, pollMs =
   };
   activeWatch = stop;
   return stop;
+}
+
+// ---- Recompensas (plano 05-07) -----------------------------------------------------
+
+export async function loadCombatRewards(sessionId) {
+  const result = await runSupabase((client) =>
+    client.from('combat_rewards').select('summary, created_at').eq('combat_session_id', sessionId).maybeSingle(),
+  );
+  return result.ok ? result.data : null;
+}
+
+export function previewRewards(campaignId, sessionId) {
+  return callCombat({ op: 'rewards_preview', campaignId, sessionId });
+}
+
+export function awardRewards(campaignId, sessionId, adjustments) {
+  return callCombat({ op: 'rewards_award', campaignId, sessionId, adjustments });
 }

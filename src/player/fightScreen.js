@@ -127,7 +127,7 @@ function actionButton(action, state, targetId) {
 // Tela de luta compartilhada por jogador e mestre.
 // driver: { kind, getState, getViewer, actionsFor, act, [suggest], [sessionId] }
 // perspective: 'player' (age pelo próprio personagem) | 'master' (age pelo inimigo da vez)
-export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true }) {
+export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true, renderEndExtra = null }) {
   const ui = { targetId: null, busy: false, message: '', connection: '' };
   let logHtml = '';
 
@@ -210,6 +210,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
                 <div class="ok-combat-end is-${state.status}" role="status">
                   <h3 class="ok-route-title">${escapeHtml(END_TITLES[state.status] || 'Combate encerrado')}</h3>
                   <p class="ok-copy">${escapeHtml(endNote || '')}</p>
+                  <div data-end-extra></div>
                   ${onExit ? '<div class="ok-toolbar"><button class="ok-button ok-button--primary" type="button" data-exit>Voltar</button></div>' : ''}
                 </div>
               `
@@ -258,6 +259,8 @@ export function mountFight(container, { driver, perspective = 'player', title, e
       log.scrollTop = log.scrollHeight;
     }
     bind(acting, state);
+    const extra = container.querySelector('[data-end-extra]');
+    if (extra && renderEndExtra) renderEndExtra(extra, { state });
   }
 
   async function run(action) {
@@ -350,7 +353,7 @@ export function attachLive({ driver, fight, container }) {
   let pending = false;
   let stop = () => {};
 
-  async function sync() {
+  async function sync(info) {
     if (pending || fight.isBusy()) return;
     if (!container.isConnected) {
       stop();
@@ -363,7 +366,8 @@ export function attachLive({ driver, fight, container }) {
         const log = await loadSessionLog(driver.sessionId);
         fight.replaceLog(log);
       }
-      if (result.ended) stop();
+      // Recompensas concedidas depois do fim do combate: só redesenha o bloco final.
+      if (info?.rewards && !result.changed) fight.refresh();
     } finally {
       pending = false;
     }

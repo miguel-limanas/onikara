@@ -5,6 +5,7 @@ import {
   fetchActiveCombat,
   isTestAccount,
   loadCombatContext,
+  loadCombatRewards,
   loadSessionLog,
   startRemoteCombat,
 } from '../services/playerCombat.js';
@@ -40,13 +41,38 @@ export async function renderCombatView(container, { profile, session }) {
       perspective: 'player',
       title: remote ? 'Combate' : 'Treino local',
       endNote: remote
-        ? 'Combate registrado no servidor. As recompensas chegam com a próxima etapa.'
+        ? 'Combate registrado no servidor.'
         : 'Treino local: nada foi gravado e não há recompensas.',
       initialEvents: driver.getLog(),
       onExit: () => renderSelect(),
       onLeave: remote && !inCampaign ? () => leave(driver) : null,
+      renderEndExtra: remote ? (node, { state }) => showRewards(node, driver, state) : null,
     });
     if (remote) attachLive({ driver, fight, container });
+  }
+
+  async function showRewards(node, driver, state) {
+    if (state.status !== 'victory') return;
+    node.innerHTML = '<p class="ok-helper" role="status">Conferindo as recompensas...</p>';
+    const row = await loadCombatRewards(driver.sessionId);
+    if (!row) {
+      node.innerHTML = '<p class="ok-copy" role="status">Aguardando o mestre conceder as recompensas.</p>';
+      return;
+    }
+    const mine = (row.summary.awards || []).find((award) => award.profile_id === profile.id);
+    if (!mine) {
+      node.innerHTML = '<p class="ok-copy" role="status">As recompensas foram concedidas.</p>';
+      return;
+    }
+    const names = state.catalog.items;
+    const items = (mine.items || []).map((item) => `${escapeHtml(names[item.item_id]?.name || item.item_id)} x${item.quantity}`);
+    node.innerHTML = html`
+      <div class="ok-combat-rewards" role="status">
+        <h4 class="ok-combat__heading">Recompensas</h4>
+        <p class="ok-copy"><strong>${mine.xp} XP</strong>${items.length ? ' · ' + items.join(', ') : ''}</p>
+        ${mine.level_after > mine.level_before ? `<p class="ok-badge is-success">Subiu para o nível ${mine.level_after}!</p>` : ''}
+      </div>
+    `;
   }
 
   async function leave(driver) {
