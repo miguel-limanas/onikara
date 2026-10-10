@@ -51,13 +51,13 @@ async function loadRules(target, table) {
     renderAction(button, async () => {
       const ok = await confirmDialog({
         title: 'Ativar regra',
-        message: 'A regra ativa sera consumida pelas views publicas do jogador.',
+        message: 'A regra ativa será consumida pelas views públicas do jogador.',
         confirmLabel: 'Ativar',
       });
       if (!ok) return;
       const activated = await activateRule(table, button.dataset.activate);
       if (!activated.ok) showToast(activated.error.message, 'error');
-      else showToast('Regra ativa confirmada na view publica.', 'success');
+      else showToast('Regra ativa confirmada na view pública.', 'success');
       await loadRules(target, table);
     });
   });
@@ -65,7 +65,7 @@ async function loadRules(target, table) {
     renderAction(button, async () => {
       const ok = await confirmDialog({
         title: 'Arquivar regra',
-        message: 'Arquivar remove esta versao da regra ativa sem apagar historico sensivel.',
+        message: 'Arquivar remove esta versão da regra ativa sem apagar histórico sensível.',
         confirmLabel: 'Arquivar',
         danger: true,
       });
@@ -93,7 +93,7 @@ function renderRulesTable(table, rows) {
     ${rows.length ? html`
       <div class="ok-table-wrap">
         <table class="ok-table">
-          <thead><tr><th>Nome</th><th>Versao</th><th>Status</th><th>Notas</th><th>Acoes</th></tr></thead>
+          <thead><tr><th>Nome</th><th>Versão</th><th>Status</th><th>Notas</th><th>Ações</th></tr></thead>
           <tbody>
             ${rows
               .map(
@@ -133,7 +133,7 @@ function renderRuleEditor(target, table, rule = null) {
     </div>
     <form id="balance-form" class="ok-form-grid" novalidate>
       <label class="ok-field"><span>Nome *</span><input class="ok-input" name="name" required value="${escapeHtml(rule?.name || '')}" /></label>
-      <label class="ok-field"><span>Versao *</span><input class="ok-input" type="number" name="version" min="1" required value="${escapeHtml(rule?.version || 1)}" /></label>
+      <label class="ok-field"><span>Versão *</span><input class="ok-input" type="number" name="version" min="1" required value="${escapeHtml(rule?.version || 1)}" /></label>
       <label class="ok-field"><span>Status</span><select class="ok-select" name="status"><option>draft</option><option>active</option><option>archived</option></select></label>
       <label class="ok-field ok-field--full"><span>Notas</span><input class="ok-input" name="notes" value="${escapeHtml(rule?.notes || '')}" /></label>
       ${definition.jsonFields

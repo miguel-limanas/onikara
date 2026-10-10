@@ -12,7 +12,7 @@ export function validateRecord(values, fields) {
   for (const field of fields) {
     const value = values[field.name];
     if (field.required && !required(value)) {
-      errors[field.name] = 'Campo obrigatorio.';
+      errors[field.name] = 'Campo obrigatório.';
       continue;
     }
     if (field.type === 'number' && required(value) && !minNumber(value, field.min ?? Number.NEGATIVE_INFINITY)) {

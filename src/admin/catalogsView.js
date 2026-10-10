@@ -4,7 +4,7 @@ import { showToast } from '../ui/toast.js';
 
 export async function renderCatalogsView(target) {
   const table = target.dataset.catalogTable || 'rpg_classes';
-  target.innerHTML = renderShell(table, loadingBlock('Carregando catalogos...'));
+  target.innerHTML = renderShell(table, loadingBlock('Carregando catálogos...'));
   bindCatalogShell(target);
   await loadTable(target, table);
 }
@@ -12,7 +12,7 @@ export async function renderCatalogsView(target) {
 function renderShell(activeTable, body) {
   return html`
     <section class="ok-panel">
-      <div class="ok-toolbar" aria-label="Ferramentas de catalogo">
+      <div class="ok-toolbar" aria-label="Ferramentas de catálogo">
         <label class="ok-field">
           <span class="ok-label">Entidade</span>
           <select id="catalog-table" class="ok-select">
@@ -65,15 +65,15 @@ async function loadTable(target, table) {
   body.querySelectorAll('[data-delete]').forEach((button) => {
     button.addEventListener('click', async () => {
       const ok = await confirmDialog({
-        title: 'Confirmar exclusao',
-        message: `Excluir ${button.dataset.delete}? Esta acao e auditada e pode afetar relacionamentos.`,
+        title: 'Confirmar exclusão',
+        message: `Excluir ${button.dataset.delete}? Esta ação é auditada e pode afetar relacionamentos.`,
         confirmLabel: 'Excluir',
         danger: true,
       });
       if (!ok) return;
       const deleted = await deleteCatalog(table, button.dataset.delete);
       if (!deleted.ok) showToast(deleted.error.message, 'error');
-      else showToast('Registro removido. Auditoria sera registrada pelo Supabase.', 'success');
+      else showToast('Registro removido. Auditoria será registrada pelo Supabase.', 'success');
       await loadTable(target, table);
     });
   });
@@ -88,7 +88,7 @@ function renderTable(table, rows) {
         <thead>
           <tr>
             ${definition.columns.map((column) => `<th>${escapeHtml(column)}</th>`).join('')}
-            <th>Acoes</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -134,7 +134,7 @@ function renderForm(target, table, record = null) {
     <div class="ok-band-header">
       <p class="ok-kicker">${record ? 'Editar' : 'Criar'} ${definition.label}</p>
       <h2 class="ok-route-title">${escapeHtml(record?.id || 'Novo registro')}</h2>
-      <p class="ok-helper">Campos JSON sao validados antes do envio. Alteracoes administrativas sao auditadas.</p>
+      <p class="ok-helper">Campos JSON são validados antes do envio. Alterações administrativas são auditadas.</p>
     </div>
     <form id="catalog-form" class="ok-form-grid" novalidate>
       ${definition.fields.map((field) => renderField(field, record?.[field.name])).join('')}

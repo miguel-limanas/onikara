@@ -17,12 +17,12 @@ export async function renderRelationshipsView(target) {
     <section class="ok-panel">
       <div class="ok-band-header">
         <p class="ok-kicker">Relacionamentos</p>
-        <h2 class="ok-route-title">Vinculos de gameplay</h2>
+        <h2 class="ok-route-title">Vínculos de gameplay</h2>
       </div>
       <div class="ok-grid">
         <button class="ok-button ok-button--primary" data-rel="class">Classe-Magia</button>
         <button class="ok-button" data-rel="enemy">Inimigo-Magia</button>
-        <button class="ok-button" data-rel="quest">Etapas de Missao</button>
+        <button class="ok-button" data-rel="quest">Etapas de Missão</button>
       </div>
       <div id="relationship-body">${loadingBlock()}</div>
     </section>
@@ -35,7 +35,7 @@ export async function renderRelationshipsView(target) {
 
 async function loadRelationship(target, type) {
   const body = target.querySelector('#relationship-body');
-  body.innerHTML = loadingBlock('Carregando vinculos...');
+  body.innerHTML = loadingBlock('Carregando vínculos...');
   const loaders = {
     class: listClassSpells,
     enemy: listEnemySpells,
@@ -60,7 +60,7 @@ function renderRelationshipTable(type, rows) {
     ${rows.length ? html`
       <div class="ok-table-wrap">
         <table class="ok-table">
-          <thead><tr>${labels[type].map((label) => `<th>${label}</th>`).join('')}<th>Acoes</th></tr></thead>
+          <thead><tr>${labels[type].map((label) => `<th>${label}</th>`).join('')}<th>Ações</th></tr></thead>
           <tbody>
             ${rows
               .map(
@@ -75,11 +75,11 @@ function renderRelationshipTable(type, rows) {
           </tbody>
         </table>
       </div>
-    ` : emptyBlock('Nenhum vinculo registrado.')}
+    ` : emptyBlock('Nenhum vínculo registrado.')}
     <form id="relationship-form" class="ok-form-grid" novalidate>
       ${relationshipFields(type)}
       <p id="relationship-status" class="ok-helper ok-field--full" aria-live="polite"></p>
-      <button class="ok-button ok-button--primary ok-field--full" type="submit">Salvar vinculo</button>
+      <button class="ok-button ok-button--primary ok-field--full" type="submit">Salvar vínculo</button>
     </form>
   `;
 }
@@ -123,9 +123,9 @@ function bindRelationshipForm(body, type) {
             ? await saveEnemySpell(values)
             : await saveQuestStep(values);
       if (!result.ok) throw new Error(result.error.message);
-      status.textContent = 'Vinculo salvo e auditado.';
+      status.textContent = 'Vínculo salvo e auditado.';
       status.className = 'ok-helper is-success ok-field--full';
-      showToast('Vinculo salvo.', 'success');
+      showToast('Vínculo salvo.', 'success');
     } catch (error) {
       status.textContent = error.message;
       status.className = 'ok-helper is-error ok-field--full';
@@ -135,8 +135,8 @@ function bindRelationshipForm(body, type) {
     button.addEventListener('click', async () => {
       const row = JSON.parse(button.dataset.remove);
       const ok = await confirmDialog({
-        title: 'Remover vinculo',
-        message: 'Esta alteracao sera auditada e pode afetar desbloqueios ou encontros.',
+        title: 'Remover vínculo',
+        message: 'Esta alteração será auditada e pode afetar desbloqueios ou encontros.',
         confirmLabel: 'Remover',
         danger: true,
       });
@@ -148,7 +148,7 @@ function bindRelationshipForm(body, type) {
             ? await deleteEnemySpell(row)
             : await deleteQuestStep(row);
       if (!result.ok) showToast(result.error.message, 'error');
-      else showToast('Vinculo removido.', 'success');
+      else showToast('Vínculo removido.', 'success');
     });
   });
 }

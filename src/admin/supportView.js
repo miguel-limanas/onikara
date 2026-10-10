@@ -7,8 +7,8 @@ export async function renderSupportView(target) {
     <section class="ok-panel">
       <div class="ok-band-header">
         <p class="ok-kicker">Suporte</p>
-        <h2 class="ok-route-title">Diagnostico controlado de jogador</h2>
-        <p class="ok-helper">Somente leitura por padrao. Acoes mutaveis exigem RPC auditada.</p>
+        <h2 class="ok-route-title">Diagnóstico controlado de jogador</h2>
+        <p class="ok-helper">Somente leitura por padrão. Ações mutáveis exigem RPC auditada.</p>
       </div>
       <div id="support-body">${loadingBlock()}</div>
     </section>
@@ -30,7 +30,7 @@ async function loadProfiles(target) {
   body.innerHTML = html`
     <div class="ok-table-wrap">
       <table class="ok-table">
-        <thead><tr><th>Personagem</th><th>Nivel</th><th>Classe</th><th>Raca</th><th>Estado</th><th>Acoes</th></tr></thead>
+        <thead><tr><th>Personagem</th><th>Nível</th><th>Classe</th><th>Raça</th><th>Estado</th><th>Ações</th></tr></thead>
         <tbody>
           ${result.data
             .map(
@@ -59,7 +59,7 @@ async function loadProfiles(target) {
 async function loadSupportDetail(body, profileId) {
   const detail = body.querySelector('#support-detail');
   detail.hidden = false;
-  detail.innerHTML = loadingBlock('Carregando diagnostico...');
+  detail.innerHTML = loadingBlock('Carregando diagnóstico...');
   const data = await loadProfileSupport(profileId);
   detail.innerHTML = html`
     <div class="ok-band-header">
@@ -67,25 +67,25 @@ async function loadSupportDetail(body, profileId) {
       <h3 class="ok-route-title">Perfil ${escapeHtml(profileId)}</h3>
     </div>
     <div class="ok-grid-2">
-      ${supportTable('Inventario', data.inventory.data)}
+      ${supportTable('Inventário', data.inventory.data)}
       ${supportTable('Equipamentos', data.equipment.data)}
-      ${supportTable('Missoes', data.quests.data)}
-      ${supportTable('Sessoes de combate', data.combat_sessions.data)}
+      ${supportTable('Missões', data.quests.data)}
+      ${supportTable('Sessões de combate', data.combat_sessions.data)}
     </div>
     <div class="ok-panel">
       <h3 class="ok-route-title">Eventos de combate recentes</h3>
       ${supportTable('Eventos', data.combat_events.data)}
     </div>
     <div class="ok-panel">
-      <p class="ok-kicker">Acoes de suporte</p>
-      <p class="ok-helper">Acoes mutaveis permanecem desativadas ate existir RPC especifica e auditada.</p>
-      <button id="support-action" class="ok-button ok-button--danger">Tentar acao controlada</button>
+      <p class="ok-kicker">Ações de suporte</p>
+      <p class="ok-helper">Ações mutáveis permanecem desativadas até existir RPC específica e auditada.</p>
+      <button id="support-action" class="ok-button ok-button--danger">Tentar ação controlada</button>
     </div>
   `;
   detail.querySelector('#support-action').addEventListener('click', async () => {
     const ok = await confirmDialog({
-      title: 'Acao mutavel bloqueada',
-      message: 'Sem RPC auditada especifica, o suporte mutavel e adiado por seguranca.',
+      title: 'Ação mutável bloqueada',
+      message: 'Sem RPC auditada específica, o suporte mutável é adiado por segurança.',
       confirmLabel: 'Entendi',
       danger: true,
     });

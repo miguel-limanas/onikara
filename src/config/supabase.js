@@ -6,7 +6,7 @@ export const supabaseUrl =
 export const supabaseAnonKey =
   globalThis.ONIKARA_SUPABASE_ANON_KEY ||
   localStorage.getItem('ONIKARA_SUPABASE_ANON_KEY') ||
-  'replace-with-local-anon-key';
+  'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH';
 
 export function isSupabaseConfigured() {
   return Boolean(

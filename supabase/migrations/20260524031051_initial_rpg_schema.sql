@@ -17,7 +17,11 @@ returns text
 language sql
 stable
 as $$
-  select coalesce(auth.jwt() ->> 'app_role', 'player')
+  select coalesce(
+    auth.jwt() ->> 'app_role',
+    auth.jwt() -> 'app_metadata' ->> 'app_role',
+    'player'
+  )
 $$;
 
 create or replace function public.has_app_role(expected_role text)

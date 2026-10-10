@@ -7,13 +7,13 @@ export async function renderAuditView(target) {
       <div class="ok-band-header">
         <p class="ok-kicker">Auditoria</p>
         <h2 class="ok-route-title">Trilha administrativa somente leitura</h2>
-        <p class="ok-helper">Read-only: os registros de auditoria nunca sao alterados por esta tela.</p>
+        <p class="ok-helper">Somente leitura: os registros de auditoria nunca são alterados por esta tela.</p>
       </div>
       <form id="audit-filter" class="ok-form-grid">
         <label class="ok-field"><span>Entidade</span><input class="ok-input" name="entity_table" placeholder="public.spells" /></label>
-        <label class="ok-field"><span>Operacao</span><input class="ok-input" name="action" placeholder="insert, update, delete" /></label>
+        <label class="ok-field"><span>Operação</span><input class="ok-input" name="action" placeholder="insert, update, delete" /></label>
         <label class="ok-field"><span>De</span><input class="ok-input" name="from" type="datetime-local" /></label>
-        <label class="ok-field"><span>Ate</span><input class="ok-input" name="to" type="datetime-local" /></label>
+        <label class="ok-field"><span>Até</span><input class="ok-input" name="to" type="datetime-local" /></label>
         <button class="ok-button ok-button--primary ok-field--full" type="submit">Filtrar logs</button>
       </form>
       <div id="audit-body">${loadingBlock()}</div>
@@ -42,7 +42,7 @@ async function loadAudit(target, filters = {}) {
   body.innerHTML = html`
     <div class="ok-table-wrap">
       <table class="ok-table">
-        <thead><tr><th>Quando</th><th>Ator</th><th>Acao</th><th>Entidade</th><th>ID</th><th>Redigido</th><th>Detalhe</th></tr></thead>
+        <thead><tr><th>Quando</th><th>Ator</th><th>Ação</th><th>Entidade</th><th>ID</th><th>Redigido</th><th>Detalhe</th></tr></thead>
         <tbody>
           ${result.data
             .map(
@@ -74,7 +74,7 @@ async function loadAudit(target, filters = {}) {
           <p class="ok-kicker">Detalhe do log</p>
           <h3 class="ok-route-title">${escapeHtml(log.entity_table)}</h3>
         </div>
-        <p class="ok-helper">${log.redacted ? 'Dados sensiveis foram redigidos.' : 'Antes/depois completo disponivel quando registrado.'}</p>
+        <p class="ok-helper">${log.redacted ? 'Dados sensíveis foram redigidos.' : 'Antes/depois completo disponível quando registrado.'}</p>
         <div class="ok-grid-2">
           <pre class="ok-empty"><code>${escapeHtml(JSON.stringify(log.before_data, null, 2))}</code></pre>
           <pre class="ok-empty"><code>${escapeHtml(JSON.stringify(log.after_data, null, 2))}</code></pre>
