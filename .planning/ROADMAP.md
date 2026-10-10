@@ -219,7 +219,7 @@ Linha de pesquisa visual:
 
 **Wave 1**
 
-- [ ] 04-01: Implementar autenticação, onboarding e criação de personagem.
+- [x] 04-01: Implementar autenticação, onboarding e criação de personagem.
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
