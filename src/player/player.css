@@ -733,3 +733,217 @@ body.ok-player-body {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Combate ------------------------------------------------------------- */
+
+.ok-combat,
+.ok-combat-select {
+  display: grid;
+  gap: 18px;
+}
+
+.ok-combat__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ok-combat__top .ok-section-title {
+  margin: 0;
+}
+
+.ok-combat__heading {
+  margin: 0 0 10px;
+  color: var(--player-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.ok-combat-order {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-combat-order__item {
+  padding: 6px 10px;
+  border: 1px solid var(--player-line);
+  color: var(--player-muted);
+  font-size: 0.8rem;
+}
+
+.ok-combat-order__item.is-active {
+  border-color: var(--player-gold);
+  color: var(--player-gold-light);
+}
+
+.ok-combat__field {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.ok-combatant-list,
+.ok-combat-enemies,
+.ok-combat-action-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-combatant {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ok-combatant.is-enemy {
+  border-color: var(--player-line-red);
+}
+
+.ok-combatant.is-active {
+  border-color: var(--player-gold);
+}
+
+.ok-combatant.is-selected {
+  box-shadow: inset 3px 0 0 var(--player-gold);
+}
+
+.ok-combatant.is-defeated {
+  opacity: 0.55;
+}
+
+.ok-combatant__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.ok-combat-element[data-element="fire"] {
+  color: var(--color-element-fire, #ef6f3a);
+}
+
+.ok-combat-element[data-element="water"] {
+  color: var(--color-element-water, #65a9ff);
+}
+
+.ok-combat-element[data-element="storm"] {
+  color: var(--color-element-shadow, #7761d9);
+}
+
+.ok-combat-element[data-element="earth"] {
+  color: var(--oni-gold-300, #dec47c);
+}
+
+.ok-combat-element[data-element="nature"] {
+  color: var(--oni-green, #4fb477);
+}
+
+.ok-combat-actions {
+  padding: 14px;
+  border: 1px solid var(--player-line);
+}
+
+.ok-combat-action-list {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.ok-combat-action {
+  display: grid;
+  gap: 6px;
+}
+
+.ok-combat-action__button {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  text-align: left;
+}
+
+.ok-combat-action__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.ok-combat-logbox {
+  display: grid;
+}
+
+.ok-combat-log {
+  display: grid;
+  gap: 4px;
+  max-height: 240px;
+  margin: 0;
+  padding: 10px 12px;
+  overflow-y: auto;
+  border: 1px solid var(--player-line);
+  background: rgba(0, 0, 0, 0.25);
+  list-style: none;
+}
+
+.ok-combat-log__entry {
+  color: var(--player-ivory);
+  font-size: 0.9rem;
+}
+
+.ok-combat-log__entry.is-damage {
+  color: var(--oni-crimson-300, #f07782);
+}
+
+.ok-combat-log__entry.is-heal,
+.ok-combat-log__entry.is-victory {
+  color: var(--oni-green, #4fb477);
+}
+
+.ok-combat-log__entry.is-status {
+  color: var(--player-gold-light);
+}
+
+.ok-combat-log__entry.is-defeat,
+.ok-combat-log__entry.is-error {
+  color: var(--oni-crimson-300, #f07782);
+}
+
+.ok-combat-end {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--player-gold);
+}
+
+.ok-combat-end.is-defeat {
+  border-color: var(--player-red);
+}
+
+@media (max-width: 760px) {
+  .ok-combat__field {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ok-combat-action-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ok-combatant,
+  .ok-combat-order__item {
+    transition: none;
+  }
+}

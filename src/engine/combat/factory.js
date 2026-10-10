@@ -72,3 +72,13 @@ export function enemyParticipant({ id, enemy, spellRows = [] }) {
     weaponDie: enemy.behavior?.weapon_die || '1d4',
   };
 }
+
+// Dado do ataque básico: effects.damage_die do item; senão pela raridade (1d4 a 1d10). Sem arma: 1d4.
+const DIE_BY_RARITY = { common: '1d4', uncommon: '1d6', rare: '1d8', epic: '1d10', legendary: '1d10' };
+
+export function weaponDieFor(item) {
+  if (!item) return '1d4';
+  const custom = item.effects?.damage_die;
+  if (typeof custom === 'string' && /^1d(4|6|8|10)$/.test(custom)) return custom;
+  return DIE_BY_RARITY[item.rarity] || '1d4';
+}

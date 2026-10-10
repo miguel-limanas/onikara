@@ -16,7 +16,7 @@ export function buildCatalog({ elements, statusEffects, spells, items }) {
 }
 
 export function buildRules({ combatRules, manaRules }) {
-  return normalizeRules({ combat: combatRules, mana: manaRules });
+  return normalizeRules({ combat: combatRules ?? {}, mana: manaRules ?? {} });
 }
 
 export function unlockedSpellIds(classSpells, classId, level) {

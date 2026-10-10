@@ -1,5 +1,6 @@
 import { requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
 import { errorBlock, escapeHtml, html } from '../ui/components.js';
+import { renderCombatView } from './combatView.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
 import { renderQuestsView } from './questsView.js';
@@ -17,6 +18,7 @@ const sections = [
   { id: 'personagem', label: 'Personagem', render: (container) => renderDashboardView(container, { profile: state.profile }) },
   { id: 'inventario', label: 'Inventário', render: (container) => renderInventoryView(container, { profile: state.profile }) },
   { id: 'magias', label: 'Magias', render: (container) => renderSpellsView(container, { profile: state.profile }) },
+  { id: 'combate', label: 'Combate', render: (container) => renderCombatView(container, { profile: state.profile, session: state.session }) },
   { id: 'missoes', label: 'Missões', render: (container) => renderQuestsView(container, { profile: state.profile }) },
 ];
 
