@@ -8,9 +8,11 @@
 
 Entregar o primeiro combate tático por turnos jogável em `/play`: motor de regras puro e testável, HUD de combate, inimigos com IA simples, persistência em `combat_sessions`/`combat_participants`/`combat_events`, recompensas (XP, loot, missões) e, só se fizer sentido, Realtime.
 
-A fase entrega valor em etapas pequenas, cada uma jogável ou verificável por conta própria (ver plano `05-01` a `05-07`).
+A fase entrega valor em etapas pequenas, cada uma jogável ou verificável por conta própria (ver plano `05-01` a `05-06`).
 
-Ficam fora da fase: PvP, grupos/co-op, IA avançada que analisa vantagens elementais (CMBT-04), crafting/upgrade de raridade, modo master, métricas e telas de suporte (Phase 6) e arte/animação final de combate.
+Ficam fora da fase: PvP, IA avançada que analisa vantagens elementais (CMBT-04), crafting/upgrade de raridade, área completa de criação de conteúdo pelo mestre, métricas e telas de suporte (Phase 6) e arte/animação final de combate.
+
+Dentro da fase, desde 2026-10-10: campanha mínima, mestre conduzindo a sessão e vários jogadores no mesmo combate (D-14, D-15, plano 05-05).
 </domain>
 
 <current_state>
@@ -60,11 +62,15 @@ Ficam fora da fase: PvP, grupos/co-op, IA avançada que analisa vantagens elemen
 - **D-07 (ações do jogador):** ataque básico (físico, sem custo), magia equipada e desbloqueada (ou, sem nenhuma equipada, as desbloqueadas até 8), usar consumível e fugir. Cada ação consome o turno.
 - **D-08 (persistência):** `combat_participants.current_stats` guarda HP/mana/atributos efetivos; `status_effects` guarda efeitos ativos; recargas, escudo, cursor do PRNG e turno ativo ficam em `snapshot`. Eventos usam os tipos já permitidos; detalhes extras vão em `payload.kind` (sem alterar o `check`).
 - **D-09 (segurança):** o jogador passa a ter **somente leitura** nas tabelas de combate; escrita só pela Edge Function (chave de serviço existe apenas no servidor, nunca no cliente). Recompensas e missões por função SQL transacional e idempotente, restrita a `service_role`.
-- **D-10 (HP/mana entre combates) — CONFIRMADO em 2026-10-10, com pontos pendentes:** HP persiste entre combates (`profiles.current_state`). Derrota não tira HP extra, XP nem itens: a única penalidade é a mana gasta, que fica gasta. Implica definir como HP e mana se recuperam fora de combate e com quanto HP o jogador volta após uma derrota (decisão aberta B).
-- **D-11 (elemento do personagem) — CONFIRMADO em 2026-10-10:** o personagem tem elemento próprio, usado como elemento defensivo (e ofensivo no ataque básico). A origem do elemento está em aberto (decisão aberta C) e exige coluna nova no schema.
+- **D-10 (HP/mana entre combates) — CONFIRMADO em 2026-10-10:** HP persiste entre combates (`profiles.current_state`). Derrota não tira XP nem itens: a única penalidade é a mana gasta, e o jogador volta com 1 de HP. Recuperação fora de combate: regeneração lenta por dias; recuperação média por teste de medicina (d20 contra uma DT); recuperação instantânea por poções.
+- **D-11 (elemento do personagem) — CONFIRMADO em 2026-10-10:** o personagem tem elemento próprio, escolhido na criação (`profiles.element_id`), usado como elemento defensivo e no ataque básico.
 - **D-12 (equipamento) — CONFIRMADO em 2026-10-10:** bônus de `items.stats` dos itens equipados (slot compatível com o tipo) somam aos atributos no início do combate.
-- **D-14 (conteúdo é do mestre) — CONFIRMADO em 2026-10-10:** cadastrar inimigos, magias e itens é função do papel `master`, não do `admin`. Hoje as políticas de escrita dos catálogos são `is_admin()` e não existe área do mestre (fora desta fase). Ver decisão aberta D.
-- **D-13 (Realtime):** não é necessário para o combate solo (a resposta da ação já traz os eventos). Entra por último e só como sincronização do log, observação pelo admin e base para co-op futuro. (Decisão aberta 9.)
+- **D-13 (Realtime) — CONFIRMADO em 2026-10-10, entra agora:** mestre e jogadores agem na mesma sessão, então o estado e o log precisam chegar a todos em tempo real (plano 05-06).
+- **D-14 (conteúdo e atribuição) — CONFIRMADO em 2026-10-10:** o mestre atribui inimigos e magias aos jogadores da sua campanha. Hoje as escritas de catálogo são `is_admin()` e não há área do mestre nem campanha; ver 05-05.
+- **D-15 (três perfis) — CONFIRMADO em 2026-10-10:** `admin` só adiciona conteúdo, resolve bugs e dá suporte a jogadores e mestres, sem função na dinâmica nem no combate; `master` realiza as ações da dinâmica; `player` age na própria vez.
+- **D-16 (boneco de treino) — CONFIRMADO em 2026-10-10:** existe apenas para testes das contas `@onikara.local`; jogadores reais não o veem. Consequência: a missão seed `first-sparks` (derrotar o boneco) só é completável por contas de teste.
+- **D-17 (ataque básico) — CONFIRMADO em 2026-10-10:** existe e o dano é um dado entre 1d4 e 1d10. A origem do dado (arma, classe) está em aberto (decisão aberta E).
+- **D-18 (resistência mágica) — CONFIRMADO em 2026-10-10:** `resistance = 0` até existir atributo.
 
 ## Alternativas consideradas para a autoridade do combate
 
@@ -84,6 +90,8 @@ Plano B caso o spike de importação falhe: copiar o motor para `supabase/functi
 | `profiles` | jogador insere/atualiza qualquer coluna | jogador atualiza só `character_name` e `settings`; criação por RPC `create_character` |
 | `inventory` | jogador `for all` | jogador só `select`; ganho/consumo por função |
 | `character_quests` | jogador `for all` | jogador só `select`; início e avanço por RPC |
+| `campaigns`, `campaign_members` (novas, 05-05) | não existem | mestre gerencia a própria campanha; jogador lê a campanha da qual participa; admin lê |
+| `combat_*` para o mestre | não existe | mestre da campanha lê e, pela função, conduz; jogadores participantes leem |
 | `equipment`, `character_spells` | jogador `for all` | mantém (servidor valida desbloqueio/slot ao montar o combate) |
 | Admin | `is_admin()` em tudo | mantém para leitura; escrita direta em `profiles` ficará bloqueada por privilégio de coluna e passará por RPC de suporte (Phase 6) |
 
@@ -102,22 +110,21 @@ O projeto não tem testes. A Fase 5 introduz o mínimo viável, sem dependência
 
 - Primeira Edge Function do projeto (Deno, importação do motor, CORS, JWT). Mitigação: spike como primeira tarefa de 05-04 e plano B descrito acima.
 - Rebalanceamento: regras em texto livre podem divergir do parser. Mitigação: validação de fórmula no admin (item de backlog) e fallback com aviso.
-- Conteúdo escasso (2 inimigos, 8 magias) limita a diversão. Mitigação: conteúdo é do mestre (D-14, decisão aberta D); o seed cobre o mínimo.
-- Mudar RLS pode quebrar telas da Fase 4 (onboarding, equipar). Mitigação: 05-06 isolado, com UAT de regressão de `/play` e `/admin`.
+- Conteúdo escasso (2 inimigos, 8 magias) limita a diversão. Mitigação: conteúdo é do mestre (D-14); o seed cobre o mínimo até o mestre cadastrar.
+- Mudar RLS pode quebrar telas da Fase 4 (onboarding, equipar). Mitigação: 05-08 isolado, com UAT de regressão de `/play` e `/admin`.
 
 ## Decisões em aberto (dono do produto)
 
-Confirmadas em 2026-10-10 (resposta do Léo): HP persiste (D-10), personagem tem elemento (D-11), equipamento soma atributos (D-12), conteúdo é do mestre (D-14) e servidor como autoridade (D-01, antiga decisão 8).
+Confirmadas em 2026-10-10: D-01 (servidor como autoridade), D-10 a D-18 acima.
 
 Ainda abertas, cada uma com padrão proposto:
 
-- **B. Recuperação fora de combate e HP após derrota:** padrão proposto: regeneração lenta por tempo (como a mana em `rest_per_minute`) mais consumíveis; derrota deixa o jogador com 1 de HP, para ninguém travar. Alternativas: só consumíveis, ou um descanso gratuito com tempo de espera.
-- **C. Origem do elemento do personagem:** padrão proposto: escolhido na criação do personagem (campo novo `profiles.element_id`). Alternativas: por classe, por raça ou pela arma equipada.
-- **D. Quem cadastra conteúdo (mestre):** o conteúdo do combate é cadastrado pelo jogador-mestre, não pelo admin. Hoje não há área nem permissão do mestre (catálogos só aceitam `is_admin()`). Padrão proposto: os planos da Fase 5 não dependem de cadastro novo; o conteúdo mínimo vem do seed, e o papel `master` ganha escrita em inimigos, magias e itens (migration) mais uma área do mestre como fase própria. Alternativa: incluir uma tela mínima do mestre dentro da Fase 5.
-- **E. Ataque básico existe?** Padrão: sim, físico, sem custo, para não travar quando a mana acabar.
-- **F. XP infinito no boneco de treino?** Padrão: XP decrescente quando o nível do jogador supera o do inimigo (`xp * max(0.1, 1 - 0.25 * diferença)`).
-- **G. Realtime agora?** Padrão: depois, como último plano opcional.
-- **H. Resistência mágica:** padrão 0 até existir atributo. Alternativa: usar `defense` ou criar `resistance` por classe.
+- **A. Quem controla os inimigos na luta?** Padrão proposto: IA simples por padrão (05-02); o mestre pode assumir a ação de qualquer inimigo no seu turno. Alternativa: só o mestre, sem IA.
+- **B. Campanha:** padrão proposto: o mestre cria uma campanha e convida jogadores; cada jogador pertence a uma campanha por vez no MVP (tabelas `campaigns` e `campaign_members`). Alternativa: jogadores em várias campanhas.
+- **C. Quem inicia o combate e quem recebe a recompensa?** Padrão proposto: só o mestre inicia; XP e loot saem automáticos por regra no fim da luta e o mestre pode conceder extras depois.
+- **D. Ordem de turno:** padrão proposto: automática por velocidade (como no balanceamento) e o mestre pode pausar, pular ou encerrar. Alternativa: o mestre define a ordem.
+- **E. Dado do ataque básico (1d4 a 1d10):** padrão proposto: definido pela arma equipada (sem arma, 1d4). Alternativa: definido pela classe.
+- **F. Teste de medicina:** padrão proposto: d20 + inteligência contra uma DT fixada na regra (por exemplo, 12); passou, recupera 25% do HP máximo, no máximo uma vez por dia. Alternativa: o mestre define a DT.
 </decisions>
 
 <canonical_refs>

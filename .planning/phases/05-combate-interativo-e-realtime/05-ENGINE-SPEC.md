@@ -1,6 +1,6 @@
 # Phase 5: Especificação do motor de combate
 
-Contrato técnico do motor em `src/engine/combat/`. Os planos `05-01` a `05-05` implementam esta especificação; qualquer mudança de regra entra aqui primeiro.
+Contrato técnico do motor em `src/engine/combat/`. Os planos `05-01` a `05-07` implementam esta especificação; qualquer mudança de regra entra aqui primeiro.
 
 ## Princípios
 
@@ -81,7 +81,7 @@ Valores entre parênteses são os do seed atual.
 **Dano base.**
 
 - Física quando `spell.effects.scales_with === 'strength'` ou ataque básico; mágica nos demais casos (não existe coluna dedicada).
-- Física: `strength + power - defense`; mágica: `intelligence + power - resistance` (`resistance = 0`, decisão aberta H). Ataque básico usa `power = 0`.
+- Física: `strength + power - defense`; mágica: `intelligence + power - resistance` (`resistance = 0`, D-18). Ataque básico não usa `power`: o dano é a rolagem de um dado de 1d4 a 1d10 (D-17) mais o modificador de atributo, sujeito a defesa, elemental e crítico.
 - `defense` efetiva = `defense * mitigation.defense_multiplier (1.0) * modificadores de status (guard_break 0.75) + defense_bonus ativo`.
 - Piso: `minimum_damage (1)`.
 
