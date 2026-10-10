@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-last_updated: "2026-05-25T21:38:55.660Z"
-last_activity: 2026-05-25 -- Phase 04 planning complete
+status: ready_for_review
+last_updated: "2026-10-10T22:00:00.000Z"
+last_activity: 2026-10-10 -- Phase 04 implemented on branch fase-4-jogador (plans 04-01 a 04-04)
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 14
-  completed_plans: 10
-  percent: 50
+  completed_plans: 14
+  percent: 67
 ---
 
 # Project State
@@ -25,17 +25,17 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 4 of 6 (área do jogador, perfil, personagem e progressão)
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-05-25 -- Phase 04 planning complete
+Plan: 4 of 4 concluídos (04-01 a 04-04)
+Status: Implementada na branch fase-4-jogador; aguardando revisão e merge. Sem UAT formal, sem testes automatizados (o projeto não os tem).
+Last activity: 2026-10-10 -- Phase 04 implementada e verificada manualmente no navegador
 
-Progress: [██████████] 100%
+Progress: [███████░░░] 67% (4 de 6 fases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 10
+- Total plans completed: 14
 - Average duration: 0 min
 - Total execution time: 0.0 hours
 
@@ -46,7 +46,7 @@ Progress: [██████████] 100%
 | 1. Núcleo Supabase/Governança | 0 | 3 | - |
 | 2. Identidade Visual/Design System | 0 | 3 | - |
 | 3. Área de Administração | 4 | 4 | 19 min |
-| 4. Área do Jogador | 0 | 3 | - |
+| 4. Área do Jogador | 4 | 4 | - |
 | 5. Combate Interativo/Realtime | 0 | 4 | - |
 | 6. Observabilidade/Polimento | 0 | 4 | - |
 | 01 | 3 | - | - |
@@ -71,9 +71,18 @@ Progress: [██████████] 100%
 - [Phase 3]: Catálogos e regras são editados por módulos de serviço específicos, com validação de JSON antes do envio.
 - [Phase 3]: Suporte mutável fica bloqueado até existir RPC auditada dedicada; a tela atual é operacional e somente leitura.
 
+- [Phase 4]: `/play` é a área do jogador (rota limpa, shell isolado do `/admin`); o portal manda admin para `/admin` e jogador para `/play`, onde o onboarding aparece quando não há personagem.
+- [Phase 4]: `profiles.xp` guarda o XP dentro do nível atual; XP para subir = `base_xp * level_multiplier^(nível-1)` da regra ativa (fallback 100 / 1,35). Atributos crescem pelo `scaling` da classe a cada nível acima de 1.
+- [Phase 4]: A criação de personagem concede um kit inicial (arma da classe, armadura remendada, 2 unguentos, 1 tônico); equipar/desequipar usa PostgREST direto sob RLS, sem RPC; magias equipam em até 8 slots.
+- [Phase 4]: Aba de missões é somente leitura; avanço de progresso e recompensas ficam para a Phase 5 (RPC auditada).
+- [Phase 4]: O visual do personagem é um placeholder em camadas (descrição em texto + retrato SVG por classe/raça), substituível por arte depois.
+
 ### Pending Todos
 
-None yet.
+- Revisar e fazer merge da branch `fase-4-jogador`.
+- Seed: nomes e descrições de itens/magias/missões sem acento (dados do banco); corrigir quando combinado.
+- Testar login de admin em `/` após a mudança de roteamento (só jogador foi exercitado).
+- Rodar `/gsd-verify-work` / UAT formal da Phase 4 se desejado.
 
 ### Blockers/Concerns
 
@@ -90,5 +99,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-05-25T21:37:02.221Z
-Stopped at: Phase 4 planned
-Resume file: .planning/phases/04-rea-do-jogador-perfil-personagem-e-progress-o/04-01-PLAN.md
+Stopped at: Phase 4 implementada (revisão pendente)
+Resume file: .planning/ROADMAP.md (próxima: Phase 5, combate interativo)

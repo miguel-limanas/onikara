@@ -656,3 +656,80 @@ body.ok-player-body {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Missões ------------------------------------------------------------- */
+
+.ok-quests {
+  display: grid;
+  gap: clamp(14px, 2vw, 24px);
+}
+
+.ok-quest-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  margin: 0;
+  padding: 0;
+  gap: 10px;
+  list-style: none;
+}
+
+.ok-quest {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ok-quest.is-active {
+  border-color: var(--player-gold);
+}
+
+.ok-quest.is-locked {
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.ok-quest.is-completed {
+  border-color: rgba(79, 180, 119, 0.5);
+}
+
+.ok-quest__steps summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--player-gold-light);
+  font-size: 0.86rem;
+}
+
+.ok-quest__steps summary:focus-visible {
+  outline: 2px solid var(--color-focus, #dec47c);
+  outline-offset: 2px;
+}
+
+.ok-quest__steps ol {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+  list-style: none;
+}
+
+.ok-quest__steps li {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--player-muted);
+}
+
+.ok-quest__steps li.is-done {
+  color: var(--color-success);
+}
+
+@media (max-width: 760px) {
+  .ok-quest-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

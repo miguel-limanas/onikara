@@ -87,7 +87,7 @@ Linha de pesquisa visual:
 - [x] **Phase 1: Núcleo Supabase, Papéis e Governança** - Formalizar Onikara no schema, roles administrativas, permissões RLS e contratos de dados para admin/player. (completed 2026-05-24)
 - [x] **Phase 2: Identidade Visual e Design System Onikara** - Pesquisar identidade, definir tokens, componentes base e assets compartilhados para as duas áreas. (completed 2026-05-24)
 - [x] **Phase 3: Área de Administração - Catálogos e Balanceamento** - Construir backoffice para configurar conteúdo e regras do RPG usando Supabase. (completed 2026-05-24)
-- [ ] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
+- [x] **Phase 4: Área do Jogador - Perfil, Personagem e Progressão** - Construir a experiência inicial do jogador com criação/personagem/inventário/missões.
 - [ ] **Phase 5: Combate Interativo e Realtime** - Implementar HUD de combate, eventos, ações por turno e sincronização com tabelas de combate.
 - [ ] **Phase 6: Observabilidade, Suporte e Polimento** - Métricas, auditoria, ferramentas de suporte, qualidade visual, acessibilidade e UAT.
 
@@ -231,7 +231,7 @@ Linha de pesquisa visual:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 04-04: Implementar aba de missões do jogador.
+- [x] 04-04: Implementar aba de missões do jogador.
 
 **Cross-cutting constraints:**
 

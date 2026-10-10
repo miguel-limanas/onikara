@@ -1,7 +1,8 @@
 import { requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
-import { emptyBlock, errorBlock, escapeHtml, html } from '../ui/components.js';
+import { errorBlock, escapeHtml, html } from '../ui/components.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
+import { renderQuestsView } from './questsView.js';
 import { renderSpellsView } from './spellsView.js';
 import { renderOnboardingView } from './onboardingView.js';
 
@@ -16,14 +17,8 @@ const sections = [
   { id: 'personagem', label: 'Personagem', render: (container) => renderDashboardView(container, { profile: state.profile }) },
   { id: 'inventario', label: 'Inventário', render: (container) => renderInventoryView(container, { profile: state.profile }) },
   { id: 'magias', label: 'Magias', render: (container) => renderSpellsView(container, { profile: state.profile }) },
-  { id: 'missoes', label: 'Missões', render: renderComingSoon('Missões') },
+  { id: 'missoes', label: 'Missões', render: (container) => renderQuestsView(container, { profile: state.profile }) },
 ];
-
-function renderComingSoon(title) {
-  return (container) => {
-    container.innerHTML = emptyBlock(`${title} chega nos próximos passos da jornada.`);
-  };
-}
 
 function currentSectionId() {
   const hash = window.location.hash.replace('#', '');
