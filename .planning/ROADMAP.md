@@ -241,25 +241,58 @@ Linha de pesquisa visual:
 
 ### Phase 5: Combate Interativo e Realtime
 
-**Goal**: Transformar as tabelas de combate em uma experiência de turno interativa para o jogador.
+**Goal**: Transformar as tabelas de combate em uma experiência de turno interativa, com motor testado, servidor como autoridade, recompensas e progressão.
 **Mode**: mvp
 **Depends on**: Phase 4
-**Requirements**: CMBT, ELEM, MANA, UIDB
+**Requirements**: CMBT, ELEM, MANA, STLV, NPCQ, UIDB
+**Contexto e decisões**: `.planning/phases/05-combate-interativo-e-realtime/05-CONTEXT.md` e `05-ENGINE-SPEC.md`
 
 **Success Criteria**:
 
-1. Jogador inicia uma sessão de combate persistida em `combat_sessions`.
-2. Participantes, turnos e eventos aparecem no HUD com atualização previsível.
-3. Ações do jogador respeitam mana, cooldown, alvo, status e ordem de turno.
-4. Eventos de combate são registrados em `combat_events`.
-5. Vitória, derrota, recompensas e progressão atualizam o perfil do jogador.
+1. Jogador inicia uma sessão de combate persistida em `combat_sessions` e consegue retomá-la após recarregar a página.
+2. Participantes, ordem de turno, recargas, efeitos e log aparecem no HUD com atualização previsível.
+3. Ações do jogador respeitam mana, recarga, alvo, status e ordem de turno; fraquezas elementais alteram o dano de forma visível.
+4. Eventos de combate são registrados em `combat_events` e o jogador não consegue escrever nas tabelas de combate.
+5. Vitória atualiza XP, nível, inventário e missões de forma idempotente; derrota e fuga não concedem recompensa.
+6. O motor tem testes automatizados determinísticos (`npm test`).
 
 **Plans**:
 
-- [ ] 05-01: Implementar orquestração de combate usando `combat_sessions`, `combat_participants` e `combat_events`.
-- [ ] 05-02: Implementar HUD de combate, ordem de turno, ações, cooldowns e log visual.
-- [ ] 05-03: Integrar Realtime para eventos de combate e estados vivos quando necessário.
-- [ ] 05-04: Persistir recompensas, XP, inventário e conclusão de missão ao fim do combate.
+**Wave 1**
+
+- [ ] 05-01: Motor de combate puro e testado: iniciativa, ação, dano com fraqueza elemental, mana, recarga e simulador de terminal.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02: Motor: efeitos de status, consumíveis, fuga e IA simples dos inimigos, com simulação em lote.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-03: Aba Combate em `/play`: HUD, ordem de turno, ações, recargas e log, em modo treino local sem recompensas.
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 05-04: Combate autoritativo (Edge Function com o mesmo motor), RLS somente leitura e persistência de sessões, participantes e eventos.
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 05-05: Recompensas: XP e nível, loot, aceitar missão, progresso por combate e resgate de recompensa.
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 05-06: Anti-trapaça: `create_character` por RPC e escrita direta restrita em perfil, inventário e missões.
+
+**Wave 7** *(opcional; blocked on Wave 4 completion)*
+
+- [ ] 05-07: Realtime do log de combate entre abas e base para observação no admin.
+
+**Cross-cutting constraints:**
+
+- D-01: Motor puro em `src/engine/combat/`, executado no servidor como autoridade e no navegador apenas no treino local.
+- D-02: Todo sorteio é semeado por `combat_sessions.seed`; mesma semente e mesmas ações geram os mesmos eventos.
+- D-09: Jogador só lê tabelas de combate; escrita por Edge Function e funções restritas a `service_role`; `service_role` segue proibido no navegador.
+- Phase 4 D-10: `/play` permanece isolado de `/admin`.
+- Mudanças de schema entram como nova migration; RLS em toda tabela nova.
 
 ### Phase 6: Observabilidade, Suporte e Polimento
 
@@ -295,6 +328,6 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | 1. Núcleo Supabase, Papéis e Governança | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 2. Identidade Visual e Design System Onikara | v1.0 Admin/Player Foundation | 3/3 | Complete    | 2026-05-24 |
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 4/4 | Complete    | 2026-05-24 |
-| 4. Área do Jogador | v1.0 Player MVP | 0/3 | Not started | - |
-| 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/4 | Not started | - |
+| 4. Área do Jogador | v1.0 Player MVP | 4/4 | Complete | 2026-10-10 |
+| 5. Combate Interativo e Realtime | v1.0 Player MVP | 0/7 | Planned | - |
 | 6. Observabilidade, Suporte e Polimento | v1.0 Hardening | 0/4 | Not started | - |

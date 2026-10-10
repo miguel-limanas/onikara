@@ -75,10 +75,12 @@ Progress: [███████░░░] 67% (4 de 6 fases)
 - [Phase 4]: `profiles.xp` guarda o XP dentro do nível atual; XP para subir = `base_xp * level_multiplier^(nível-1)` da regra ativa (fallback 100 / 1,35). Atributos crescem pelo `scaling` da classe a cada nível acima de 1.
 - [Phase 4]: A criação de personagem concede um kit inicial (arma da classe, armadura remendada, 2 unguentos, 1 tônico); equipar/desequipar usa PostgREST direto sob RLS, sem RPC; magias equipam em até 8 slots.
 - [Phase 4]: Aba de missões é somente leitura; avanço de progresso e recompensas ficam para a Phase 5 (RPC auditada).
+- [Phase 5]: Planejada em 7 planos (05-01 a 05-07). Motor de combate puro em `src/engine/combat/` com PRNG semeado; servidor (Edge Function) como autoridade e RLS somente leitura nas tabelas de combate; testes com `node --test`. Decisões em aberto em `.planning/phases/05-combate-interativo-e-realtime/05-CONTEXT.md`.
 - [Phase 4]: O visual do personagem é um placeholder em camadas (descrição em texto + retrato SVG por classe/raça), substituível por arte depois.
 
 ### Pending Todos
 
+- Responder as decisões em aberto da Phase 5 (`05-CONTEXT.md`) antes de executar 05-04.
 - Revisar e fazer merge da branch `fase-4-jogador`.
 - Seed: nomes e descrições de itens/magias/missões sem acento (dados do banco); corrigir quando combinado.
 - Testar login de admin em `/` após a mudança de roteamento (só jogador foi exercitado).
