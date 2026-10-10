@@ -1,0 +1,104 @@
+{
+  "name": "paperdoll-guerreira-v1",
+  "character": "Oni guerreira nível 1",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "format": "PNG RGBA (fundo transparente)"
+  },
+  "note": "Todas as camadas usam o mesmo quadro de 1024x1536. Empilhar com origem (0,0), sem redimensionar camadas individualmente.",
+  "layers": [
+    {
+      "slot": "base",
+      "file": "base.png",
+      "z": 0,
+      "default": true
+    },
+    {
+      "slot": "legs",
+      "file": "legs_boots.png",
+      "z": 10,
+      "default": false
+    },
+    {
+      "slot": "body",
+      "file": "body_armor.png",
+      "z": 20,
+      "default": false
+    },
+    {
+      "slot": "accessory_1",
+      "file": "accessory_necklace.png",
+      "z": 25,
+      "default": false
+    },
+    {
+      "slot": "accessory_2",
+      "file": "accessory_bracer_main_arm.png",
+      "z": 26,
+      "default": false,
+      "hide_when": "main_hand equipado (o braço fica levantado)"
+    },
+    {
+      "slot": "accessory_2",
+      "file": "accessory_bracer_off_arm.png",
+      "z": 26,
+      "default": false,
+      "hide_when": "off_hand equipado (o braço fica na pose do escudo)"
+    },
+    {
+      "slot": "head",
+      "file": "head_helmet.png",
+      "z": 30,
+      "default": false
+    },
+    {
+      "slot": "main_hand",
+      "file": "main_hand_greatsword.png",
+      "z": 40,
+      "default": false
+    },
+    {
+      "slot": "off_hand",
+      "file": "off_hand_shield.png",
+      "z": 50,
+      "default": false
+    }
+  ],
+  "extra_files": [
+    {
+      "file": "base_greatsword.png",
+      "role": "base com o braço levantado segurando a espada; substitui base.png quando main_hand equipado"
+    },
+    {
+      "file": "base_shield.png",
+      "role": "base com o braço do escudo; substitui base.png quando off_hand equipado"
+    },
+    {
+      "file": "base_greatsword_shield.png",
+      "role": "base com os dois braços alterados; usar quando main_hand e off_hand estão equipados"
+    },
+    {
+      "file": "body_armor_alt.png",
+      "role": "armadura alternativa (primeira versão, sem ombreira de dragão)"
+    },
+    {
+      "file": "legs_boots_alt.png",
+      "role": "calça/grevas alternativas (primeira versão)"
+    }
+  ],
+  "swap_rules": [
+    "Ordem de empilhamento (z crescente): base, legs, body, accessory_1, head, main_hand, off_hand.",
+    "Seleção da base: nenhum item em mão -> base.png; só main_hand -> base_greatsword.png; só off_hand -> base_shield.png; os dois -> base_greatsword_shield.png.",
+    "As camadas main_hand e off_hand incluem o braço na pose do item e ficam por cima da armadura. Com a espada, a ombreira do lado do braço levantado fica coberta pelo braço.",
+    "body_armor.png agora é a armadura com ombreira de dragão (versão corrigida). A versão anterior ficou como body_armor_alt.png.",
+    "accessory_2 são duas camadas, uma por antebraço. Esconder a do braço que está em pose de item."
+  ],
+  "pending": [
+    "versão da armadura com a ombreira na pose da espada",
+    "outros níveis de Oni, raças e classes",
+    "chifre direito fica atrás do cabelo (só o esquerdo aparece)",
+    "braçadeiras na pose levantada/do escudo"
+  ],
+  "origin": "Imagens geradas por IA a partir de uma base única; camadas extraídas por diferença para a base."
+}

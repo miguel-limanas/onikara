@@ -1,0 +1,123 @@
+{
+  "name": "paperdoll-v1",
+  "character": "Oni mago nível 1",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "format": "PNG RGBA (fundo transparente)"
+  },
+  "note": "Todas as camadas usam o mesmo quadro de 1024x1536. Empilhar sempre com origem (0,0) e sem redimensionar camadas individualmente. Para exibir menor, escalar o conjunto inteiro.",
+  "layers": [
+    {
+      "slot": "base",
+      "file": "base.png",
+      "z": 0,
+      "default": true,
+      "variant_when": {
+        "main_hand": "equipped",
+        "file": "base_staff.png"
+      }
+    },
+    {
+      "slot": "legs",
+      "file": "legs_boots.png",
+      "z": 10,
+      "default": false
+    },
+    {
+      "slot": "body",
+      "file": "body_robe.png",
+      "z": 20,
+      "default": false,
+      "variant_when": {
+        "main_hand": "equipped",
+        "file": "body_robe_staff.png"
+      }
+    },
+    {
+      "slot": "head",
+      "file": "head_mask_a.png",
+      "z": 30,
+      "default": false,
+      "alternative_of": "head_mask_b.png"
+    },
+    {
+      "slot": "head",
+      "file": "head_mask_b.png",
+      "z": 30,
+      "default": false,
+      "alternative_of": "head_mask_a.png",
+      "recommended": true
+    },
+    {
+      "slot": "main_hand",
+      "file": "main_hand_staff.png",
+      "z": 40,
+      "default": false
+    },
+    {
+      "slot": "off_hand",
+      "file": "off_hand_grimoire.png",
+      "z": 50,
+      "default": false,
+      "variant_when": {
+        "note": "ao equipar, trocar a base por base_offhand.png (ou base_staff_offhand.png se main_hand também estiver equipado)"
+      }
+    },
+    {
+      "slot": "accessory_1",
+      "file": "accessory_necklace.png",
+      "z": 25,
+      "default": false
+    },
+    {
+      "slot": "accessory_2",
+      "file": "accessory_bracer_main_arm.png",
+      "z": 26,
+      "default": false,
+      "hide_when": "main_hand equipado (o braço fica levantado)"
+    },
+    {
+      "slot": "accessory_2",
+      "file": "accessory_bracer_off_arm.png",
+      "z": 26,
+      "default": false,
+      "hide_when": "off_hand equipado (o braço fica dobrado)"
+    }
+  ],
+  "extra_files": [
+    {
+      "file": "base_staff.png",
+      "role": "base com o braço direito do personagem levantado segurando o cajado (substitui base.png quando main_hand equipado)"
+    },
+    {
+      "file": "body_robe_staff.png",
+      "role": "manto com a manga acompanhando o braço levantado e as duas mangas presentes (substitui body_robe.png quando main_hand equipado)"
+    },
+    {
+      "file": "base_offhand.png",
+      "role": "base com o braço esquerdo do personagem (lado direito da imagem) dobrado segurando o grimório; substitui base.png quando off_hand equipado"
+    },
+    {
+      "file": "base_staff_offhand.png",
+      "role": "base com os dois braços alterados; usar quando main_hand E off_hand estão equipados"
+    }
+  ],
+  "swap_rules": [
+    "Ordem de empilhamento (z crescente): base, legs, body, head, main_hand.",
+    "Quando o slot main_hand tem o cajado: trocar base.png por base_staff.png. O braço da base em repouso não pode aparecer, por isso a substituição é da camada inteira, não uma sobreposição.",
+    "Quando main_hand tem o cajado e o slot body tem o manto: usar body_robe_staff.png em vez de body_robe.png.",
+    "Se main_hand tem o cajado e body está vazio: usar só base_staff.png + main_hand_staff.png (a roupa de baixo está desenhada na própria base).",
+    "head_mask_a e head_mask_b são alternativas para o mesmo slot (mostrar uma de cada vez). As máscaras cobrem o rosto e os chifres pequenos do Oni.",
+    "legs_boots.png cobre a calça e as sandálias da base; body_robe*.png vem por cima da calça.",
+    "Seleção da base: nenhum item em mão -> base.png; só main_hand -> base_staff.png; só off_hand -> base_offhand.png; os dois -> base_staff_offhand.png.",
+    "accessory_2 são duas camadas, uma por antebraço. Esconder a do braço que está em pose de item (main_arm quando main_hand equipado; off_arm quando off_hand equipado).",
+    "accessory_1 (colar) fica por cima do manto (z 25) e abaixo da máscara."
+  ],
+  "pending": [
+    "versões das braçadeiras na pose levantada/dobrada",
+    "outros níveis de Oni, raças e classes",
+    "pequenas imperfeições de borda em alguns recortes"
+  ],
+  "origin": "Imagens geradas por IA a partir de uma base única; camadas extraídas por diferença para a base."
+}
