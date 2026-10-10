@@ -60,7 +60,7 @@ Mapeamento de persistência: `Participant.stats/statuses/shield` -> `combat_part
 ## API pública
 
 ```text
-createCombat({ seed, rules, catalog, participants }) -> CombatState
+createCombat({ seed, rules, catalog, participants }) -> { state, events }   // o primeiro turno já abre dentro do motor
 listActions(state, actorId) -> Action[]           // com `disabledReason` quando indisponível
 applyAction(state, action) -> { state, events }   // valida; ação inválida lança CombatError (code)
 runUntilPlayerTurn(state) -> { state, events }     // executa turnos de inimigos/efeitos até o jogador agir ou o fim
@@ -96,7 +96,7 @@ Valores entre parênteses são os do seed atual.
 
 **Fadiga.** Se `mana_cost >= fatigue.legendary_cost_threshold (70)`: conjurador recebe `speed_delta (-2)` por `physical_penalty_turns (1)`.
 
-**Recarga.** Ao conjurar, `cooldowns[ator][magia] = cooldown_turns`; decrementa em 1 no início do turno do próprio ator; `> 0` bloqueia (`on_cooldown`). Recarga 0 = sem bloqueio.
+**Recarga.** Ao conjurar, `cooldowns[ator][magia] = cooldown_turns + 1` (0 se a magia não tem recarga); decrementa em 1 no início de cada turno do próprio ator; `> 0` bloqueia (`on_cooldown`). Assim `cooldown_turns = N` bloqueia a magia por N turnos do dono.
 
 **Alvos.** `self`, `ally`, `enemy`, `all_allies`, `all_enemies`. Alvo precisa estar vivo e do time compatível. Magia com `power = 0` e efeitos de suporte exige `target_type` coerente (corrigir `water-veil` e `stone-guard` para `self` no seed, 05-02).
 
@@ -145,7 +145,7 @@ Empilhamento: `stackable = true` soma `stacks` (máximo 3) e renova a duração;
 | ataque básico | `basic_attack` | `{ damage, crit }` |
 | magia | `spell_cast` | `{ spellId, manaCost, cooldown }` |
 | item | `item_used` | `{ itemId }` |
-| dano | `damage` | `{ amount, absorbed, crit, elemental: 'advantage'\|'disadvantage'\|null, source }` |
+| dano | `damage` | `{ amount (calculado), dealt (HP perdido), absorbed, crit, elemental: 'advantage'\|'disadvantage'\|null, source }` |
 | cura/mana | `heal` | `{ hp?, mana? }` |
 | status | `status_applied` | `{ statusId, stacks, remainingTurns }` |
 | morte | `defeat` | `{ participantId }` |

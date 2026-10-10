@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: ready_for_review
-last_updated: "2026-10-10T22:00:00.000Z"
-last_activity: 2026-10-10 -- Phase 04 implemented on branch fase-4-jogador (plans 04-01 a 04-04)
+last_updated: "2026-10-10T23:00:00.000Z"
+last_activity: 2026-10-10 -- Phase 05 implemented (plans 05-01 a 05-08), verificada localmente
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 14
-  completed_plans: 14
-  percent: 67
+  completed_phases: 5
+  total_plans: 22
+  completed_plans: 22
+  percent: 83
 ---
 
 # Project State
@@ -20,16 +20,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Prover um motor de combate por turnos modular e facilmente balanceável, onde as fraquezas elementais e a gestão tática de mana sejam determinantes para a vitória.
-**Current focus:** Phase 4 — área do jogador, perfil, personagem e progressão
+**Current focus:** Phase 5 — combate interativo conduzido pelo mestre (implementada); próxima: Phase 6
 
 ## Current Position
 
-Phase: 4 of 6 (área do jogador, perfil, personagem e progressão)
-Plan: 4 of 4 concluídos (04-01 a 04-04)
-Status: Implementada na branch fase-4-jogador; aguardando revisão e merge. Sem UAT formal, sem testes automatizados (o projeto não os tem).
-Last activity: 2026-10-10 -- Phase 04 implementada e verificada manualmente no navegador
+Phase: 5 of 6 (combate interativo e Realtime)
+Plan: 8 of 8 concluídos (05-01 a 05-08)
+Status: Implementada e verificada localmente (ver `.planning/phases/05-combate-interativo-e-realtime/05-VERIFICATION.md`). Sem UAT formal; Edge Function ainda não publicada; telas do `/admin` não reabertas após as mudanças de RLS.
+Last activity: 2026-10-10 -- Phase 05 implementada, testada (53 testes do motor + scripts de fluxo) e verificada no navegador
 
-Progress: [███████░░░] 67% (4 de 6 fases)
+Progress: [████████░░] 83% (5 de 6 fases)
 
 ## Performance Metrics
 
@@ -75,13 +75,20 @@ Progress: [███████░░░] 67% (4 de 6 fases)
 - [Phase 4]: `profiles.xp` guarda o XP dentro do nível atual; XP para subir = `base_xp * level_multiplier^(nível-1)` da regra ativa (fallback 100 / 1,35). Atributos crescem pelo `scaling` da classe a cada nível acima de 1.
 - [Phase 4]: A criação de personagem concede um kit inicial (arma da classe, armadura remendada, 2 unguentos, 1 tônico); equipar/desequipar usa PostgREST direto sob RLS, sem RPC; magias equipam em até 8 slots.
 - [Phase 4]: Aba de missões é somente leitura; avanço de progresso e recompensas ficam para a Phase 5 (RPC auditada).
-- [Phase 5]: Planejada em 8 planos (05-01 a 05-08), com o mestre conduzindo a dinâmica e Realtime obrigatório. Motor de combate puro em `src/engine/combat/` com PRNG semeado; servidor (Edge Function) como autoridade e RLS somente leitura nas tabelas de combate; testes com `node --test`. Decisões confirmadas em `.planning/phases/05-combate-interativo-e-realtime/05-CONTEXT.md`.
+- [Phase 5]: Motor de combate puro em `src/engine/combat/` com PRNG semeado, executado na Edge Function `combat` (autoridade) e no navegador (treino local). Tabelas de combate somente leitura para jogador e admin; escrita só por `persist_combat_step` (service_role).
+- [Phase 5]: Três perfis: admin (conteúdo e suporte, sem função no combate), mestre (conduz a campanha, controla os inimigos, concede recompensas) e jogador. Campanha mínima: um jogador por campanha; o mestre libera inimigos e concede magias.
+- [Phase 5]: HP persiste entre combates; derrota deixa 1 de HP e a mana gasta fica gasta; recuperação por dias (dado em `recovery_rules`), teste de medicina d20 + inteligência contra a DT do mestre (padrão 12) e poções.
+- [Phase 5]: Elemento do personagem escolhido na criação (`profiles.element_id`); criação por RPC `create_character`; jogador não escreve em perfil (exceto nome/preferências), inventário nem missões. O boneco de treino e o treino local são só para contas `@onikara.local`.
+- [Phase 5]: Realtime por `postgres_changes` em `combat_events`, `combat_sessions` e `combat_rewards`, com consulta periódica de reserva.
 - [Phase 4]: O visual do personagem é um placeholder em camadas (descrição em texto + retrato SVG por classe/raça), substituível por arte depois.
 
 ### Pending Todos
 
-- Phase 5 planejada e com decisões confirmadas; próximo passo é executar 05-01.
-- Revisar e fazer merge da branch `fase-4-jogador`.
+- Phase 5: publicar e validar a Edge Function (`supabase functions deploy`), incluindo o empacotamento do import de `src/engine`.
+- Phase 5: reabrir as telas do `/admin` (login, catálogos, balanceamento, jogadores, sessões) para regressão após as mudanças de RLS; incluir `recovery_rules` nas telas de balanceamento.
+- Phase 5: dar à missão seed `first-sparks` um alvo que jogadores reais possam enfrentar (hoje o boneco de treino é só de contas de teste) e definir como o mestre cadastra conteúdo (papel `master` ainda sem escrita em catálogos).
+- Phase 5: permitir que o jogador reveja o resultado de um combate encerrado; testar com dois navegadores e reconexão do Realtime.
+- Balanceamento: o Imp de Cinzas (nível 2) derrotou um Mago de nível 1 no navegador, mas perde em 100% das 200 simulações com personagens de nível 3; revisar valores no admin.
 - Seed: nomes e descrições de itens/magias/missões sem acento (dados do banco); corrigir quando combinado.
 - Testar login de admin em `/` após a mudança de roteamento (só jogador foi exercitado).
 - Rodar `/gsd-verify-work` / UAT formal da Phase 4 se desejado.

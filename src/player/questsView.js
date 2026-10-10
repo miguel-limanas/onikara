@@ -1,4 +1,10 @@
-import { QUEST_STATE_LABELS, QUEST_STATE_ORDER, loadPlayerQuests } from '../services/playerQuests.js';
+import {
+  QUEST_STATE_LABELS,
+  QUEST_STATE_ORDER,
+  claimQuestReward,
+  loadPlayerQuests,
+  startQuest,
+} from '../services/playerQuests.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 
 const GROUP_TITLES = {
@@ -44,7 +50,13 @@ function questMarkup(quest) {
     quest.state === 'locked'
       ? `<p class="ok-copy">Requer nível ${quest.minLevel}. Continue evoluindo para liberar esta missão.</p>`
       : quest.state === 'available' && quest.requiresCombat
-        ? '<p class="ok-helper">Esta missão pede combate, que será liberado em uma próxima etapa do jogo.</p>'
+        ? '<p class="ok-helper">Esta missão pede combate: o mestre da sua campanha conduz a luta.</p>'
+        : '';
+  const action =
+    quest.state === 'available'
+      ? `<button class="ok-button ok-button--primary" type="button" data-quest-action="start" data-quest="${escapeHtml(quest.id)}">Aceitar missão</button>`
+      : quest.claimable
+        ? `<button class="ok-button ok-button--primary" type="button" data-quest-action="claim" data-quest="${escapeHtml(quest.id)}">Receber recompensa</button>`
         : '';
   return html`
     <li class="ok-quest is-${quest.state}">
@@ -61,6 +73,7 @@ function questMarkup(quest) {
       ${stateNote}
       ${stepsMarkup(quest)}
       ${rewardsMarkup(quest.rewards)}
+      ${action ? `<div class="ok-item__action">${action}<p class="ok-helper ok-item__feedback" role="status" aria-live="polite"></p></div>` : ''}
     </li>
   `;
 }
@@ -95,4 +108,26 @@ export async function renderQuestsView(container, { profile }) {
       }).join('')}
     </div>
   `;
+
+  container.querySelectorAll('[data-quest-action]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const feedback = button.parentElement.querySelector('.ok-item__feedback');
+      const claiming = button.dataset.questAction === 'claim';
+      button.disabled = true;
+      button.classList.add('is-loading');
+      feedback.className = 'ok-helper ok-item__feedback';
+      feedback.textContent = claiming ? 'Recebendo...' : 'Aceitando...';
+      const outcome = claiming ? await claimQuestReward(button.dataset.quest) : await startQuest(button.dataset.quest);
+      if (!outcome.ok) {
+        button.disabled = false;
+        button.classList.remove('is-loading');
+        feedback.className = 'ok-helper ok-item__feedback is-error';
+        feedback.textContent = outcome.error.message;
+        return;
+      }
+      // Recompensa pode ter subido de nível: o perfil local acompanha para o resto do shell.
+      if (claiming && outcome.data?.level_after) profile.level = outcome.data.level_after;
+      await renderQuestsView(container, { profile });
+    });
+  });
 }

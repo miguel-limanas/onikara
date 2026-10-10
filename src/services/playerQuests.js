@@ -1,8 +1,7 @@
 import { runSupabase } from './supabaseClient.js';
 
-// Somente leitura. Nenhuma função aqui inicia, avança ou conclui missões.
-// Fase 5: o combate deverá gravar progresso em `character_quests` e conceder
-// recompensas por uma RPC auditada; esta camada continuará apenas lendo.
+// Leitura do quadro de missões. Aceitar e resgatar passam por RPCs do banco (Fase 5);
+// o progresso dos objetivos de combate é gravado pelo servidor ao conceder as recompensas.
 
 export const QUEST_STATE_ORDER = ['active', 'available', 'completed', 'locked', 'failed'];
 
@@ -94,6 +93,9 @@ export async function loadPlayerQuests(profile) {
       steps: questSteps,
       stepsDone: questSteps.filter((step) => step.done).length,
       requiresCombat: questSteps.some((step) => step.objectiveType === 'defeat_enemy'),
+      claimable:
+        state === 'active' &&
+        questSteps.filter((step) => step.objectiveType === 'defeat_enemy').every((step) => step.done),
       rewards: {
         xp: Number(rewards.xp) || 0,
         items: (Array.isArray(rewards.items) ? rewards.items : []).map((entry) => ({
@@ -105,4 +107,12 @@ export async function loadPlayerQuests(profile) {
   });
 
   return { ok: true, data, error: null };
+}
+
+export async function startQuest(questId) {
+  return runSupabase((client) => client.rpc('start_quest', { p_quest_id: questId }));
+}
+
+export async function claimQuestReward(questId) {
+  return runSupabase((client) => client.rpc('claim_quest_reward', { p_quest_id: questId }));
 }

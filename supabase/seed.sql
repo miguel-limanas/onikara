@@ -117,6 +117,11 @@ on conflict (id) do update set
   power = excluded.power,
   effects = excluded.effects;
 
+-- Magias de suporte miram o próprio conjurador (corrige o valor padrão 'enemy').
+update public.spells
+set target_type = 'self'
+where id in ('water-veil', 'stone-guard');
+
 insert into public.class_spells (class_id, spell_id, unlock_level)
 values
   ('warrior', 'focused-slash', 1),

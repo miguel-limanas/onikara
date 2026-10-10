@@ -36,7 +36,7 @@ export async function renderOnboardingView(container, { session, onCreated }) {
     return;
   }
 
-  const { classes, races } = catalogs.data;
+  const { classes, races, elements } = catalogs.data;
   if (!classes.length || !races.length) {
     container.innerHTML = emptyBlock('Ainda não há classes ou raças publicadas. Volte em breve.');
     return;
@@ -65,6 +65,11 @@ export async function renderOnboardingView(container, { session, onCreated }) {
           <select id="character-race" name="race" class="ok-select">${optionList(races)}</select>
           <p id="race-description" class="ok-helper"></p>
         </div>
+        <div class="ok-field">
+          <label class="ok-label" for="character-element">Elemento</label>
+          <select id="character-element" name="element" class="ok-select">${optionList(elements)}</select>
+          <p class="ok-helper">Seu elemento define a que você é forte ou fraco em combate.</p>
+        </div>
         <p id="character-status" class="ok-helper" aria-live="polite"></p>
         <button id="character-submit" class="ok-button ok-button--primary" type="submit">Criar personagem</button>
       </form>
@@ -77,6 +82,8 @@ export async function renderOnboardingView(container, { session, onCreated }) {
   const nameError = container.querySelector('#character-name-error');
   const classSelect = container.querySelector('#character-class');
   const raceSelect = container.querySelector('#character-race');
+  const elementSelect = container.querySelector('#character-element');
+  if (elements.some((item) => item.id === 'neutral')) elementSelect.value = 'neutral';
   const status = container.querySelector('#character-status');
   const submit = container.querySelector('#character-submit');
   const preview = container.querySelector('#character-preview');
@@ -124,10 +131,10 @@ export async function renderOnboardingView(container, { session, onCreated }) {
 
     const current = selected();
     const result = await createProfile({
-      userId: session.user.id,
       characterName: current.name.trim(),
       rpgClass: current.rpgClass,
       race: current.race,
+      elementId: elementSelect.value || 'neutral',
     });
 
     submit.classList.remove('is-loading');
