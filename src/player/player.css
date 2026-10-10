@@ -975,3 +975,7 @@ body.ok-player-body {
   justify-items: center;
   margin-bottom: 14px;
 }
+
+.ok-hero-sheet__portrait {
+  width: clamp(150px, 18vw, 210px);
+}
