@@ -1,6 +1,7 @@
 import { ITEM_TYPE_LABELS, equipItem, loadInventory, unequipItem } from '../services/playerInventory.js';
 import { useConsumable } from '../services/playerRecovery.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
+import { renderPaperdoll } from './paperdoll.js';
 import { rarityBadge, statChips } from './playerUi.js';
 
 function slotMarkup(slot) {
@@ -77,6 +78,12 @@ export async function renderInventoryView(container, { profile }) {
       </section>
     </div>
   `;
+
+  await renderPaperdoll(container.querySelector('[data-paperdoll]'), {
+    classId: profile.class_id,
+    equipment: Object.fromEntries(slots.filter((slot) => slot.entry).map((slot) => [slot.id, slot.entry.item])),
+    name: profile.character_name,
+  });
 
   container.querySelectorAll('[data-action]').forEach((button) => {
     button.addEventListener('click', async () => {

@@ -3,7 +3,8 @@ import { loadActiveEffects, loadProgressionContext, normalizeCharacter } from '.
 import { loadOwnProfile } from '../services/playerProfile.js';
 import { attemptMedicine, recoverRest } from '../services/playerRecovery.js';
 import { errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
-import { renderCharacterPortrait } from './characterLook.js';
+import { loadInventory } from '../services/playerInventory.js';
+import { renderPaperdoll } from './paperdoll.js';
 
 function meter({ label, current, max, percent, modifier = '', hint = '' }) {
   return html`
@@ -83,7 +84,7 @@ export async function renderDashboardView(container, { profile, notice = '' }) {
     <div class="ok-dashboard">
       <section class="ok-panel ok-hero-sheet" aria-labelledby="sheet-title">
         <div class="ok-hero-sheet__portrait">
-          ${renderCharacterPortrait({ rpgClass: character.rpgClass, race: character.race })}
+          <div data-paperdoll></div>
         </div>
         <div class="ok-hero-sheet__body">
           <p class="ok-kicker">
@@ -143,6 +144,16 @@ export async function renderDashboardView(container, { profile, notice = '' }) {
       </nav>
     </div>
   `;
+
+  const inventory = await loadInventory(profile.id);
+  const equipment = Object.fromEntries(
+    (inventory.ok ? inventory.data.slots : []).filter((slot) => slot.entry).map((slot) => [slot.id, slot.entry.item]),
+  );
+  await renderPaperdoll(container.querySelector('[data-paperdoll]'), {
+    classId: profile.class_id,
+    equipment,
+    name: character.name,
+  });
 
   const medicine = container.querySelector('[data-medicine]');
   medicine.addEventListener('click', async () => {

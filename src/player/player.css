@@ -947,3 +947,31 @@ body.ok-player-body {
     transition: none;
   }
 }
+
+/* Boneco em camadas --------------------------------------------------- */
+
+.ok-paperdoll {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 2 / 3;
+  border: 1px solid var(--player-line);
+  background: radial-gradient(ellipse at 50% 35%, rgba(200, 16, 46, 0.28), var(--player-panel) 70%);
+  overflow: hidden;
+}
+
+.ok-paperdoll__layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  user-select: none;
+}
+
+.ok-paperdoll-host {
+  display: grid;
+  justify-items: center;
+  margin-bottom: 14px;
+}
