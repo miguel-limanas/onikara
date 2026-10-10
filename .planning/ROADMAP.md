@@ -223,7 +223,7 @@ Linha de pesquisa visual:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02: Implementar painel do personagem, atributos, progressão e estado atual.
+- [x] 04-02: Implementar painel do personagem, atributos, progressão e estado atual.
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
