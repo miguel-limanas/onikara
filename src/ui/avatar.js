@@ -34,6 +34,42 @@ function defaultSvg(kind, elementId) {
   </svg>`;
 }
 
+const ITEM_ICONS = {
+  weapon:
+    '<path d="M62 14 L70 22 L40 62 L34 56Z" fill="#d7d9de"/><path d="M30 60 L40 70 L28 82 L18 72Z" fill="#8a6a3a"/><rect x="22" y="54" width="22" height="6" transform="rotate(-45 33 57)" fill="#c9a84c"/>',
+  armor:
+    '<path d="M50 14 L76 24 L74 56 Q70 74 50 84 Q30 74 26 56 L24 24Z" fill="#6b7078"/><path d="M50 22 L68 29 L66 54 Q62 68 50 76Z" fill="#8d939c"/>',
+  accessory:
+    '<circle cx="50" cy="56" r="20" fill="none" stroke="#c9a84c" stroke-width="7"/><path d="M50 26 L58 36 L50 44 L42 36Z" fill="#e0505f"/>',
+  consumable:
+    '<rect x="42" y="14" width="16" height="12" fill="#a9825a"/><path d="M42 26 L58 26 L74 62 Q76 80 50 84 Q24 80 26 62Z" fill="#4aa6d8" opacity=".9"/><path d="M34 60 Q50 54 66 60 L70 70 Q50 78 30 70Z" fill="#2c7fb0"/>',
+  material:
+    '<path d="M50 14 L74 36 L62 82 L38 82 L26 36Z" fill="#7a5c8f"/><path d="M50 14 L62 36 L50 82 L38 36Z" fill="#a98ac2"/>',
+  quest:
+    '<rect x="26" y="20" width="48" height="60" rx="4" fill="#d9c9a0"/><path d="M34 34 H66 M34 46 H66 M34 58 H56" stroke="#7a5c2f" stroke-width="4" stroke-linecap="round"/><circle cx="68" cy="72" r="9" fill="#c8102e"/>',
+};
+
+const ITEM_RARITY_COLORS = {
+  common: '#8a8f99',
+  uncommon: '#4fbf6a',
+  rare: '#3b9cff',
+  epic: '#b085ff',
+  legendary: '#e0a63a',
+};
+
+// Avatar de item: imagem cadastrada (image_url) ou ícone padrão por tipo.
+export function itemAvatarMarkup({ item = null, name = '', size = 'md' } = {}) {
+  const label = name || item?.name || 'Item';
+  const color = ITEM_RARITY_COLORS[item?.rarity] || ITEM_RARITY_COLORS.common;
+  const inner = item?.image_url
+    ? `<img src="${escapeHtml(item.image_url)}" alt="" draggable="false" />`
+    : `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#14090c"/>${
+        ITEM_ICONS[item?.item_type] ||
+        '<path d="M50 18 L78 50 L50 82 L22 50Z" fill="#c9a84c"/><path d="M50 30 L66 50 L50 70 L34 50Z" fill="#14090c" opacity=".35"/>'
+      }</svg>`;
+  return `<span class="ok-avatar ok-avatar--item ok-avatar--${size} ${item?.image_url ? '' : 'is-default'}" style="border-color:${color}" role="img" aria-label="${escapeHtml(label)}">${inner}</span>`;
+}
+
 // `src`: data URL ou caminho; vazio usa o padrão. `size`: sm | md | lg.
 export function avatarMarkup({ src = null, name = '', kind = 'player', elementId = null, size = 'md' } = {}) {
   const label = name ? `Avatar de ${name}` : 'Avatar';

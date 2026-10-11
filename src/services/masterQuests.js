@@ -11,7 +11,7 @@ export async function loadMasterQuests(profileIds) {
       ? runSupabase((client) => client.from('character_quests').select('*').in('profile_id', profileIds))
       : Promise.resolve({ ok: true, data: [] }),
     runSupabase((client) => client.from('enemies').select('id,name')),
-    runSupabase((client) => client.from('items').select('id,name')),
+    runSupabase((client) => client.from('items').select('id,name,item_type,rarity,image_url')),
   ]);
   for (const result of [quests, steps, owned]) {
     if (!result.ok) return { ok: false, data: null, error: result.error };
@@ -24,6 +24,7 @@ export async function loadMasterQuests(profileIds) {
     ok: true,
     error: null,
     data: {
+      itemRows: items.ok ? items.data : [],
       items: items.ok ? items.data : [],
       quests: quests.data.map((quest) => ({
         id: quest.id,
@@ -34,7 +35,11 @@ export async function loadMasterQuests(profileIds) {
         repeatable: quest.repeatable,
         rewards: {
           xp: Number(quest.rewards?.xp) || 0,
-          items: (quest.rewards?.items || []).map((entry) => `${Number(entry.quantity) || 1}x ${names.items.get(entry.item_id) || entry.item_id}`),
+          items: (quest.rewards?.items || []).map((entry) => ({
+            quantity: Number(entry.quantity) || 1,
+            name: names.items.get(entry.item_id) || entry.item_id,
+            item: (items.ok ? items.data : []).find((row) => row.id === entry.item_id) || null,
+          })),
         },
         steps: steps.data
           .filter((step) => step.quest_id === quest.id)

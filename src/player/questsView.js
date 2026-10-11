@@ -6,6 +6,7 @@ import {
   startQuest,
 } from '../services/playerQuests.js';
 import { watchChanges } from '../services/live.js';
+import { itemAvatarMarkup } from '../ui/avatar.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 
 const GROUP_TITLES = {
@@ -17,11 +18,14 @@ const GROUP_TITLES = {
 };
 
 function rewardsMarkup(rewards) {
-  const parts = [];
-  if (rewards.xp) parts.push(`${rewards.xp} XP`);
-  rewards.items.forEach((item) => parts.push(`${item.quantity}x ${item.name}`));
-  if (!parts.length) return '';
-  return `<p class="ok-helper">Recompensa (prévia): ${parts.map(escapeHtml).join(' · ')}</p>`;
+  if (!rewards.xp && !rewards.items.length) return '';
+  const items = rewards.items
+    .map(
+      (entry) =>
+        `<li class="ok-item-line">${itemAvatarMarkup({ item: entry.item || { name: entry.name }, name: entry.name, size: 'sm' })}<span>${entry.quantity}x ${escapeHtml(entry.name)}</span></li>`,
+    )
+    .join('');
+  return `<div class="ok-quest__rewards"><p class="ok-helper">Recompensa${rewards.xp ? `: ${rewards.xp} XP` : ''}</p>${items ? `<ul class="ok-reward-list">${items}</ul>` : ''}</div>`;
 }
 
 function stepsMarkup(quest) {

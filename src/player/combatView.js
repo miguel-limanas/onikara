@@ -9,6 +9,7 @@ import {
   loadSessionLog,
   startRemoteCombat,
 } from '../services/playerCombat.js';
+import { itemAvatarMarkup } from '../ui/avatar.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { createAvatarResolver } from './combatAvatars.js';
 import { attachLive, mountFight } from './fightScreen.js';
@@ -72,11 +73,15 @@ export async function renderCombatView(container, { profile, session }) {
       return;
     }
     const names = state.catalog.items;
-    const items = (mine.items || []).map((item) => `${escapeHtml(names[item.item_id]?.name || item.item_id)} x${item.quantity}`);
+    const items = (mine.items || []).map(
+      (item) =>
+        `<span class="ok-item-line">${itemAvatarMarkup({ item: names[item.item_id] || { name: item.item_id }, size: 'sm' })}${escapeHtml(names[item.item_id]?.name || item.item_id)} x${item.quantity}</span>`,
+    );
     node.innerHTML = html`
       <div class="ok-combat-rewards" role="status">
         <h4 class="ok-combat__heading">Recompensas</h4>
-        <p class="ok-copy"><strong>${mine.xp} XP</strong>${items.length ? ' · ' + items.join(', ') : ''}</p>
+        <p class="ok-copy"><strong>${mine.xp} XP</strong></p>
+        ${items.length ? `<p class="ok-reward-list">${items.join('')}</p>` : ''}
         ${mine.level_after > mine.level_before ? `<p class="ok-badge is-success">Subiu para o nível ${mine.level_after}!</p>` : ''}
       </div>
     `;

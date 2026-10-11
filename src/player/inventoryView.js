@@ -1,6 +1,7 @@
 import { ITEM_TYPE_LABELS, equipItem, loadInventory, unequipItem } from '../services/playerInventory.js';
 import { useConsumable } from '../services/playerRecovery.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
+import { itemAvatarMarkup } from '../ui/avatar.js';
 import { renderPaperdoll } from './paperdoll.js';
 import { rarityBadge, statChips } from './playerUi.js';
 
@@ -11,7 +12,7 @@ function slotMarkup(slot) {
       <span class="ok-slot__label">${escapeHtml(slot.label)}</span>
       ${
         entry
-          ? html`<strong>${escapeHtml(entry.item.name)}</strong>${rarityBadge(entry.item.rarity)}`
+          ? html`<span class="ok-item-line">${itemAvatarMarkup({ item: entry.item, size: 'sm' })}<strong>${escapeHtml(entry.item.name)}</strong></span>${rarityBadge(entry.item.rarity)}`
           : '<span class="ok-slot__empty">Vazio</span>'
       }
     </li>
@@ -34,9 +35,12 @@ function itemMarkup(entry) {
 
   return html`
     <li class="ok-item ${equipped ? 'is-equipped' : ''}" data-inventory="${escapeHtml(entry.inventoryId)}">
-      <div class="ok-item__head">
-        <strong class="ok-item__name">${escapeHtml(item.name)}</strong>
-        ${equipped ? '<span class="ok-badge is-success">Equipado</span>' : ''}
+      <div class="ok-item__head ok-item__head--avatar">
+        ${itemAvatarMarkup({ item, size: 'lg' })}
+        <div class="ok-item__title">
+          <strong class="ok-item__name">${escapeHtml(item.name)}</strong>
+          ${equipped ? '<span class="ok-badge is-success">Equipado</span>' : ''}
+        </div>
       </div>
       <p class="ok-chip-row">
         <span class="ok-chip">${escapeHtml(ITEM_TYPE_LABELS[item.item_type] || item.item_type)}</span>

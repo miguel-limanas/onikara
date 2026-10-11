@@ -8,6 +8,7 @@ import {
   setQuestStep,
 } from '../services/masterQuests.js';
 import { watchChanges } from '../services/live.js';
+import { itemAvatarMarkup } from '../ui/avatar.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 
 // Sugestões prontas para o formulário de nova missão.
@@ -102,12 +103,15 @@ function panelMarkup(data, members) {
   if (!data.quests.length) return emptyBlock('Nenhuma missão publicada ainda.');
   return data.quests
     .map((quest) => {
-      const reward = [quest.rewards.xp ? `${quest.rewards.xp} XP` : '', ...quest.rewards.items].filter(Boolean).join(' · ');
+      const rewardItems = quest.rewards.items
+        .map((entry) => `<span class="ok-item-line">${itemAvatarMarkup({ item: entry.item || { name: entry.name }, name: entry.name, size: 'sm' })}${entry.quantity}x ${escapeHtml(entry.name)}</span>`)
+        .join(' ');
       return html`
         <article class="ok-quest-block">
           <h3 class="ok-combat__heading">${escapeHtml(quest.title)} ${quest.campaignId ? '<span class="ok-badge">Da campanha</span>' : '<span class="ok-badge">Catálogo</span>'}</h3>
           ${quest.description ? `<p class="ok-copy">${escapeHtml(quest.description)}</p>` : ''}
-          <p class="ok-helper">Nível mínimo ${quest.minLevel}${quest.repeatable ? ' · repetível' : ''}${reward ? ` · Recompensa: ${escapeHtml(reward)}` : ''}</p>
+          <p class="ok-helper">Nível mínimo ${quest.minLevel}${quest.repeatable ? ' · repetível' : ''}${quest.rewards.xp ? ` · Recompensa: ${quest.rewards.xp} XP` : ''}</p>
+          ${rewardItems ? `<div class="ok-reward-list">${rewardItems}</div>` : ''}
           ${quest.campaignId ? '<div class="ok-toolbar"><button class="ok-button" type="button" data-delete-quest="' + escapeHtml(quest.id) + '">Remover missão</button></div>' : ''}
           <ul class="ok-combat-enemies">
             ${members.map((member) => memberRow(quest, member, data.progress.get(`${member.profile.id}|${quest.id}`))).join('')}

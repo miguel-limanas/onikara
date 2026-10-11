@@ -131,3 +131,19 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Avatar de item: quadrado arredondado, borda pela raridade. */
+.ok-avatar--item {
+  border-radius: 10px;
+  border-width: 2px;
+}
+
+.ok-avatar--sm.ok-avatar--item { width: 28px; height: 28px; border-radius: 6px; }
+.ok-avatar--md.ok-avatar--item { width: 48px; height: 48px; }
+.ok-avatar--lg.ok-avatar--item { width: 64px; height: 64px; }
+
+.ok-item-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}

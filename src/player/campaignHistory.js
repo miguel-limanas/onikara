@@ -1,5 +1,6 @@
 import { loadCampaignHistory, loadCombatSnapshotCatalog } from '../services/masterCampaign.js';
 import { loadSessionLog } from '../services/playerCombat.js';
+import { itemAvatarMarkup } from '../ui/avatar.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { logMarkup } from './combatLog.js';
 
@@ -74,10 +75,13 @@ function rewardsMarkup(row, catalog) {
     (row.participants || []).find((participant) => participant.profile_id === profileId)?.display_name || 'Jogador';
   const lines = awards.map((award) => {
     const items = (award.items || [])
-      .map((item) => `${escapeHtml(catalog.items[item.item_id]?.name || item.item_id)} x${item.quantity}`)
-      .join(', ');
+      .map(
+        (item) =>
+          `<span class="ok-item-line">${itemAvatarMarkup({ item: catalog.items[item.item_id] || { name: item.item_id }, size: 'sm' })}${escapeHtml(catalog.items[item.item_id]?.name || item.item_id)} x${item.quantity}</span>`,
+      )
+      .join(' ');
     const level = award.level_after > award.level_before ? ` · subiu para o nível ${award.level_after}` : '';
-    return `<li>${escapeHtml(nameOf(award.profile_id))}: ${award.xp} XP${items ? ` · ${items}` : ''}${level}</li>`;
+    return `<li>${escapeHtml(nameOf(award.profile_id))}: ${award.xp} XP${level}${items ? `<div class="ok-reward-list">${items}</div>` : ''}</li>`;
   });
   return `<h4 class="ok-combat__heading">Recompensas</h4><ul class="ok-copy">${lines.join('')}</ul>`;
 }

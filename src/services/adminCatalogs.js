@@ -78,6 +78,7 @@ export const catalogDefinitions = {
       { name: 'max_stack', label: 'Max stack', type: 'number', min: 1 },
       { name: 'stats', label: 'Atributos', type: 'json', fallback: {} },
       { name: 'effects', label: 'Efeitos', type: 'json', fallback: {} },
+      { name: 'image_url', label: 'Imagem (URL ou /caminho)' },
       { name: 'description', label: 'Descricao' },
     ],
   },

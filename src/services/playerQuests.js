@@ -58,7 +58,7 @@ export async function loadPlayerQuests(profile) {
     runSupabase((client) => client.from('quest_steps').select('*').order('step_order')),
     runSupabase((client) => client.from('character_quests').select('*').eq('profile_id', profile.id)),
     runSupabase((client) => client.from('enemies').select('id,name')),
-    runSupabase((client) => client.from('items').select('id,name')),
+    runSupabase((client) => client.from('items').select('id,name,item_type,rarity,image_url')),
   ]);
   for (const result of [quests, steps, owned]) {
     if (!result.ok) return { ok: false, data: null, error: result.error };
@@ -68,6 +68,7 @@ export async function loadPlayerQuests(profile) {
     enemies: new Map((enemies.ok ? enemies.data : []).map((row) => [row.id, row.name])),
     items: new Map((items.ok ? items.data : []).map((row) => [row.id, row.name])),
   };
+  const itemRows = new Map((items.ok ? items.data : []).map((row) => [row.id, row]));
   const progressByQuest = new Map(owned.data.map((row) => [row.quest_id, row]));
 
   const data = quests.data.map((quest) => {
@@ -105,6 +106,7 @@ export async function loadPlayerQuests(profile) {
         xp: Number(rewards.xp) || 0,
         items: (Array.isArray(rewards.items) ? rewards.items : []).map((entry) => ({
           name: names.items.get(entry.item_id) || entry.item_id,
+          item: itemRows.get(entry.item_id) || null,
           quantity: Number(entry.quantity) || 1,
         })),
       },

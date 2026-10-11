@@ -1400,3 +1400,38 @@ body.ok-player-body {
 .ok-campaign-card {
   gap: 10px;
 }
+
+/* Itens com avatar ---------------------------------------------------- */
+
+.ok-item__head--avatar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ok-item__title {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ok-reward-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-slot .ok-item-line {
+  max-width: 100%;
+}
+
+.ok-item__head--avatar {
+  justify-content: flex-start;
+}
+
+.ok-item__title .ok-item__name {
+  text-align: left;
+}

@@ -28,7 +28,7 @@ import {
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
 import { renderCampaignHistory } from './campaignHistory.js';
-import { avatarMarkup } from '../ui/avatar.js';
+import { avatarMarkup, itemAvatarMarkup } from '../ui/avatar.js';
 import { watchChanges } from '../services/live.js';
 import { createAvatarResolver } from './combatAvatars.js';
 import { mountMasterQuests } from './masterQuestsPanel.js';
@@ -822,10 +822,12 @@ export async function renderMasterView(container, { session }) {
       return;
     }
     const itemName = (id) => state.catalog.items[id]?.name || id;
+    const itemChip = (id, quantity) =>
+      `<span class="ok-item-line">${itemAvatarMarkup({ item: state.catalog.items[id] || { name: id }, size: 'sm' })}${escapeHtml(itemName(id))} x${quantity}</span>`;
     if (result.data.awarded) {
       const lines = (result.data.summary.awards || []).map((award) => {
         const player = state.participants.find((p) => p.refId === award.profile_id);
-        const items = (award.items || []).map((item) => `${escapeHtml(itemName(item.item_id))} x${item.quantity}`).join(', ');
+        const items = (award.items || []).map((item) => itemChip(item.item_id, item.quantity)).join(' ');
         const level = award.level_after > award.level_before ? ` · subiu para o nível ${award.level_after}` : '';
         return `<li>${escapeHtml(player?.name || 'Jogador')}: ${award.xp} XP${items ? ' · ' + items : ''}${level}</li>`;
       });
@@ -849,8 +851,8 @@ export async function renderMasterView(container, { session }) {
                   player.items.length
                     ? player.items
                         .map(
-                          (item) => `<label class="ok-helper"><input type="checkbox" checked data-item="${escapeHtml(item.item_id)}" data-quantity="${item.quantity}" />
-                            ${escapeHtml(itemName(item.item_id))} x${item.quantity}</label>`,
+                          (item) => `<label class="ok-helper ok-item-line"><input type="checkbox" checked data-item="${escapeHtml(item.item_id)}" data-quantity="${item.quantity}" />
+                            ${itemAvatarMarkup({ item: state.catalog.items[item.item_id] || { name: item.item_id }, size: 'sm' })}${escapeHtml(itemName(item.item_id))} x${item.quantity}</label>`,
                         )
                         .join('')
                     : '<span class="ok-helper">Sem itens</span>'
