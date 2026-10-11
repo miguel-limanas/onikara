@@ -1321,10 +1321,20 @@ body.ok-player-body {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.ok-people-strip__item > span {
+.ok-people-strip__text {
   display: grid;
   min-width: 0;
   flex: 1;
+}
+
+.ok-overview__heading {
+  margin: 22px 0 10px;
+}
+
+.ok-people-strip__item .ok-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
 }
 
 .ok-people-strip__item .ok-status-icon {

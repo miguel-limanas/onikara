@@ -417,7 +417,7 @@ export async function renderMasterView(container, { session }) {
             <p class="ok-helper">Criada em ${escapeHtml(formatDate(campaign.created_at))}</p>
           </li>
         </ul>
-        <h3 class="ok-combat__heading">Jogadores</h3>
+        <h3 class="ok-combat__heading ok-overview__heading">Jogadores</h3>
         <div data-overview-people></div>
         <p class="ok-copy" id="new-campaign-hint">Só pode haver uma campanha ativa por vez. Para criar outra, encerre esta em "Configurações da campanha".</p>
         <div class="ok-toolbar">
@@ -550,7 +550,7 @@ export async function renderMasterView(container, { session }) {
           .map(
             ({ profile, status }) => `<li class="ok-people-strip__item">
               ${avatarMarkup({ src: details.avatars.get(profile.id) || null, name: profile.character_name, size: 'md' })}
-              <span><strong>${escapeHtml(profile.character_name)}</strong>
+              <span class="ok-people-strip__text"><strong>${escapeHtml(profile.character_name)}</strong>
               <span class="ok-helper">${escapeHtml(details.emails.get(profile.id) || '')}</span></span>
               ${STATUS_ICONS[status]}
             </li>`,
