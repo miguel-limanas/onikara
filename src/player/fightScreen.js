@@ -1,6 +1,7 @@
 import { previewElemental } from '../engine/combat/index.js';
 import { loadSessionLog, watchCombat } from '../services/playerCombat.js';
 import { escapeHtml, html } from '../ui/components.js';
+import { rollDiceEffect } from '../ui/dice.js';
 import { logMarkup } from './combatLog.js';
 import { showCombatEnd } from './endEffect.js';
 
@@ -156,6 +157,36 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     });
   }
 
+  // Eventos com dado real (ataque básico) viram uma rolagem animada antes de a tela mostrar o resultado.
+  const rolled = new Set();
+  const diceKey = (event) => (event.seq !== null && event.seq !== undefined ? `s${event.seq}` : null);
+
+  async function playDice(events, { onlyUnseen = false } = {}) {
+    const state = driver.getState();
+    const nameOf = (id) => state.participants.find((item) => item.id === id)?.name || 'Alguém';
+    const queue = events.filter((event) => {
+      if (event.type !== 'basic_attack' || !event.payload?.die) return false;
+      const key = diceKey(event);
+      if (key && rolled.has(key)) return false;
+      if (key) rolled.add(key);
+      return !onlyUnseen || key !== null;
+    });
+    for (const event of queue.slice(0, 3)) {
+      await rollDiceEffect({
+        notation: event.payload.die,
+        result: event.payload.roll,
+        label: `${nameOf(event.actorId)} ataca ${nameOf(event.targetId)} · ${event.payload.die}`,
+      });
+    }
+  }
+
+  function markRolled(events) {
+    events.forEach((event) => {
+      const key = diceKey(event);
+      if (key) rolled.add(key);
+    });
+  }
+
   function actingParticipant(state) {
     if (perspective === 'master') {
       const active = state.participants.find((item) => item.id === state.order[state.activeIndex]);
@@ -300,6 +331,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     try {
       ui.message = '';
       const result = await driver.act(action);
+      await playDice(result.events);
       ui.busy = false;
       render(result.events);
     } catch (error) {
@@ -356,6 +388,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     if (first && !ui.busy) first.focus({ preventScroll: true });
   }
 
+  markRolled(initialEvents);
   render(initialEvents);
 
   return {
@@ -363,7 +396,8 @@ export function mountFight(container, { driver, perspective = 'player', title, e
       render(events);
     },
     // Reconstrói o registro a partir do histórico do servidor.
-    replaceLog(events) {
+    async replaceLog(events) {
+      await playDice(events, { onlyUnseen: true });
       logHtml = '';
       render(events);
     },
@@ -392,7 +426,7 @@ export function attachLive({ driver, fight, container }) {
       const result = await driver.sync();
       if (result.changed) {
         const log = await loadSessionLog(driver.sessionId);
-        fight.replaceLog(log);
+        await fight.replaceLog(log);
       }
       // Recompensas concedidas depois do fim do combate: só redesenha o bloco final.
       if (info?.rewards && !result.changed) fight.refresh();

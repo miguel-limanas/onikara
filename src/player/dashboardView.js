@@ -4,6 +4,7 @@ import { loadOwnProfile } from '../services/playerProfile.js';
 import { attemptMedicine, recoverRest } from '../services/playerRecovery.js';
 import { errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { loadInventory } from '../services/playerInventory.js';
+import { rollDiceEffect } from '../ui/dice.js';
 import { renderPaperdoll } from './paperdoll.js';
 
 function meter({ label, current, max, percent, modifier = '', hint = '' }) {
@@ -172,6 +173,7 @@ export async function renderDashboardView(container, { profile, notice = '' }) {
     const text = `d20: ${r.roll} ${r.modifier >= 0 ? '+' : '-'} ${Math.abs(r.modifier)} = ${r.total} contra DT ${r.dt}. ${
       r.success ? (r.healed > 0 ? `Sucesso: recuperou ${r.healed} de HP.` : 'Sucesso, mas você já estava com o HP cheio.') : 'Não foi dessa vez.'
     }`;
+    await rollDiceEffect({ notation: '1d20', result: r.roll, label: `Teste de medicina · DT ${r.dt}` });
     await renderDashboardView(container, { profile, notice: text });
   });
 }
