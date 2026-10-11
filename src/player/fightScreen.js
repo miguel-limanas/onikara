@@ -2,6 +2,7 @@ import { previewElemental } from '../engine/combat/index.js';
 import { loadSessionLog, watchCombat } from '../services/playerCombat.js';
 import { escapeHtml, html } from '../ui/components.js';
 import { logMarkup } from './combatLog.js';
+import { showCombatEnd } from './endEffect.js';
 
 const ELEMENT_LABELS = {
   fire: 'Fogo',
@@ -130,6 +131,27 @@ function actionButton(action, state, targetId) {
 export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true, renderEndExtra = null }) {
   const ui = { targetId: null, busy: false, message: '', connection: '' };
   let logHtml = '';
+  let announced = false;
+
+  // Jogador: efeito de fim de combate + modal, uma vez por combate.
+  function announceEnd(state) {
+    if (announced || perspective !== 'player') return;
+    announced = true;
+    const key = driver.sessionId ? `onikara:end-seen:${driver.sessionId}` : null;
+    try {
+      if (key && sessionStorage.getItem(key)) return;
+      if (key) sessionStorage.setItem(key, '1');
+    } catch {
+      // sessionStorage indisponível: mostra mesmo assim.
+    }
+    showCombatEnd({
+      status: state.status,
+      onClose: () => {
+        if (window.location.hash === '#personagem') window.dispatchEvent(new HashChangeEvent('hashchange'));
+        else window.location.hash = '#personagem';
+      },
+    });
+  }
 
   function actingParticipant(state) {
     if (perspective === 'master') {
@@ -259,6 +281,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
       log.scrollTop = log.scrollHeight;
     }
     bind(acting, state);
+    if (finished) announceEnd(state);
     const extra = container.querySelector('[data-end-extra]');
     if (extra && renderEndExtra) renderEndExtra(extra, { state });
   }

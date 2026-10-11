@@ -1,8 +1,10 @@
 import { getAppRole, requirePlayerSession, signOutPlayer } from '../services/playerAuth.js';
 import { errorBlock, escapeHtml, html } from '../ui/components.js';
+import { renderCampaignView } from './campaignView.js';
 import { renderCombatView } from './combatView.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
+import { mountInvitations } from './invitations.js';
 import { renderMasterView } from './masterView.js';
 import { renderQuestsView } from './questsView.js';
 import { renderSpellsView } from './spellsView.js';
@@ -20,6 +22,7 @@ const allSections = [
   { id: 'inventario', label: 'Inventário', render: (container) => renderInventoryView(container, { profile: state.profile }) },
   { id: 'magias', label: 'Magias', render: (container) => renderSpellsView(container, { profile: state.profile }) },
   { id: 'combate', label: 'Combate', render: (container) => renderCombatView(container, { profile: state.profile, session: state.session }) },
+  { id: 'campanha', label: 'Campanha', render: (container) => renderCampaignView(container, { profile: state.profile }) },
   { id: 'missoes', label: 'Missões', render: (container) => renderQuestsView(container, { profile: state.profile }) },
   { id: 'mestre', label: 'Mestre', role: 'master', render: (container) => renderMasterView(container, { session: state.session }) },
 ];
@@ -91,9 +94,14 @@ function renderShell() {
           <button id="player-logout" class="ok-button" type="button">Sair</button>
         </div>
       </header>
+      <div id="player-invites" class="ok-invites" aria-live="polite" hidden></div>
       <main id="player-main" class="ok-player-main" tabindex="-1"></main>
     </div>
   `;
+  const invites = document.querySelector('#player-invites');
+  if (state.profile && invites) {
+    mountInvitations(invites, { profile: state.profile, onAccepted: () => showSection() });
+  }
   document.querySelector('#player-logout').addEventListener('click', logout);
 }
 

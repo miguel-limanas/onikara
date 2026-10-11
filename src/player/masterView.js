@@ -7,19 +7,29 @@ import {
   previewRewards,
   startCampaignCombat,
 } from '../services/playerCombat.js';
+import { loadCombatRewards } from '../services/playerCombat.js';
 import {
-  addMember,
+  cancelInvitation,
   createCampaign,
+  endCampaign,
+  inviteMember,
+  loadArchivedCampaigns,
   loadCampaignDetails,
   loadLastCombatSession,
   loadOwnCampaign,
   removeMember,
+  searchCandidates,
   setEnemyReleased,
   setMedicineDt,
   setSpellGranted,
+  updateCampaign,
 } from '../services/masterCampaign.js';
-import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
+import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
+import { renderCampaignHistory } from './campaignHistory.js';
 import { attachLive, mountFight } from './fightScreen.js';
+
+// Combates vencidos já fechados pelo mestre; sobrevive às atualizações parciais da tela.
+const dismissedSessions = new Set();
 
 function feedbackLine(node, message, tone = '') {
   if (!node) return;
@@ -27,25 +37,73 @@ function feedbackLine(node, message, tone = '') {
   node.textContent = message;
 }
 
-function createForm(container, userId) {
-  container.innerHTML = html`
-    <section class="ok-panel" aria-labelledby="master-title">
-      <h2 id="master-title" class="ok-section-title">Mestre</h2>
-      <p class="ok-copy">Crie a sua campanha para convidar jogadores, liberar inimigos e conduzir combates.</p>
-      <form class="ok-field" data-form="campaign">
-        <label for="campaign-name">Nome da campanha</label>
-        <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required />
-        <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
-        <p class="ok-helper" role="status" aria-live="polite" data-feedback></p>
-      </form>
+function archivedMarkup(rows) {
+  if (!rows.length) return '';
+  return html`
+    <section class="ok-panel" aria-labelledby="archived-title">
+      <h2 id="archived-title" class="ok-section-title">Campanhas encerradas</h2>
+      <ul class="ok-combat-enemies">
+        ${rows
+          .map(
+            (row) => html`
+              <li class="ok-combatant" data-archived="${escapeHtml(row.id)}">
+                <div class="ok-combatant__head">
+                  <strong>${escapeHtml(row.name)}</strong>
+                  <span class="ok-badge">Encerrada em ${escapeHtml(formatDate(row.ended_at))}</span>
+                </div>
+                ${row.description ? `<p class="ok-copy">${escapeHtml(row.description)}</p>` : ''}
+                <div class="ok-toolbar"><button class="ok-button" type="button" data-show-history>Ver histórico de combates</button></div>
+                <div data-history></div>
+              </li>
+            `,
+          )
+          .join('')}
+      </ul>
     </section>
   `;
+}
+
+function bindArchived(container) {
+  container.querySelectorAll('[data-archived]').forEach((card) => {
+    card.querySelector('[data-show-history]').addEventListener('click', (event) => {
+      event.currentTarget.hidden = true;
+      renderCampaignHistory(card.querySelector('[data-history]'), card.dataset.archived);
+    });
+  });
+}
+
+async function createForm(container, userId, { fresh = false } = {}) {
+  const archived = await loadArchivedCampaigns(userId);
+  container.innerHTML = html`
+    <div class="ok-quests">
+      <section class="ok-panel" aria-labelledby="master-title">
+        <h2 id="master-title" class="ok-section-title">${fresh ? 'Nova campanha' : 'Mestre'}</h2>
+        <p class="ok-copy">
+          ${
+            fresh
+              ? 'A campanha anterior foi encerrada. Crie a próxima para convidar jogadores e conduzir combates.'
+              : 'Crie a sua campanha para convidar jogadores, liberar inimigos e conduzir combates.'
+          }
+        </p>
+        <form class="ok-field" data-form="campaign">
+          <label for="campaign-name">Nome da campanha</label>
+          <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required />
+          <label for="campaign-description">História da campanha</label>
+          <textarea id="campaign-description" name="description" maxlength="4000" rows="6" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram."></textarea>
+          <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback></p>
+        </form>
+      </section>
+      ${archived.ok ? archivedMarkup(archived.data) : ''}
+    </div>
+  `;
+  bindArchived(container);
   container.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const feedback = container.querySelector('[data-feedback]');
-    const name = new FormData(event.currentTarget).get('name');
+    const data = new FormData(event.currentTarget);
     feedbackLine(feedback, 'Criando campanha...');
-    const result = await createCampaign(userId, String(name));
+    const result = await createCampaign(userId, String(data.get('name')), String(data.get('description') || ''));
     if (!result.ok) {
       feedbackLine(feedback, result.error.message, 'is-error');
       return;
@@ -111,6 +169,156 @@ function enemiesMarkup(details) {
     .join('')}</ul>`;
 }
 
+function invitationsMarkup(details) {
+  if (!details.invitations.length) return '';
+  const className = (id) => details.classes.find((item) => item.id === id)?.name || id;
+  return html`
+    <h3 class="ok-combat__heading">Convites pendentes</h3>
+    <ul class="ok-combat-enemies">
+      ${details.invitations
+        .map(
+          (row) => html`
+            <li class="ok-combatant" data-invitation="${escapeHtml(row.id)}">
+              <div class="ok-combatant__head">
+                <strong>${escapeHtml(row.profile?.character_name || 'Personagem')}</strong>
+                <span class="ok-badge">${escapeHtml(className(row.profile?.class_id))} · Nível ${row.profile?.level ?? '?'}</span>
+                <span class="ok-badge is-warning">Aguardando aceite</span>
+              </div>
+              <div class="ok-toolbar"><button class="ok-button" type="button" data-cancel-invite>Cancelar convite</button></div>
+            </li>
+          `,
+        )
+        .join('')}
+    </ul>
+  `;
+}
+
+// Campo de convite com sugestões (nome do personagem ou e-mail) enquanto o mestre digita.
+function bindInviteSearch(root, campaignId, { feedback, onInvited }) {
+  const form = root.querySelector('[data-form="member"]');
+  const input = form.querySelector('input[name="query"]');
+  const list = form.querySelector('[data-suggestions]');
+  const submit = form.querySelector('button[type="submit"]');
+  let chosen = null;
+  let timer = null;
+  let sequence = 0;
+  let options = [];
+  let cursor = -1;
+
+  function close() {
+    list.hidden = true;
+    list.innerHTML = '';
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-activedescendant');
+    options = [];
+    cursor = -1;
+  }
+
+  function choose(candidate) {
+    chosen = candidate;
+    input.value = candidate.character_name;
+    submit.disabled = false;
+    feedbackLine(feedback, `${candidate.character_name} · ${candidate.email}`, 'is-success');
+    close();
+  }
+
+  function highlight(index) {
+    cursor = index;
+    list.querySelectorAll('[role="option"]').forEach((node, position) => {
+      node.setAttribute('aria-selected', String(position === index));
+    });
+    if (index >= 0) input.setAttribute('aria-activedescendant', `candidate-${index}`);
+  }
+
+  function showOptions(rows) {
+    options = rows;
+    if (!rows.length) {
+      list.innerHTML = '<li class="ok-helper">Nenhum jogador disponível com esse nome ou e-mail.</li>';
+      list.hidden = false;
+      return;
+    }
+    list.innerHTML = rows
+      .map(
+        (row, index) => html`
+          <li role="presentation">
+            <button class="ok-suggest__option" type="button" role="option" id="candidate-${index}" aria-selected="false" data-index="${index}" ${row.invited ? 'disabled' : ''}>
+              <strong>${escapeHtml(row.character_name)}</strong>
+              <span class="ok-helper">${escapeHtml(row.email)} · Nível ${row.level}</span>
+              ${row.invited ? '<span class="ok-badge is-warning">Convite pendente</span>' : ''}
+            </button>
+          </li>
+        `,
+      )
+      .join('');
+    list.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+    list.querySelectorAll('[data-index]').forEach((button) => {
+      button.addEventListener('mousedown', (event) => event.preventDefault());
+      button.addEventListener('click', () => choose(options[Number(button.dataset.index)]));
+    });
+  }
+
+  input.addEventListener('input', () => {
+    chosen = null;
+    submit.disabled = true;
+    clearTimeout(timer);
+    const term = input.value.trim();
+    if (term.length < 2) {
+      close();
+      return;
+    }
+    timer = setTimeout(async () => {
+      const ticket = ++sequence;
+      const result = await searchCandidates(campaignId, term);
+      if (ticket !== sequence) return;
+      if (!result.ok) {
+        close();
+        feedbackLine(feedback, result.error.message, 'is-error');
+        return;
+      }
+      showOptions(result.data);
+    }, 250);
+  });
+
+  input.addEventListener('keydown', (event) => {
+    if (list.hidden) return;
+    const enabled = [...list.querySelectorAll('[data-index]:not([disabled])')].map((node) => Number(node.dataset.index));
+    if (!enabled.length) return;
+    const position = enabled.indexOf(cursor);
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      highlight(enabled[(position + 1) % enabled.length]);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      highlight(enabled[(position - 1 + enabled.length) % enabled.length]);
+    } else if (event.key === 'Enter' && cursor >= 0) {
+      event.preventDefault();
+      choose(options[cursor]);
+    } else if (event.key === 'Escape') {
+      close();
+    }
+  });
+
+  input.addEventListener('blur', () => setTimeout(close, 150));
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!chosen) {
+      feedbackLine(feedback, 'Escolha um jogador entre as sugestões.', 'is-error');
+      return;
+    }
+    submit.disabled = true;
+    feedbackLine(feedback, 'Enviando convite...');
+    const result = await inviteMember(campaignId, chosen.profile_id);
+    if (!result.ok) {
+      submit.disabled = false;
+      feedbackLine(feedback, result.error.message, 'is-error');
+      return;
+    }
+    onInvited(chosen.character_name);
+  });
+}
+
 export async function renderMasterView(container, { session }) {
   container.innerHTML = loadingBlock('Abrindo a sua campanha...');
   const userId = session.user.id;
@@ -120,10 +328,10 @@ export async function renderMasterView(container, { session }) {
     return;
   }
   if (!campaignResult.data) {
-    createForm(container, userId);
+    await createForm(container, userId);
     return;
   }
-  const campaign = campaignResult.data;
+  let campaign = campaignResult.data;
   const detailsResult = await loadCampaignDetails(campaign.id);
   if (!detailsResult.ok) {
     container.innerHTML = errorBlock(detailsResult.error.message);
@@ -134,23 +342,42 @@ export async function renderMasterView(container, { session }) {
   container.innerHTML = html`
     <div class="ok-quests">
       <section class="ok-panel" aria-labelledby="master-title">
-        <h2 id="master-title" class="ok-section-title">Campanha · ${escapeHtml(campaign.name)}</h2>
+        <h2 id="master-title" class="ok-section-title" data-campaign-title>Campanha · ${escapeHtml(campaign.name)}</h2>
         <div id="master-combat"></div>
       </section>
-      <section class="ok-panel" aria-labelledby="members-title">
-        <h2 id="members-title" class="ok-section-title">Jogadores</h2>
-        <form class="ok-field" data-form="member">
-          <label for="member-name">Convidar pelo nome do personagem</label>
-          <input id="member-name" name="name" type="text" required />
-          <button class="ok-button ok-button--primary" type="submit">Convidar</button>
+      <section class="ok-panel" aria-labelledby="settings-title">
+        <h2 id="settings-title" class="ok-section-title">Configurações da campanha</h2>
+        <form class="ok-field" data-form="settings">
+          <label for="campaign-name">Nome da campanha</label>
+          <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required value="${escapeHtml(campaign.name)}" />
+          <label for="campaign-description">História da campanha</label>
+          <textarea id="campaign-description" name="description" maxlength="4000" rows="7" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram.">${escapeHtml(campaign.description || '')}</textarea>
+          <button class="ok-button ok-button--primary" type="submit">Salvar campanha</button>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback="settings"></p>
         </form>
         <form class="ok-field" data-form="dt">
           <label for="medicine-dt">DT do teste de medicina (1 a 40; vazio usa o padrão 12)</label>
           <input id="medicine-dt" name="dt" type="number" min="1" max="40" value="${campaign.medicine_dt ?? ''}" />
           <button class="ok-button" type="submit">Salvar DT</button>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback="dt"></p>
         </form>
-        <p class="ok-helper" role="status" aria-live="polite" data-feedback="members"></p>
-        ${membersMarkup(details)}
+        <div class="ok-danger-zone">
+          <h3 class="ok-combat__heading">Encerrar campanha</h3>
+          <p class="ok-copy">Os jogadores saem da campanha, convites pendentes são cancelados e o histórico de combates fica guardado. Depois você pode criar outra campanha.</p>
+          <div class="ok-toolbar" data-end-area></div>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback="end"></p>
+        </div>
+      </section>
+      <section class="ok-panel" aria-labelledby="members-title">
+        <h2 id="members-title" class="ok-section-title">Jogadores</h2>
+        <form class="ok-field ok-suggest" data-form="member" autocomplete="off">
+          <label for="member-query">Convidar pelo nome do personagem ou e-mail</label>
+          <input id="member-query" name="query" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="member-suggestions" placeholder="Comece a digitar..." />
+          <ul id="member-suggestions" class="ok-suggest__list" role="listbox" data-suggestions hidden></ul>
+          <button class="ok-button ok-button--primary" type="submit" disabled>Enviar convite</button>
+          <p class="ok-helper" role="status" aria-live="polite" data-feedback="members"></p>
+        </form>
+        <div data-people></div>
       </section>
       <section class="ok-panel" aria-labelledby="enemies-title">
         <h2 id="enemies-title" class="ok-section-title">Inimigos liberados</h2>
@@ -158,59 +385,127 @@ export async function renderMasterView(container, { session }) {
         ${enemiesMarkup(details)}
         <p class="ok-helper" role="status" aria-live="polite" data-feedback="enemies"></p>
       </section>
+      <section class="ok-panel" aria-labelledby="history-title">
+        <h2 id="history-title" class="ok-section-title">Histórico de combates</h2>
+        <div data-history></div>
+      </section>
     </div>
   `;
 
-  const reload = () => renderMasterView(container, { session });
   const membersFeedback = container.querySelector('[data-feedback="members"]');
   const enemiesFeedback = container.querySelector('[data-feedback="enemies"]');
+  const peopleHost = container.querySelector('[data-people]');
+  const historyHost = container.querySelector('[data-history]');
 
-  container.querySelector('[data-form="member"]').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const name = String(new FormData(event.currentTarget).get('name') || '').trim();
-    if (!name) return;
-    feedbackLine(membersFeedback, 'Convidando...');
-    const result = await addMember(campaign.id, name);
-    if (!result.ok) {
-      feedbackLine(membersFeedback, result.error.message, 'is-error');
+  // Atualiza só a lista de jogadores e convites; o combate e o resto da tela ficam como estão.
+  async function refreshPeople() {
+    const fresh = await loadCampaignDetails(campaign.id);
+    if (!fresh.ok) {
+      feedbackLine(membersFeedback, fresh.error.message, 'is-error');
       return;
     }
-    reload();
+    details.members = fresh.data.members;
+    details.granted = fresh.data.granted;
+    details.invitations = fresh.data.invitations;
+    renderPeople();
+  }
+
+  function renderPeople() {
+    peopleHost.innerHTML = invitationsMarkup(details) + membersMarkup(details);
+
+    peopleHost.querySelectorAll('[data-invitation]').forEach((card) => {
+      card.querySelector('[data-cancel-invite]').addEventListener('click', async () => {
+        const result = await cancelInvitation(card.dataset.invitation);
+        if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
+        feedbackLine(membersFeedback, 'Convite cancelado.', 'is-success');
+        refreshPeople();
+      });
+    });
+
+    peopleHost.querySelectorAll('[data-member]').forEach((card) => {
+      const profileId = card.dataset.member;
+      card.querySelector('[data-grant]')?.addEventListener('click', async () => {
+        const spellId = card.querySelector('[data-grant-select]').value;
+        const result = await setSpellGranted(campaign.id, profileId, spellId, true);
+        if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
+        refreshPeople();
+      });
+      card.querySelectorAll('[data-revoke]').forEach((button) => {
+        button.addEventListener('click', async () => {
+          const result = await setSpellGranted(campaign.id, profileId, button.dataset.revoke, false);
+          if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
+          refreshPeople();
+        });
+      });
+      card.querySelector('[data-remove-member]')?.addEventListener('click', async () => {
+        const result = await removeMember(campaign.id, profileId);
+        if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
+        await refreshPeople();
+        if (!combatHost.querySelector('.ok-combat')) renderCombatArea();
+      });
+    });
+  }
+
+  bindInviteSearch(container, campaign.id, {
+    feedback: membersFeedback,
+    onInvited: async (name) => {
+      container.querySelector('[data-form="member"] input[name="query"]').value = '';
+      feedbackLine(membersFeedback, `Convite enviado para ${name}. O jogador precisa aceitar para entrar na campanha.`, 'is-success');
+      await refreshPeople();
+    },
+  });
+
+  container.querySelector('[data-form="settings"]').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const feedback = container.querySelector('[data-feedback="settings"]');
+    const data = new FormData(event.currentTarget);
+    feedbackLine(feedback, 'Salvando...');
+    const result = await updateCampaign(campaign.id, {
+      name: String(data.get('name') || ''),
+      description: String(data.get('description') || ''),
+    });
+    if (!result.ok) return feedbackLine(feedback, result.error.message, 'is-error');
+    campaign = result.data;
+    container.querySelector('[data-campaign-title]').textContent = `Campanha · ${campaign.name}`;
+    feedbackLine(feedback, 'Campanha salva.', 'is-success');
   });
 
   container.querySelector('[data-form="dt"]').addEventListener('submit', async (event) => {
     event.preventDefault();
+    const feedback = container.querySelector('[data-feedback="dt"]');
     const raw = String(new FormData(event.currentTarget).get('dt') || '').trim();
     const value = raw === '' ? null : Number(raw);
     if (value !== null && (!Number.isInteger(value) || value < 1 || value > 40)) {
-      feedbackLine(membersFeedback, 'Informe um número inteiro de 1 a 40.', 'is-error');
+      feedbackLine(feedback, 'Informe um número inteiro de 1 a 40.', 'is-error');
       return;
     }
     const result = await setMedicineDt(campaign.id, value);
-    feedbackLine(membersFeedback, result.ok ? 'DT salva.' : result.error.message, result.ok ? 'is-success' : 'is-error');
+    feedbackLine(feedback, result.ok ? 'DT salva.' : result.error.message, result.ok ? 'is-success' : 'is-error');
   });
 
-  container.querySelectorAll('[data-member]').forEach((card) => {
-    const profileId = card.dataset.member;
-    card.querySelector('[data-grant]')?.addEventListener('click', async () => {
-      const spellId = card.querySelector('[data-grant-select]').value;
-      const result = await setSpellGranted(campaign.id, profileId, spellId, true);
-      if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
-      reload();
-    });
-    card.querySelectorAll('[data-revoke]').forEach((button) => {
-      button.addEventListener('click', async () => {
-        const result = await setSpellGranted(campaign.id, profileId, button.dataset.revoke, false);
-        if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
-        reload();
+  // Encerrar exige confirmação em dois passos.
+  const endArea = container.querySelector('[data-end-area]');
+  const endFeedback = container.querySelector('[data-feedback="end"]');
+  function bindEnd() {
+    endArea.innerHTML = '<button class="ok-button" type="button" data-end-campaign>Encerrar campanha</button>';
+    endArea.querySelector('[data-end-campaign]').addEventListener('click', () => {
+      endArea.innerHTML =
+        '<button class="ok-button ok-button--primary" type="button" data-confirm-end>Confirmar encerramento</button>' +
+        '<button class="ok-button" type="button" data-keep>Manter campanha</button>';
+      endArea.querySelector('[data-keep]').addEventListener('click', bindEnd);
+      endArea.querySelector('[data-confirm-end]').addEventListener('click', async (event) => {
+        event.currentTarget.disabled = true;
+        const result = await endCampaign(campaign.id);
+        if (!result.ok) {
+          feedbackLine(endFeedback, result.error.message, 'is-error');
+          bindEnd();
+          return;
+        }
+        await createForm(container, userId, { fresh: true });
       });
     });
-    card.querySelector('[data-remove-member]')?.addEventListener('click', async () => {
-      const result = await removeMember(campaign.id, profileId);
-      if (!result.ok) return feedbackLine(membersFeedback, result.error.message, 'is-error');
-      reload();
-    });
-  });
+  }
+  bindEnd();
 
   container.querySelectorAll('[data-release]').forEach((input) => {
     input.addEventListener('change', async () => {
@@ -223,7 +518,8 @@ export async function renderMasterView(container, { session }) {
       feedbackLine(enemiesFeedback, input.checked ? 'Inimigo liberado.' : 'Inimigo retirado.', 'is-success');
       if (input.checked) details.releasedEnemyIds.add(input.dataset.release);
       else details.releasedEnemyIds.delete(input.dataset.release);
-      renderCombatArea();
+      // Não remonta uma luta em andamento ou recém-encerrada.
+      if (!combatHost.querySelector('.ok-combat')) renderCombatArea();
     });
   });
 
@@ -300,12 +596,12 @@ export async function renderMasterView(container, { session }) {
     });
   }
 
-  let dismissedSession = null;
-
   // Mostra o resultado da última vitória (e as recompensas) até o mestre fechar.
   async function renderLastVictory() {
     const last = await loadLastCombatSession(campaign.id);
-    if (!last.ok || !last.data || last.data.status !== 'victory' || last.data.id === dismissedSession) return false;
+    if (!last.ok || !last.data || last.data.status !== 'victory' || dismissedSessions.has(last.data.id)) return false;
+    // Recompensas já concedidas: o combate está no histórico e a tela de luta não volta.
+    if (await loadCombatRewards(last.data.id)) return false;
     const view = await fetchActiveCombat({ campaignId: campaign.id, sessionId: last.data.id });
     if (!view.ok || !view.data.state) return false;
     const driver = createRemoteDriver(view.data, { campaignId: campaign.id });
@@ -316,7 +612,7 @@ export async function renderMasterView(container, { session }) {
       endNote: 'Combate registrado no servidor.',
       initialEvents: await loadSessionLog(last.data.id),
       onExit: () => {
-        dismissedSession = last.data.id;
+        dismissedSessions.add(last.data.id);
         renderCombatArea();
       },
       renderEndExtra: (node, { state }) => renderRewardsPanel(node, driver, state),
@@ -398,5 +694,7 @@ export async function renderMasterView(container, { session }) {
     }
   }
 
+  renderPeople();
+  renderCampaignHistory(historyHost, campaign.id);
   await renderCombatArea();
 }

@@ -1,7 +1,7 @@
 import { runSupabase } from './supabaseClient.js';
 
 // Campanha do mestre. Tudo passa por PostgREST/RPC sob RLS: o mestre só enxerga e
-// altera a própria campanha (ver migration campaigns_and_master).
+// altera a própria campanha (ver migrations campaigns_and_master e campaign_lifecycle).
 
 export async function loadOwnCampaign(userId) {
   return runSupabase((client) =>
@@ -16,14 +16,91 @@ export async function loadOwnCampaign(userId) {
   );
 }
 
-export async function createCampaign(userId, name) {
+export async function createCampaign(userId, name, description = '') {
   return runSupabase((client) =>
-    client.from('campaigns').insert({ master_user_id: userId, name: name.trim() }).select('*').single(),
+    client
+      .from('campaigns')
+      .insert({ master_user_id: userId, name: name.trim(), description: description.trim() })
+      .select('*')
+      .single(),
+  );
+}
+
+export async function updateCampaign(campaignId, { name, description }) {
+  return runSupabase((client) =>
+    client
+      .from('campaigns')
+      .update({ name: name.trim(), description: description.trim() })
+      .eq('id', campaignId)
+      .select('*')
+      .single(),
+  );
+}
+
+export async function endCampaign(campaignId) {
+  return runSupabase((client) => client.rpc('end_campaign', { p_campaign_id: campaignId }));
+}
+
+export async function loadArchivedCampaigns(userId) {
+  return runSupabase((client) =>
+    client
+      .from('campaigns')
+      .select('id, name, description, created_at, ended_at')
+      .eq('master_user_id', userId)
+      .eq('status', 'archived')
+      .order('ended_at', { ascending: false }),
+  );
+}
+
+// Sugestões ao digitar: nome do personagem ou e-mail do jogador.
+export async function searchCandidates(campaignId, query) {
+  return runSupabase((client) =>
+    client.rpc('search_campaign_candidates', { p_campaign_id: campaignId, p_query: query }),
+  );
+}
+
+export async function inviteMember(campaignId, profileId) {
+  return runSupabase((client) =>
+    client.rpc('invite_campaign_member', { p_campaign_id: campaignId, p_profile_id: profileId }),
+  );
+}
+
+export async function cancelInvitation(invitationId) {
+  return runSupabase((client) => client.rpc('cancel_campaign_invitation', { p_invitation_id: invitationId }));
+}
+
+export async function loadPendingInvitations(campaignId) {
+  const result = await runSupabase((client) =>
+    client.rpc('list_campaign_invitations', { p_campaign_id: campaignId }),
+  );
+  if (!result.ok) return result;
+  return {
+    ...result,
+    data: result.data.map((row) => ({
+      id: row.id,
+      created_at: row.created_at,
+      profile: { id: row.profile_id, character_name: row.character_name, level: row.level, class_id: row.class_id },
+    })),
+  };
+}
+
+// Histórico de combates encerrados da campanha (mestre e membros).
+export async function loadCampaignHistory(campaignId) {
+  return runSupabase((client) =>
+    client
+      .from('combat_sessions')
+      .select(
+        'id, status, turn_number, started_at, ended_at, participants:combat_participants(display_name, team), rewards:combat_rewards(summary)',
+      )
+      .eq('campaign_id', campaignId)
+      .neq('status', 'active')
+      .order('started_at', { ascending: false })
+      .limit(50),
   );
 }
 
 export async function loadCampaignDetails(campaignId) {
-  const [members, released, granted, enemies, spells, classes] = await Promise.all([
+  const [members, released, granted, enemies, spells, classes, invitations] = await Promise.all([
     runSupabase((client) =>
       client
         .from('campaign_members')
@@ -36,8 +113,9 @@ export async function loadCampaignDetails(campaignId) {
     runSupabase((client) => client.from('enemies').select('id, name, level, element_id, description').order('level').order('name')),
     runSupabase((client) => client.from('spells').select('id, name, element_id, rarity, mana_cost').order('name')),
     runSupabase((client) => client.from('rpg_classes').select('id, name')),
+    loadPendingInvitations(campaignId),
   ]);
-  for (const result of [members, released, granted, enemies, spells, classes]) {
+  for (const result of [members, released, granted, enemies, spells, classes, invitations]) {
     if (!result.ok) return { ok: false, data: null, error: result.error };
   }
   return {
@@ -50,14 +128,9 @@ export async function loadCampaignDetails(campaignId) {
       enemies: enemies.data,
       spells: spells.data,
       classes: classes.data,
+      invitations: invitations.data,
     },
   };
-}
-
-export async function addMember(campaignId, characterName) {
-  return runSupabase((client) =>
-    client.rpc('add_campaign_member', { p_campaign_id: campaignId, p_character_name: characterName }),
-  );
 }
 
 export async function removeMember(campaignId, profileId) {
