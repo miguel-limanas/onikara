@@ -1244,3 +1244,31 @@ body.ok-player-body {
   flex-basis: 100%;
   overflow-wrap: anywhere;
 }
+
+/* Missões do mestre ------------------------------------------------- */
+
+.ok-quest-block {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.ok-quest-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-quest-steps li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.ok-quest-steps li.is-done {
+  color: #4fbf6a;
+}

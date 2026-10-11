@@ -29,6 +29,7 @@ import { renderCampaignHistory } from './campaignHistory.js';
 import { avatarMarkup } from '../ui/avatar.js';
 import { watchChanges } from '../services/live.js';
 import { createAvatarResolver } from './combatAvatars.js';
+import { mountMasterQuests } from './masterQuestsPanel.js';
 import { attachLive, mountFight } from './fightScreen.js';
 
 // Combates vencidos já fechados pelo mestre; sobrevive às atualizações parciais da tela.
@@ -448,6 +449,12 @@ export async function renderMasterView(container, { session }) {
         </form>
         <div data-people></div>
       </section>
+      <section class="ok-panel" aria-labelledby="quests-title">
+        <h2 id="quests-title" class="ok-section-title">Missões</h2>
+        <p class="ok-copy">Você conduz as missões: atribua ao jogador, confirme os objetivos e entregue a recompensa.</p>
+        <p class="ok-helper" role="status" aria-live="polite" data-feedback="quests"></p>
+        <div data-quests></div>
+      </section>
       <section class="ok-panel" aria-labelledby="enemies-title">
         <h2 id="enemies-title" class="ok-section-title">Inimigos liberados</h2>
         <p class="ok-copy">Só os inimigos liberados podem entrar em um combate da campanha.</p>
@@ -481,6 +488,7 @@ export async function renderMasterView(container, { session }) {
     details.avatars = fresh.data.avatars;
     details.emails = fresh.data.emails;
     renderPeople();
+    questsPanel.refresh();
   }
 
   function updateOverview() {
@@ -791,6 +799,10 @@ export async function renderMasterView(container, { session }) {
 
   renderPeople();
   renderCampaignHistory(historyHost, campaign.id);
+  const questsPanel = mountMasterQuests(container.querySelector('[data-quests]'), {
+    getMembers: () => details.members,
+    feedback: container.querySelector('[data-feedback="quests"]'),
+  });
 
   // Ao vivo: aceite de convite, entrada/saída de jogadores e combates encerrados.
   watchChanges(

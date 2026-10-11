@@ -5,6 +5,7 @@ import {
   loadPlayerQuests,
   startQuest,
 } from '../services/playerQuests.js';
+import { watchChanges } from '../services/live.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 
 const GROUP_TITLES = {
@@ -26,7 +27,7 @@ function rewardsMarkup(rewards) {
 function stepsMarkup(quest) {
   if (!quest.steps.length) return '';
   return html`
-    <details class="ok-quest__steps">
+    <details class="ok-quest__steps" ${quest.state === 'active' ? 'open' : ''}>
       <summary>Etapas (${quest.stepsDone}/${quest.steps.length})</summary>
       <ol>
         ${quest.steps
@@ -49,9 +50,11 @@ function questMarkup(quest) {
   const stateNote =
     quest.state === 'locked'
       ? `<p class="ok-copy">Requer nível ${quest.minLevel}. Continue evoluindo para liberar esta missão.</p>`
-      : quest.state === 'available' && quest.requiresCombat
-        ? '<p class="ok-helper">Esta missão pede combate: o mestre da sua campanha conduz a luta.</p>'
-        : '';
+      : quest.state === 'available'
+        ? '<p class="ok-helper">Ao aceitar, o mestre da sua campanha conduz a missão: ele confirma os objetivos e entrega a recompensa.</p>'
+        : quest.state === 'active'
+          ? `<p class="ok-copy">${quest.allStepsDone ? 'Objetivos cumpridos. Aguardando o mestre entregar a recompensa.' : 'Missão em andamento. O mestre confirma cada objetivo conforme você avança.'}</p>`
+          : '';
   const action =
     quest.state === 'available'
       ? `<button class="ok-button ok-button--primary" type="button" data-quest-action="start" data-quest="${escapeHtml(quest.id)}">Aceitar missão</button>`
@@ -78,7 +81,7 @@ function questMarkup(quest) {
   `;
 }
 
-export async function renderQuestsView(container, { profile }) {
+export async function renderQuestsView(container, { profile, notice = '' }) {
   container.innerHTML = loadingBlock('Consultando o quadro de missões...');
   const result = await loadPlayerQuests(profile);
   if (!result.ok) {
@@ -95,6 +98,7 @@ export async function renderQuestsView(container, { profile }) {
   const hasActive = quests.some((quest) => quest.state === 'active');
   container.innerHTML = html`
     <div class="ok-quests">
+      ${notice ? `<p class="ok-helper is-success" role="status">${escapeHtml(notice)}</p>` : ''}
       ${hasActive ? '' : '<p class="ok-copy">Você ainda não tem missões em andamento. Veja o que está disponível abaixo.</p>'}
       ${QUEST_STATE_ORDER.map((state) => {
         const group = quests.filter((quest) => quest.state === state);
@@ -127,7 +131,16 @@ export async function renderQuestsView(container, { profile }) {
       }
       // Recompensa pode ter subido de nível: o perfil local acompanha para o resto do shell.
       if (claiming && outcome.data?.level_after) profile.level = outcome.data.level_after;
-      await renderQuestsView(container, { profile });
+      await renderQuestsView(container, { profile, notice: claiming ? '' : 'Missão aceita. O mestre da campanha conduz os próximos passos.' });
     });
   });
+
+  // Ao vivo: o mestre atribui, confirma objetivos e entrega recompensas.
+  const anchor = container.firstElementChild;
+  watchChanges(
+    `quests:${profile.id}`,
+    [{ table: 'character_quests', filter: `profile_id=eq.${profile.id}` }],
+    () => renderQuestsView(container, { profile }),
+    { alive: () => anchor?.isConnected },
+  );
 }

@@ -34,6 +34,11 @@ function resolveState(quest, progressRow, level) {
   return level < quest.min_level ? 'locked' : 'available';
 }
 
+// Rótulo legível de um objetivo (também usado na tela do mestre).
+export function describeQuestStep(step, names) {
+  return stepTarget(step, names);
+}
+
 function stepTarget(step, names) {
   if (step.metadata?.label) return step.metadata.label;
   const base = OBJECTIVE_LABELS[step.objective_type] || 'Objetivo';
@@ -93,9 +98,9 @@ export async function loadPlayerQuests(profile) {
       steps: questSteps,
       stepsDone: questSteps.filter((step) => step.done).length,
       requiresCombat: questSteps.some((step) => step.objectiveType === 'defeat_enemy'),
-      claimable:
-        state === 'active' &&
-        questSteps.filter((step) => step.objectiveType === 'defeat_enemy').every((step) => step.done),
+      // A recompensa é entregue pelo mestre; o jogador só acompanha.
+      claimable: false,
+      allStepsDone: state === 'active' && questSteps.length > 0 && questSteps.every((step) => step.done),
       rewards: {
         xp: Number(rewards.xp) || 0,
         items: (Array.isArray(rewards.items) ? rewards.items : []).map((entry) => ({

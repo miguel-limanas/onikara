@@ -1,5 +1,7 @@
 import { supabase } from './supabaseClient.js';
 
+let channelCounter = 0;
+
 // Assinatura Realtime (postgres_changes) com antirrepique. A RLS decide o que cada
 // usuário recebe. `alive` encerra a assinatura quando a tela some do DOM.
 // specs: [{ table, event = '*', filter }]
@@ -8,7 +10,9 @@ export function watchChanges(name, specs, onChange, { debounceMs = 300, alive = 
   let stopped = false;
   let lastTable = null;
   let lastPayload = null;
-  const channel = supabase.channel(name);
+  // Nome único por assinatura: reaproveitar um canal já inscrito impede novos callbacks.
+  channelCounter += 1;
+  const channel = supabase.channel(`${name}#${channelCounter}`);
 
   function fire(table, payload) {
     lastTable = table;
