@@ -10,6 +10,36 @@ import {
 import { watchChanges } from '../services/live.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 
+// Sugestões prontas para o formulário de nova missão.
+const QUEST_SUGGESTIONS = [
+  {
+    title: 'A Sombra no Portão',
+    description:
+      'Algo ronda o portão selado da Base Oni depois que o sol se põe. Descubra o que é e traga a calma de volta ao refúgio.',
+    minLevel: 1,
+    xp: 80,
+    items: [{ item_id: 'health-salve', quantity: 2 }],
+    steps: [
+      { label: 'Investigar o portão selado', count: 1 },
+      { label: 'Derrotar o Imp de Cinzas', count: 1 },
+      { label: 'Voltar à Base Oni', count: 1 },
+    ],
+  },
+  {
+    title: 'Cinzas para a Curandeira',
+    description:
+      'A curandeira da Base Oni precisa de cinzas Oni para preparar um tônico de mana. Reúna o material antes que a próxima lua nasça.',
+    minLevel: 1,
+    xp: 60,
+    items: [{ item_id: 'mana-tonic', quantity: 1 }],
+    steps: [
+      { label: 'Recolher Cinza Oni', count: 3 },
+      { label: 'Entregar o material à curandeira', count: 1 },
+    ],
+  },
+];
+let suggestionCursor = 0;
+
 const STATE_BADGES = {
   active: { label: 'Em andamento', badge: 'is-warning' },
   completed: { label: 'Concluída', badge: 'is-success' },
@@ -94,6 +124,7 @@ function formMarkup(items) {
     <details class="ok-quest-form">
       <summary class="ok-button">Nova missão</summary>
       <form class="ok-field" data-form="quest">
+        <button class="ok-button" type="button" data-suggest-quest>Sugerir uma missão</button>
         <label for="quest-title">Título</label>
         <input id="quest-title" name="title" type="text" minlength="3" maxlength="80" required />
         <label for="quest-description">Descrição</label>
@@ -181,6 +212,18 @@ export function mountMasterQuests(host, { campaignId, getMembers, feedback }) {
       });
     }
     paintDraft();
+
+    form.querySelector('[data-suggest-quest]').addEventListener('click', () => {
+      const suggestion = QUEST_SUGGESTIONS[suggestionCursor % QUEST_SUGGESTIONS.length];
+      suggestionCursor += 1;
+      form.querySelector('[name="title"]').value = suggestion.title;
+      form.querySelector('[name="description"]').value = suggestion.description;
+      form.querySelector('[name="minLevel"]').value = String(suggestion.minLevel);
+      form.querySelector('[name="xp"]').value = String(suggestion.xp);
+      draft.items = suggestion.items.filter((entry) => items.some((item) => item.id === entry.item_id)).map((entry) => ({ ...entry }));
+      draft.steps = suggestion.steps.map((step) => ({ ...step }));
+      paintDraft();
+    });
 
     form.querySelector('[data-add-reward]').addEventListener('click', () => {
       const itemId = form.querySelector('[data-reward-item]').value;

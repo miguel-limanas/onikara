@@ -429,6 +429,9 @@ async function startCampaign(request: Request, admin: any, user: any, body: any)
   if (!campaign || user.app_metadata?.app_role !== 'master') {
     return fail(request, 403, 'not_master', 'Somente o mestre da campanha pode iniciar o combate.');
   }
+  if (campaign.status !== 'active') {
+    return fail(request, 409, 'campaign_not_active', 'Ative a campanha antes de iniciar um combate.');
+  }
   const existing = await loadCampaignSession(admin, campaign.id);
   if (existing) {
     return json(request, 200, {

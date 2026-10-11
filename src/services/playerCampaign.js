@@ -31,5 +31,5 @@ export async function loadMyCampaign(profileId) {
   );
   if (!membership.ok) return membership;
   const campaign = membership.data?.campaign;
-  return { ok: true, error: null, data: campaign && campaign.status === 'active' ? { ...campaign, joined_at: membership.data.joined_at } : null };
+  return { ok: true, error: null, data: campaign && ['active', 'draft'].includes(campaign.status) ? { ...campaign, joined_at: membership.data.joined_at } : null };
 }

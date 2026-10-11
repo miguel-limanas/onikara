@@ -3,6 +3,34 @@ import { runSupabase } from './supabaseClient.js';
 // Campanha do mestre. Tudo passa por PostgREST/RPC sob RLS: o mestre só enxerga e
 // altera a própria campanha (ver migrations campaigns_and_master e campaign_lifecycle).
 
+export async function loadOwnCampaigns(userId) {
+  return runSupabase((client) =>
+    client
+      .from('campaigns')
+      .select('id, name, description, status, created_at, ended_at, medicine_dt')
+      .eq('master_user_id', userId)
+      .order('created_at', { ascending: false }),
+  );
+}
+
+export async function loadCampaignById(campaignId) {
+  return runSupabase((client) => client.from('campaigns').select('*').eq('id', campaignId).maybeSingle());
+}
+
+export async function activateCampaign(campaignId) {
+  return runSupabase((client) => client.rpc('activate_campaign', { p_campaign_id: campaignId }));
+}
+
+// Quantidade de jogadores por campanha: Map(campaignId -> total).
+export async function loadMemberCounts(campaignIds) {
+  const result = await runSupabase((client) =>
+    client.from('campaign_members').select('campaign_id').in('campaign_id', campaignIds),
+  );
+  const counts = new Map();
+  if (result.ok) result.data.forEach((row) => counts.set(row.campaign_id, (counts.get(row.campaign_id) || 0) + 1));
+  return counts;
+}
+
 export async function loadOwnCampaign(userId) {
   return runSupabase((client) =>
     client
@@ -20,7 +48,7 @@ export async function createCampaign(userId, name, description = '') {
   return runSupabase((client) =>
     client
       .from('campaigns')
-      .insert({ master_user_id: userId, name: name.trim(), description: description.trim() })
+      .insert({ master_user_id: userId, name: name.trim(), description: description.trim(), status: 'draft' })
       .select('*')
       .single(),
   );

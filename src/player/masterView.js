@@ -13,10 +13,12 @@ import {
   createCampaign,
   endCampaign,
   inviteMember,
-  loadArchivedCampaigns,
   loadCampaignDetails,
   loadLastCombatSession,
-  loadOwnCampaign,
+  loadCampaignById,
+  loadMemberCounts,
+  loadOwnCampaigns,
+  activateCampaign,
   removeMember,
   searchCandidates,
   setEnemyReleased,
@@ -75,69 +77,138 @@ function bindStorySuggest(root, getName) {
   });
 }
 
-function archivedMarkup(rows) {
-  if (!rows.length) return '';
+
+const SELECTED_KEY = 'onikara:master-campaign';
+
+function selectedCampaign() {
+  try {
+    return sessionStorage.getItem(SELECTED_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function selectCampaign(id, { tab = null } = {}) {
+  try {
+    if (id) sessionStorage.setItem(SELECTED_KEY, id);
+    else sessionStorage.removeItem(SELECTED_KEY);
+    if (tab) sessionStorage.setItem(TAB_KEY, tab);
+  } catch {
+    // sessionStorage indisponível
+  }
+}
+
+const CAMPAIGN_STATUS = {
+  active: { label: 'Ativa', badge: 'is-success' },
+  draft: { label: 'Em construção', badge: 'is-warning' },
+  archived: { label: 'Encerrada', badge: '' },
+};
+
+function campaignCard(row, playerCount) {
+  const status = CAMPAIGN_STATUS[row.status] || CAMPAIGN_STATUS.archived;
+  const story = row.description ? escapeHtml(row.description.slice(0, 180)) + (row.description.length > 180 ? '…' : '') : 'Ainda sem história.';
   return html`
-    <section class="ok-panel" aria-labelledby="archived-title" data-tab-panel="historico">
-      <h2 id="archived-title" class="ok-section-title">Campanhas encerradas</h2>
-      <ul class="ok-combat-enemies">
-        ${rows
-          .map(
-            (row) => html`
-              <li class="ok-combatant" data-archived="${escapeHtml(row.id)}">
-                <div class="ok-combatant__head">
-                  <strong>${escapeHtml(row.name)}</strong>
-                  <span class="ok-badge">Encerrada em ${escapeHtml(formatDate(row.ended_at))}</span>
-                </div>
-                ${row.description ? `<p class="ok-copy">${escapeHtml(row.description)}</p>` : ''}
-                <div class="ok-toolbar"><button class="ok-button" type="button" data-show-history>Ver histórico de combates</button></div>
-                <div data-history></div>
-              </li>
-            `,
-          )
-          .join('')}
-      </ul>
-    </section>
+    <li class="ok-combatant ok-campaign-card" data-campaign="${escapeHtml(row.id)}">
+      <div class="ok-combatant__head">
+        <strong>${escapeHtml(row.name)}</strong>
+        <span class="ok-badge ${status.badge}">${status.label}</span>
+        ${row.status !== 'archived' ? `<span class="ok-badge">${playerCount} ${playerCount === 1 ? 'jogador' : 'jogadores'}</span>` : ''}
+      </div>
+      <p class="ok-copy">${story}</p>
+      <p class="ok-helper">${row.status === 'archived' ? `Encerrada em ${escapeHtml(formatDate(row.ended_at))}` : `Criada em ${escapeHtml(formatDate(row.created_at))}`}</p>
+      <div class="ok-toolbar"><button class="ok-button ok-button--primary" type="button" data-open>${row.status === 'archived' ? 'Ver histórico' : 'Abrir campanha'}</button></div>
+    </li>
   `;
 }
 
-function bindArchived(container) {
-  container.querySelectorAll('[data-archived]').forEach((card) => {
-    card.querySelector('[data-show-history]').addEventListener('click', (event) => {
-      event.currentTarget.hidden = true;
-      renderCampaignHistory(card.querySelector('[data-history]'), card.dataset.archived);
-    });
-  });
-}
-
-async function createForm(container, userId, { fresh = false } = {}) {
-  const archived = await loadArchivedCampaigns(userId);
+// Lista de campanhas do mestre: ativa, em construção e encerradas.
+async function renderCampaignList(container, session) {
+  const userId = session.user.id;
+  container.innerHTML = loadingBlock('Carregando as suas campanhas...');
+  const result = await loadOwnCampaigns(userId);
+  if (!result.ok) {
+    container.innerHTML = errorBlock(result.error.message);
+    return;
+  }
+  const rows = result.data;
+  const counts = new Map();
+  const ids = rows.filter((row) => row.status !== 'archived').map((row) => row.id);
+  if (ids.length) {
+    const members = await runMemberCounts(ids);
+    members.forEach((count, id) => counts.set(id, count));
+  }
+  const group = (status) => rows.filter((row) => row.status === status);
+  const section = (title, list, empty) => html`
+    <section class="ok-panel">
+      <h2 class="ok-section-title">${title}</h2>
+      ${list.length ? `<ul class="ok-combat-enemies">${list.map((row) => campaignCard(row, counts.get(row.id) || 0)).join('')}</ul>` : `<p class="ok-copy">${empty}</p>`}
+    </section>
+  `;
+  const hasActive = group('active').length > 0;
   container.innerHTML = html`
     <div class="ok-quests">
-      <section class="ok-panel" aria-labelledby="master-title">
-        <h2 id="master-title" class="ok-section-title">${fresh ? 'Nova campanha' : 'Mestre'}</h2>
+      <section class="ok-panel" aria-labelledby="campaigns-title">
+        <h2 id="campaigns-title" class="ok-section-title">Campanhas</h2>
         <p class="ok-copy">
-          ${
-            fresh
-              ? 'A campanha anterior foi encerrada. Crie a próxima para convidar jogadores e conduzir combates.'
-              : 'Crie a sua campanha para convidar jogadores, liberar inimigos e conduzir combates.'
-          }
+          Monte campanhas em construção e ative uma por vez. Abra uma campanha para configurar a história,
+          convidar jogadores, cadastrar missões e conduzir combates.
         </p>
+        <div class="ok-toolbar"><button class="ok-button ok-button--primary" type="button" data-new>Nova campanha</button></div>
+      </section>
+      ${section('Ativa', group('active'), 'Nenhuma campanha ativa. Abra uma em construção e ative-a.')}
+      ${section('Em construção', group('draft'), hasActive ? 'Nenhuma campanha em construção.' : 'Crie uma nova campanha para começar.')}
+      ${group('archived').length ? section('Encerradas', group('archived'), '') : ''}
+    </div>
+  `;
+
+  container.querySelector('[data-new]').addEventListener('click', () => renderNewCampaign(container, session));
+  container.querySelectorAll('[data-campaign]').forEach((card) => {
+    card.querySelector('[data-open]').addEventListener('click', () => {
+      selectCampaign(card.dataset.campaign, { tab: 'config' });
+      renderMasterView(container, { session });
+    });
+  });
+
+  watchChanges(
+    `master-list:${userId}`,
+    [
+      { table: 'campaigns', filter: `master_user_id=eq.${userId}` },
+      { table: 'campaign_members' },
+    ],
+    () => renderCampaignList(container, session),
+    { alive: () => container.querySelector('[data-new]')?.isConnected },
+  );
+}
+
+async function runMemberCounts(campaignIds) {
+  const result = await loadMemberCounts(campaignIds);
+  return result;
+}
+
+function renderNewCampaign(container, session) {
+  const userId = session.user.id;
+  container.innerHTML = html`
+    <div class="ok-quests">
+      <section class="ok-panel" aria-labelledby="new-title">
+        <h2 id="new-title" class="ok-section-title">Nova campanha</h2>
+        <p class="ok-copy">A campanha nasce em construção. Você configura tudo e só depois a ativa para jogar.</p>
         <form class="ok-field" data-form="campaign">
           <label for="campaign-name">Nome da campanha</label>
           <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required />
           <label for="campaign-description">História da campanha</label>
           <textarea id="campaign-description" name="description" maxlength="4000" rows="6" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram."></textarea>
           <button class="ok-button" type="button" data-suggest-story>Sugerir uma história</button>
-          <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
+          <div class="ok-toolbar">
+            <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
+            <button class="ok-button" type="button" data-cancel>Voltar</button>
+          </div>
           <p class="ok-helper" role="status" aria-live="polite" data-feedback></p>
         </form>
       </section>
-      ${archived.ok ? archivedMarkup(archived.data) : ''}
     </div>
   `;
-  bindArchived(container);
   bindStorySuggest(container, () => container.querySelector('#campaign-name').value);
+  container.querySelector('[data-cancel]').addEventListener('click', () => renderCampaignList(container, session));
   container.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const feedback = container.querySelector('[data-feedback]');
@@ -148,8 +219,34 @@ async function createForm(container, userId, { fresh = false } = {}) {
       feedbackLine(feedback, result.error.message, 'is-error');
       return;
     }
-    renderMasterView(container, { session: { user: { id: userId } } });
+    selectCampaign(result.data.id, { tab: 'config' });
+    renderMasterView(container, { session });
   });
+}
+
+// Campanha encerrada: só leitura (história e histórico de combates).
+async function renderArchivedCampaign(container, session, campaign) {
+  container.innerHTML = html`
+    <div class="ok-quests">
+      <div class="ok-detail-head">
+        <button class="ok-button" type="button" data-back>← Campanhas</button>
+        <span class="ok-badge">Encerrada em ${escapeHtml(formatDate(campaign.ended_at))}</span>
+      </div>
+      <section class="ok-panel">
+        <h2 class="ok-section-title">${escapeHtml(campaign.name)}</h2>
+        ${campaign.description ? `<p class="ok-story">${escapeHtml(campaign.description)}</p>` : '<p class="ok-copy">Sem história registrada.</p>'}
+      </section>
+      <section class="ok-panel">
+        <h2 class="ok-section-title">Histórico de combates</h2>
+        <div data-history></div>
+      </section>
+    </div>
+  `;
+  container.querySelector('[data-back]').addEventListener('click', () => {
+    selectCampaign(null);
+    renderMasterView(container, { session });
+  });
+  renderCampaignHistory(container.querySelector('[data-history]'), campaign.id);
 }
 
 const STATUS_ICONS = {
@@ -378,13 +475,23 @@ function bindInviteSearch(root, campaignId, { feedback, onInvited }) {
 export async function renderMasterView(container, { session }) {
   container.innerHTML = loadingBlock('Abrindo a sua campanha...');
   const userId = session.user.id;
-  const campaignResult = await loadOwnCampaign(userId);
+  const selected = selectedCampaign();
+  if (!selected) {
+    await renderCampaignList(container, session);
+    return;
+  }
+  const campaignResult = await loadCampaignById(selected);
   if (!campaignResult.ok) {
     container.innerHTML = errorBlock(campaignResult.error.message);
     return;
   }
-  if (!campaignResult.data) {
-    await createForm(container, userId);
+  if (!campaignResult.data || campaignResult.data.master_user_id !== userId) {
+    selectCampaign(null);
+    await renderCampaignList(container, session);
+    return;
+  }
+  if (campaignResult.data.status === 'archived') {
+    await renderArchivedCampaign(container, session, campaignResult.data);
     return;
   }
   let campaign = campaignResult.data;
@@ -394,21 +501,27 @@ export async function renderMasterView(container, { session }) {
     return;
   }
   const details = detailsResult.data;
-  const archived = await loadArchivedCampaigns(userId);
-  const archivedHtml = archived.ok ? archivedMarkup(archived.data) : '';
+  const archivedHtml = '';
 
   container.innerHTML = html`
     <div class="ok-quests">
+      <div class="ok-detail-head">
+        <button class="ok-button" type="button" data-back>← Campanhas</button>
+        <strong>${escapeHtml(campaign.name)}</strong>
+        <span class="ok-badge ${campaign.status === 'active' ? 'is-success' : 'is-warning'}" data-status-badge>${campaign.status === 'active' ? 'Ativa' : 'Em construção'}</span>
+        ${campaign.status === 'draft' ? '<button class="ok-button ok-button--primary" type="button" data-activate>Ativar campanha</button>' : ''}
+      </div>
+      <p class="ok-helper" role="status" aria-live="polite" data-feedback="activate"></p>
       <nav class="ok-subtabs" role="tablist" aria-label="Seções do mestre">
         ${MASTER_TABS.map(([id, label]) => `<button class="ok-subtab" type="button" role="tab" id="tab-${id}" data-tab="${id}" aria-selected="false">${label}</button>`).join('')}
       </nav>
       <section class="ok-panel" aria-labelledby="campaigns-title" data-tab-panel="visao">
-        <h2 id="campaigns-title" class="ok-section-title">Campanhas</h2>
+        <h2 id="campaigns-title" class="ok-section-title">Resumo da campanha</h2>
         <ul class="ok-combat-enemies">
           <li class="ok-combatant" data-overview>
             <div class="ok-combatant__head">
               <strong data-overview-name>${escapeHtml(campaign.name)}</strong>
-              <span class="ok-badge is-success">Ativa</span>
+              <span class="ok-badge ${campaign.status === 'active' ? 'is-success' : 'is-warning'}">${campaign.status === 'active' ? 'Ativa' : 'Em construção'}</span>
               <span class="ok-badge" data-overview-players></span>
               <span class="ok-badge" data-overview-enemies></span>
               <span class="ok-badge">DT medicina ${campaign.medicine_dt ?? 12}</span>
@@ -419,10 +532,8 @@ export async function renderMasterView(container, { session }) {
         </ul>
         <h3 class="ok-combat__heading ok-overview__heading">Jogadores</h3>
         <div data-overview-people></div>
-        <p class="ok-copy" id="new-campaign-hint">Só pode haver uma campanha ativa por vez. Para criar outra, encerre esta em "Configurações da campanha".</p>
         <div class="ok-toolbar">
-          <button class="ok-button" type="button" disabled aria-describedby="new-campaign-hint">Nova campanha</button>
-          <button class="ok-button" type="button" data-goto-settings>Ir para configurações</button>
+          <button class="ok-button" type="button" data-goto-settings>Abrir configurações</button>
         </div>
       </section>
       <section class="ok-panel" aria-labelledby="master-title" data-tab-panel="visao">
@@ -483,7 +594,6 @@ export async function renderMasterView(container, { session }) {
       ${archivedHtml}
     </div>
   `;
-  bindArchived(container);
 
   function showTab(id) {
     const valid = MASTER_TABS.some(([tab]) => tab === id) ? id : 'visao';
@@ -642,6 +752,23 @@ export async function renderMasterView(container, { session }) {
     container.querySelector('#settings-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
+  container.querySelector('[data-back]').addEventListener('click', () => {
+    selectCampaign(null);
+    renderMasterView(container, { session });
+  });
+  container.querySelector('[data-activate]')?.addEventListener('click', async (event) => {
+    const button = event.currentTarget;
+    const feedback = container.querySelector('[data-feedback="activate"]');
+    button.disabled = true;
+    const result = await activateCampaign(campaign.id);
+    if (!result.ok) {
+      button.disabled = false;
+      feedbackLine(feedback, result.error.message, 'is-error');
+      return;
+    }
+    renderMasterView(container, { session });
+  });
+
   // Encerrar exige confirmação em dois passos.
   const endArea = container.querySelector('[data-end-area]');
   const endFeedback = container.querySelector('[data-feedback="end"]');
@@ -660,7 +787,8 @@ export async function renderMasterView(container, { session }) {
           bindEnd();
           return;
         }
-        await createForm(container, userId, { fresh: true });
+        selectCampaign(null);
+        await renderMasterView(container, { session });
       });
     });
   }
@@ -782,6 +910,10 @@ export async function renderMasterView(container, { session }) {
   }
 
   async function renderCombatArea() {
+    if (campaign.status === 'draft') {
+      combatHost.innerHTML = '<p class="ok-copy">Campanha em construção. Ative a campanha para iniciar combates.</p>';
+      return;
+    }
     const active = await fetchActiveCombat({ campaignId: campaign.id });
     if (active.ok && active.data.active) {
       const log = await loadSessionLog(active.data.sessionId);

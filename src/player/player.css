@@ -1389,3 +1389,14 @@ body.ok-player-body {
 .ok-quest-form .ok-toolbar input[type="number"] {
   width: 90px;
 }
+
+.ok-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ok-campaign-card {
+  gap: 10px;
+}
