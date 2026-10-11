@@ -1435,3 +1435,9 @@ body.ok-player-body {
 .ok-item__title .ok-item__name {
   text-align: left;
 }
+
+/* Textos corridos ocupam toda a largura do painel (o design system limita a 68ch). */
+.ok-copy,
+.ok-helper {
+  max-width: none;
+}

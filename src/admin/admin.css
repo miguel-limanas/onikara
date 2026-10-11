@@ -802,3 +802,8 @@ textarea {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Textos corridos ocupam toda a largura do painel. */
+.ok-copy {
+  max-width: none;
+}
