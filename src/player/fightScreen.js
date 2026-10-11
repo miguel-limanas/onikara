@@ -230,9 +230,14 @@ export function mountFight(container, { driver, perspective = 'player', title, e
                   ${
                     canAct
                       ? `<ul class="ok-combat-action-list">${actions.map((action) => actionButton(action, state, ui.targetId)).join('')}</ul>`
-                      : '<p class="ok-copy">A tela mostra o próximo turno assim que ele chegar.</p>'
+                      : `<p class="ok-copy">${
+                          perspective === 'player' && active?.team === 'enemy'
+                            ? 'O mestre conduz os inimigos. Se ele estiver ausente, use o botão abaixo para o inimigo agir pela IA.'
+                            : 'A tela mostra o próximo turno assim que ele chegar.'
+                        }</p>`
                   }
                   <div class="ok-toolbar">
+                    ${!canAct && perspective === 'player' && active?.team === 'enemy' && driver.enemyTurn ? '<button class="ok-button ok-button--primary" type="button" data-enemy-turn>Executar turno do inimigo (IA)</button>' : ''}
                     ${canAct && perspective === 'master' && driver.suggest ? '<button class="ok-button" type="button" data-suggest>Usar sugestão da IA</button>' : ''}
                     ${masterWaiting ? '<button class="ok-button" type="button" data-skip>Pular turno do jogador</button>' : ''}
                     ${onLeave ? `<button class="ok-button" type="button" data-leave>${escapeHtml(leaveLabel)}</button>` : ''}
@@ -302,6 +307,24 @@ export function mountFight(container, { driver, perspective = 'player', title, e
           await run(move);
         } catch (error) {
           ui.message = error.message || 'Sem sugestão disponível.';
+          render();
+        }
+      });
+    }
+    const enemyTurn = container.querySelector('[data-enemy-turn]');
+    if (enemyTurn) {
+      enemyTurn.addEventListener('click', async () => {
+        if (ui.busy) return;
+        ui.busy = true;
+        enemyTurn.disabled = true;
+        try {
+          ui.message = '';
+          const result = await driver.enemyTurn();
+          ui.busy = false;
+          render(result.events);
+        } catch (error) {
+          ui.busy = false;
+          ui.message = error.message || 'Não foi possível executar o turno.';
           render();
         }
       });

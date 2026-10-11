@@ -15,6 +15,7 @@
 | Campanha e mestre | `node supabase/tests/campaignFlow.mjs` | função servindo; usuários de teste |
 | Recompensas, missões e recuperação | `node supabase/tests/rewardsFlow.mjs` | função servindo; usuários de teste |
 | Anti-trapaça (15 verificações) | `node supabase/tests/hardeningFlow.mjs` | usuário `outro.teste` sem personagem |
+| Combate de 2 jogadores sem travar (7 verificações) | `node supabase/tests/stuckEnemyFlow.mjs` | função servindo; `jogador.teste`, `outro.teste`, `master.teste` |
 
 Usuários de teste (todos `@onikara.local`, mesma senha de desenvolvimento): `jogador.teste` (personagem Aria Teste, Mago), `outro.teste` (sem personagem), `master.teste` (`app_role = master`, definido por SQL).
 
@@ -43,3 +44,8 @@ Usuários de teste (todos `@onikara.local`, mesma senha de desenvolvimento): `jo
 - A IA virou apoio ao mestre (D-19); no treino solo ela joga sozinha.
 - Recuperação ganhou tabela própria `recovery_rules` (versionada, com auditoria), ainda sem tela no admin.
 - `profiles.element_id` e `campaigns.medicine_dt` foram adicionados; o jogador não vê um combate encerrado depois que sai da tela.
+
+## Correção pós-entrega: combate preso no turno do inimigo
+
+- **Causa:** em sessões de campanha os inimigos só agiam quando o mestre agia por eles; contra o Boneco de Treino (passivo) ou com o mestre ausente, o turno do inimigo nunca andava.
+- **Correção:** o servidor passa sozinho o turno de inimigos passivos; a operação `enemy_turn` deixa o mestre ou qualquer participante executar o turno do inimigo pela IA (botão "Executar turno do inimigo (IA)"). O mestre continua conduzindo inimigos com IA quando está presente.
