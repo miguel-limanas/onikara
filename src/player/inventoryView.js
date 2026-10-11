@@ -66,6 +66,7 @@ export async function renderInventoryView(container, { profile }) {
     <div class="ok-inventory">
       <section class="ok-panel" aria-labelledby="equipment-title">
         <h2 id="equipment-title" class="ok-section-title">Equipamentos</h2>
+        <div class="ok-paperdoll-host" data-paperdoll></div>
         <ul class="ok-slot-list">${slots.map(slotMarkup).join('')}</ul>
       </section>
       <section class="ok-panel" aria-labelledby="items-title">

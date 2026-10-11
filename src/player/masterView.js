@@ -35,6 +35,16 @@ import { attachLive, mountFight } from './fightScreen.js';
 // Combates vencidos já fechados pelo mestre; sobrevive às atualizações parciais da tela.
 const dismissedSessions = new Set();
 
+const MASTER_TABS = [
+  ['visao', 'Visão geral'],
+  ['jogadores', 'Jogadores'],
+  ['missoes', 'Missões'],
+  ['inimigos', 'Inimigos'],
+  ['historico', 'Histórico'],
+  ['config', 'Configurações'],
+];
+const TAB_KEY = 'onikara:master-tab';
+
 function feedbackLine(node, message, tone = '') {
   if (!node) return;
   node.className = `ok-helper ${tone}`.trim();
@@ -68,7 +78,7 @@ function bindStorySuggest(root, getName) {
 function archivedMarkup(rows) {
   if (!rows.length) return '';
   return html`
-    <section class="ok-panel" aria-labelledby="archived-title">
+    <section class="ok-panel" aria-labelledby="archived-title" data-tab-panel="historico">
       <h2 id="archived-title" class="ok-section-title">Campanhas encerradas</h2>
       <ul class="ok-combat-enemies">
         ${rows
@@ -389,7 +399,10 @@ export async function renderMasterView(container, { session }) {
 
   container.innerHTML = html`
     <div class="ok-quests">
-      <section class="ok-panel" aria-labelledby="campaigns-title">
+      <nav class="ok-subtabs" role="tablist" aria-label="Seções do mestre">
+        ${MASTER_TABS.map(([id, label]) => `<button class="ok-subtab" type="button" role="tab" id="tab-${id}" data-tab="${id}" aria-selected="false">${label}</button>`).join('')}
+      </nav>
+      <section class="ok-panel" aria-labelledby="campaigns-title" data-tab-panel="visao">
         <h2 id="campaigns-title" class="ok-section-title">Campanhas</h2>
         <ul class="ok-combat-enemies">
           <li class="ok-combatant" data-overview>
@@ -404,17 +417,19 @@ export async function renderMasterView(container, { session }) {
             <p class="ok-helper">Criada em ${escapeHtml(formatDate(campaign.created_at))}</p>
           </li>
         </ul>
+        <h3 class="ok-combat__heading">Jogadores</h3>
+        <div data-overview-people></div>
         <p class="ok-copy" id="new-campaign-hint">Só pode haver uma campanha ativa por vez. Para criar outra, encerre esta em "Configurações da campanha".</p>
         <div class="ok-toolbar">
           <button class="ok-button" type="button" disabled aria-describedby="new-campaign-hint">Nova campanha</button>
           <button class="ok-button" type="button" data-goto-settings>Ir para configurações</button>
         </div>
       </section>
-      <section class="ok-panel" aria-labelledby="master-title">
+      <section class="ok-panel" aria-labelledby="master-title" data-tab-panel="visao">
         <h2 id="master-title" class="ok-section-title" data-campaign-title>Campanha · ${escapeHtml(campaign.name)}</h2>
         <div id="master-combat"></div>
       </section>
-      <section class="ok-panel" aria-labelledby="settings-title">
+      <section class="ok-panel" aria-labelledby="settings-title" data-tab-panel="config">
         <h2 id="settings-title" class="ok-section-title">Configurações da campanha</h2>
         <form class="ok-field" data-form="settings">
           <label for="campaign-name">Nome da campanha</label>
@@ -438,7 +453,7 @@ export async function renderMasterView(container, { session }) {
           <p class="ok-helper" role="status" aria-live="polite" data-feedback="end"></p>
         </div>
       </section>
-      <section class="ok-panel" aria-labelledby="members-title">
+      <section class="ok-panel" aria-labelledby="members-title" data-tab-panel="jogadores">
         <h2 id="members-title" class="ok-section-title">Jogadores</h2>
         <form class="ok-field ok-suggest" data-form="member" autocomplete="off">
           <label for="member-query">Convidar pelo nome do personagem ou e-mail</label>
@@ -449,19 +464,19 @@ export async function renderMasterView(container, { session }) {
         </form>
         <div data-people></div>
       </section>
-      <section class="ok-panel" aria-labelledby="quests-title">
+      <section class="ok-panel" aria-labelledby="quests-title" data-tab-panel="missoes">
         <h2 id="quests-title" class="ok-section-title">Missões</h2>
         <p class="ok-copy">Você conduz as missões: atribua ao jogador, confirme os objetivos e entregue a recompensa.</p>
         <p class="ok-helper" role="status" aria-live="polite" data-feedback="quests"></p>
         <div data-quests></div>
       </section>
-      <section class="ok-panel" aria-labelledby="enemies-title">
+      <section class="ok-panel" aria-labelledby="enemies-title" data-tab-panel="inimigos">
         <h2 id="enemies-title" class="ok-section-title">Inimigos liberados</h2>
         <p class="ok-copy">Só os inimigos liberados podem entrar em um combate da campanha.</p>
         ${enemiesMarkup(details)}
         <p class="ok-helper" role="status" aria-live="polite" data-feedback="enemies"></p>
       </section>
-      <section class="ok-panel" aria-labelledby="history-title">
+      <section class="ok-panel" aria-labelledby="history-title" data-tab-panel="historico">
         <h2 id="history-title" class="ok-section-title">Histórico de combates</h2>
         <div data-history></div>
       </section>
@@ -469,6 +484,33 @@ export async function renderMasterView(container, { session }) {
     </div>
   `;
   bindArchived(container);
+
+  function showTab(id) {
+    const valid = MASTER_TABS.some(([tab]) => tab === id) ? id : 'visao';
+    container.querySelectorAll('[data-tab-panel]').forEach((panel) => {
+      panel.hidden = panel.dataset.tabPanel !== valid;
+    });
+    container.querySelectorAll('[data-tab]').forEach((button) => {
+      const active = button.dataset.tab === valid;
+      button.setAttribute('aria-selected', String(active));
+      button.classList.toggle('is-active', active);
+    });
+    try {
+      sessionStorage.setItem(TAB_KEY, valid);
+    } catch {
+      // sessionStorage indisponível
+    }
+  }
+  container.querySelectorAll('[data-tab]').forEach((button) => {
+    button.addEventListener('click', () => showTab(button.dataset.tab));
+  });
+  let initialTab = 'visao';
+  try {
+    initialTab = sessionStorage.getItem(TAB_KEY) || 'visao';
+  } catch {
+    // sessionStorage indisponível
+  }
+  showTab(initialTab);
 
   const membersFeedback = container.querySelector('[data-feedback="members"]');
   const enemiesFeedback = container.querySelector('[data-feedback="enemies"]');
@@ -499,6 +541,22 @@ export async function renderMasterView(container, { session }) {
     const released = details.releasedEnemyIds.size;
     container.querySelector('[data-overview-enemies]').textContent = `${released} ${released === 1 ? 'inimigo liberado' : 'inimigos liberados'}`;
     container.querySelector('[data-overview-name]').textContent = campaign.name;
+    const people = [
+      ...details.members.map((row) => ({ profile: row.profile, status: 'accepted' })),
+      ...details.invitations.map((row) => ({ profile: row.profile, status: 'pending' })),
+    ];
+    container.querySelector('[data-overview-people]').innerHTML = people.length
+      ? `<ul class="ok-people-strip">${people
+          .map(
+            ({ profile, status }) => `<li class="ok-people-strip__item">
+              ${avatarMarkup({ src: details.avatars.get(profile.id) || null, name: profile.character_name, size: 'md' })}
+              <span><strong>${escapeHtml(profile.character_name)}</strong>
+              <span class="ok-helper">${escapeHtml(details.emails.get(profile.id) || '')}</span></span>
+              ${STATUS_ICONS[status]}
+            </li>`,
+          )
+          .join('')}</ul>`
+      : '<p class="ok-copy">Nenhum jogador ainda. Convide jogadores na aba Jogadores.</p>';
     const story = container.querySelector('[data-overview-story]');
     story.textContent = campaign.description || 'Ainda sem história. Escreva ou peça uma sugestão em "Configurações da campanha".';
   }
@@ -580,6 +638,7 @@ export async function renderMasterView(container, { session }) {
 
   bindStorySuggest(container.querySelector('[data-form="settings"]'), () => container.querySelector('#campaign-name').value);
   container.querySelector('[data-goto-settings]').addEventListener('click', () => {
+    showTab('config');
     container.querySelector('#settings-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 

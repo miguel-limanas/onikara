@@ -1272,3 +1272,65 @@ body.ok-player-body {
 .ok-quest-steps li.is-done {
   color: #4fbf6a;
 }
+
+/* Navegação do mestre ------------------------------------------------ */
+
+.ok-subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--player-line);
+}
+
+.ok-subtab {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ok-subtab:hover {
+  border-color: var(--player-red);
+}
+
+.ok-subtab.is-active {
+  border-color: var(--player-red);
+  background: rgba(200, 16, 46, 0.2);
+  color: #fff;
+}
+
+.ok-people-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.ok-people-strip__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--player-line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ok-people-strip__item > span {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.ok-people-strip__item .ok-status-icon {
+  flex: none;
+}
+
+.ok-people-strip__item .ok-helper {
+  overflow-wrap: anywhere;
+}
