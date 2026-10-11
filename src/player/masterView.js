@@ -1061,6 +1061,10 @@ export async function renderMasterView(container, { session }) {
       { table: 'campaign_members', filter: `campaign_id=eq.${campaign.id}` },
       { table: 'campaign_invitations', filter: `campaign_id=eq.${campaign.id}` },
       { table: 'combat_sessions', filter: `campaign_id=eq.${campaign.id}` },
+      // Estado dos jogadores (a RLS só entrega os da campanha do mestre).
+      { table: 'equipment' },
+      { table: 'character_status_effects' },
+      { table: 'profiles', event: 'UPDATE' },
     ],
     ({ table }) => {
       if (table === 'combat_sessions') {
