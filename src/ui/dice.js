@@ -46,6 +46,7 @@ export async function rollDiceEffect({ notation = '1d20', result, label = '' }) 
         ${finals.map(() => `<span class="ok-die ok-die--d${sides} is-rolling"><span class="ok-die__face">?</span></span>`).join('')}
       </div>
       <p class="ok-dice-total"></p>
+      <p class="ok-dice-hint" hidden>Toque para continuar</p>
     </div>`;
   if (label) overlay.querySelector('.ok-dice-label').textContent = label;
   document.body.appendChild(overlay);
@@ -76,7 +77,26 @@ export async function rollDiceEffect({ notation = '1d20', result, label = '' }) 
     faces[index].textContent = String(finals[index]);
   });
   total.textContent = count > 1 ? `Total ${finals.reduce((sum, value) => sum + value, 0)}` : '';
-  await wait(still ? 700 : 850);
+
+  // O resultado fica na tela até o jogador tocar (ou apertar Enter/Espaço); só fecha sozinho
+  // depois de bastante tempo, para não travar quem não interagir.
+  overlay.querySelector('.ok-dice-hint').hidden = false;
+  overlay.tabIndex = 0;
+  overlay.focus({ preventScroll: true });
+  await new Promise((resolve) => {
+    const done = () => {
+      overlay.removeEventListener('click', done);
+      overlay.removeEventListener('keydown', onKey);
+      clearTimeout(timer);
+      resolve();
+    };
+    const onKey = (event) => {
+      if (['Enter', ' ', 'Escape'].includes(event.key)) done();
+    };
+    const timer = setTimeout(done, 20000);
+    overlay.addEventListener('click', done);
+    overlay.addEventListener('keydown', onKey);
+  });
   overlay.classList.add('is-leaving');
   await wait(still ? 0 : 220);
   overlay.remove();
