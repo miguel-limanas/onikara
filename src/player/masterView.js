@@ -55,9 +55,9 @@ function feedbackLine(node, message, tone = '') {
 
 const STORY_TEMPLATES = [
   (name) =>
-    `Nas montanhas onde o último sol se apaga, ${name} nasce de um pacto quebrado entre clãs Oni. Os chifres antigos voltaram a sangrar mana e as fraquezas elementais deixaram de obedecer à razão: o fogo teme a água, a tempestade devora a terra, e ninguém sabe quem está reescrevendo as regras. O grupo chega ao refúgio sem aliados e com pouca mana. Cada combate revela um pedaço da verdade, e cada vitória cobra um preço que só o mestre conhece.`,
+    `${name} nasce de um pacto quebrado entre clãs Oni, nas montanhas onde o último sol se apaga. Os chifres antigos voltaram a sangrar mana e as fraquezas elementais deixaram de obedecer à razão: o fogo teme a água, a tempestade devora a terra, e ninguém sabe quem está reescrevendo as regras. O grupo chega sem aliados e com pouca mana. Cada combate revela um pedaço da verdade, e cada vitória cobra um preço que só o mestre conhece.`,
   (name) =>
-    `Em ${name}, uma aldeia de ferro e cinzas vive à sombra de um portão que ninguém ousa abrir. Dizem que, a cada lua, uma criatura cruza o portão cercada de brasas e não volta igual. Os aventureiros são os únicos que ainda sabem ler as fraquezas elementais dos monstros. A missão é simples de dizer e difícil de cumprir: descobrir quem está alimentando o portão antes que a próxima lua nasça.`,
+    `${name} é uma aldeia de ferro e cinzas que vive à sombra de um portão que ninguém ousa abrir. Dizem que, a cada lua, uma criatura cruza o portão cercada de brasas e não volta igual. Os aventureiros são os únicos que ainda sabem ler as fraquezas elementais dos monstros. A missão é simples de dizer e difícil de cumprir: descobrir quem está alimentando o portão antes que a próxima lua nasça.`,
   (name) =>
     `${name} começa com uma traição. O mestre dos clãs foi derrubado por um discípulo que roubou a Pedra de Mana e a quebrou em fragmentos espalhados pelo reino. Cada fragmento desperta um guardião elemental, e só quem dominar o equilíbrio entre fogo, água, tempestade e terra poderá reuni-los. Os jogadores são os últimos recrutas do refúgio: jovens, sem fama, mas com a mana certa para mudar o destino.`,
 ];
