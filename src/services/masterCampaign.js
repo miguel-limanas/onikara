@@ -142,7 +142,7 @@ export async function loadCampaignDetails(campaignId) {
     runSupabase((client) =>
       client
         .from('campaign_members')
-        .select('profile_id, joined_at, profile:profiles(id, character_name, level, class_id, race_id)')
+        .select('profile_id, joined_at, profile:profiles(id, character_name, level, xp, class_id, race_id, current_state)')
         .eq('campaign_id', campaignId)
         .order('joined_at'),
     ),
@@ -158,11 +158,44 @@ export async function loadCampaignDetails(campaignId) {
   for (const result of [members, released, granted, enemies, spells, classes, invitations]) {
     if (!result.ok) return { ok: false, data: null, error: result.error };
   }
+
+  // Estado dos jogadores: itens equipados e efeitos ativos (leitura liberada ao mestre).
+  const memberRows = members.data.filter((row) => row.profile);
+  const memberIds = memberRows.map((row) => row.profile.id);
+  let equipment = [];
+  let effects = [];
+  if (memberIds.length) {
+    const [equipmentResult, effectsResult, statusCatalog] = await Promise.all([
+      runSupabase((client) =>
+        client.from('equipment').select('profile_id, slot, inventory:inventory(quantity, item:items(*))').in('profile_id', memberIds),
+      ),
+      runSupabase((client) =>
+        client
+          .from('character_status_effects')
+          .select('profile_id, status_effect_id, stacks, remaining_turns')
+          .in('profile_id', memberIds),
+      ),
+      runSupabase((client) => client.from('status_effects').select('id, name')),
+    ]);
+    if (equipmentResult.ok) equipment = equipmentResult.data;
+    if (effectsResult.ok) {
+      const names = new Map((statusCatalog.ok ? statusCatalog.data : []).map((row) => [row.id, row.name]));
+      effects = effectsResult.data.map((row) => ({
+        profile_id: row.profile_id,
+        name: names.get(row.status_effect_id) || row.status_effect_id,
+        stacks: row.stacks,
+        remainingTurns: row.remaining_turns,
+      }));
+    }
+  }
+
   return {
     ok: true,
     error: null,
     data: {
-      members: members.data.filter((row) => row.profile),
+      members: memberRows,
+      equipment,
+      effects,
       releasedEnemyIds: new Set(released.data.map((row) => row.enemy_id)),
       granted: granted.data,
       enemies: enemies.data,

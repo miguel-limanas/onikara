@@ -256,6 +256,52 @@ async function renderArchivedCampaign(container, session, campaign) {
   renderCampaignHistory(container.querySelector('[data-history]'), campaign.id);
 }
 
+function stateBar(label, current, max, modifier = '') {
+  const safeMax = Math.max(1, Number(max) || 0);
+  const value = Math.max(0, Math.min(Number(current) || 0, safeMax));
+  const percent = Math.round((value / safeMax) * 100);
+  return `<div class="ok-stat-bar ${modifier}">
+    <div class="ok-stat-bar__label"><span>${escapeHtml(label)}</span><span>${value} / ${safeMax}</span></div>
+    <div class="ok-stat-bar__track" role="progressbar" aria-label="${escapeHtml(label)}" aria-valuemin="0" aria-valuemax="${safeMax}" aria-valuenow="${value}">
+      <span class="ok-stat-bar__fill" style="--value: ${percent}%"></span>
+    </div>
+  </div>`;
+}
+
+const SLOT_LABELS = { main_hand: 'Mão principal', body: 'Corpo', accessory_1: 'Acessório' };
+
+// HP, mana, nível, efeitos ativos e itens equipados de um jogador.
+function memberStateMarkup(details, profile) {
+  const state = profile.current_state || {};
+  const maxHp = state.max_hp ?? state.hp ?? 0;
+  const maxMana = state.max_mana ?? state.mana ?? 0;
+  const equipped = details.equipment.filter((row) => row.profile_id === profile.id && row.inventory?.item);
+  const effects = details.effects.filter((row) => row.profile_id === profile.id);
+  return `<div class="ok-member-state">
+    ${stateBar('HP', state.hp ?? maxHp, maxHp)}
+    ${maxMana > 0 ? stateBar('Mana', state.mana ?? maxMana, maxMana, 'ok-stat-bar--mana') : ''}
+    <p class="ok-chip-row">
+      <span class="ok-chip">Nível ${profile.level}</span>
+      <span class="ok-chip">XP ${profile.xp ?? 0}</span>
+      ${effects.length ? effects.map((effect) => `<span class="ok-badge is-warning">${escapeHtml(effect.name)}${effect.stacks > 1 ? ` x${effect.stacks}` : ''} · ${effect.remainingTurns}</span>`).join('') : '<span class="ok-helper">Sem efeitos ativos</span>'}
+    </p>
+    <div class="ok-equipped-row">
+      ${
+        equipped.length
+          ? equipped
+              .map(
+                (row) => `<span class="ok-equipped" title="${escapeHtml(SLOT_LABELS[row.slot] || row.slot)}: ${escapeHtml(row.inventory.item.name)}">
+                  ${itemAvatarMarkup({ item: row.inventory.item, size: 'md' })}
+                  <span><strong>${escapeHtml(row.inventory.item.name)}</strong><span class="ok-helper">${escapeHtml(SLOT_LABELS[row.slot] || row.slot)}</span></span>
+                </span>`,
+              )
+              .join('')
+          : '<span class="ok-helper">Nenhum item equipado.</span>'
+      }
+    </div>
+  </div>`;
+}
+
 const STATUS_ICONS = {
   accepted:
     '<span class="ok-status-icon is-accepted" title="Convite aceito"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor" opacity=".2"/><path d="M5.5 10.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Aceito</span>',
@@ -282,6 +328,7 @@ function membersMarkup(details) {
               ${details.emails.get(profile.id) ? `<span class="ok-helper ok-player-email">${escapeHtml(details.emails.get(profile.id))}</span>` : ''}
             </div>
           </div>
+          ${memberStateMarkup(details, profile)}
           <p class="ok-helper">Magias concedidas pelo mestre</p>
           ${
             granted.length
@@ -646,6 +693,8 @@ export async function renderMasterView(container, { session }) {
     details.invitations = fresh.data.invitations;
     details.avatars = fresh.data.avatars;
     details.emails = fresh.data.emails;
+    details.equipment = fresh.data.equipment;
+    details.effects = fresh.data.effects;
     renderPeople();
     questsPanel.refresh();
   }
@@ -1014,8 +1063,10 @@ export async function renderMasterView(container, { session }) {
       { table: 'combat_sessions', filter: `campaign_id=eq.${campaign.id}` },
     ],
     ({ table }) => {
-      if (table === 'combat_sessions') renderCampaignHistory(historyHost, campaign.id);
-      else refreshPeople();
+      if (table === 'combat_sessions') {
+        renderCampaignHistory(historyHost, campaign.id);
+        refreshPeople();
+      } else refreshPeople();
     },
     { alive: () => historyHost.isConnected },
   );
