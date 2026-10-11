@@ -40,6 +40,31 @@ function spawnParticles(kind, width, height) {
   });
 }
 
+// Parede de chamas na base da tela: línguas de fogo que ondulam e sobem.
+function drawFlames(context, width, height, time) {
+  const step = 16;
+  const columns = Math.ceil(width / step) + 1;
+  for (let layer = 0; layer < 2; layer += 1) {
+    const scale = layer === 0 ? 1 : 0.62;
+    for (let index = 0; index < columns; index += 1) {
+      const x = index * step + (layer ? step / 2 : 0);
+      const wobble = Math.sin(time / 210 + index * 0.7 + layer) * 0.5 + Math.sin(time / 130 + index * 1.9) * 0.5;
+      const flame = height * scale * (0.17 + 0.07 * wobble + 0.05 * Math.sin(index * 0.35 + time / 900));
+      const gradient = context.createLinearGradient(0, height, 0, height - flame);
+      gradient.addColorStop(0, layer ? 'rgba(255, 220, 90, 0.95)' : 'rgba(255, 140, 30, 0.9)');
+      gradient.addColorStop(0.45, layer ? 'rgba(255, 150, 30, 0.85)' : 'rgba(220, 50, 15, 0.8)');
+      gradient.addColorStop(1, 'rgba(140, 10, 10, 0)');
+      context.fillStyle = gradient;
+      context.beginPath();
+      context.moveTo(x - 13, height);
+      context.quadraticCurveTo(x - 7 + wobble * 7, height - flame * 0.55, x + wobble * 9, height - flame);
+      context.quadraticCurveTo(x + 7 + wobble * 7, height - flame * 0.55, x + 13, height);
+      context.closePath();
+      context.fill();
+    }
+  }
+}
+
 function runCanvas(canvas, kind, still) {
   const context = canvas.getContext('2d');
   const resize = () => {
@@ -61,6 +86,7 @@ function runCanvas(canvas, kind, still) {
   function tick(now) {
     const elapsed = now - started;
     context.clearRect(0, 0, canvas.width, canvas.height);
+    if (kind === 'defeat') drawFlames(context, canvas.width, canvas.height, elapsed);
     for (const particle of particles) {
       if (kind === 'victory') {
         particle.x += particle.vx;
@@ -72,7 +98,7 @@ function runCanvas(canvas, kind, still) {
         context.fillStyle = particle.color;
         context.fillRect(-particle.size / 2, -particle.size / 4, particle.size, particle.size / 2);
         context.restore();
-        if (particle.y > canvas.height + 20 && elapsed < 6000) {
+        if (particle.y > canvas.height + 20) {
           particle.y = -20;
           particle.x = Math.random() * canvas.width;
         }
@@ -80,7 +106,7 @@ function runCanvas(canvas, kind, still) {
         particle.x += particle.vx + Math.sin((particle.y + elapsed / 6) / 30) * 0.6;
         particle.y += particle.vy;
         particle.life -= 0.006;
-        if (particle.life <= 0 && elapsed < 6000) {
+        if (particle.life <= 0) {
           particle.y = canvas.height + 10;
           particle.x = Math.random() * canvas.width;
           particle.life = 0.6 + Math.random() * 0.8;
@@ -100,8 +126,8 @@ function runCanvas(canvas, kind, still) {
       }
     }
     if (still) return;
-    if (elapsed < 8000) frame = requestAnimationFrame(tick);
-    else context.clearRect(0, 0, canvas.width, canvas.height);
+    // Continua enquanto o aviso estiver aberto; o fechamento cancela o quadro.
+    frame = requestAnimationFrame(tick);
   }
 
   frame = requestAnimationFrame(tick);
