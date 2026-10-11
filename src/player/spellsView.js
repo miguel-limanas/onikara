@@ -1,4 +1,5 @@
 import { loadSpellbook, setSpellEquipped } from '../services/playerSpells.js';
+import { spellAvatarMarkup } from '../ui/avatar.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { rarityBadge } from './playerUi.js';
 
@@ -20,9 +21,12 @@ function spellMarkup(entry) {
 
   return html`
     <li class="ok-spell is-${state}" data-element="${escapeHtml(spell.element_id)}" data-spell="${escapeHtml(spell.id)}">
-      <div class="ok-item__head">
-        <strong class="ok-item__name">${escapeHtml(spell.name)}</strong>
-        <span class="ok-badge ${state === 'equipped' ? 'is-success' : ''}">${STATE_LABELS[state]}</span>
+      <div class="ok-item__head ok-item__head--avatar">
+        ${spellAvatarMarkup({ spell, size: 'lg' })}
+        <div class="ok-item__title">
+          <strong class="ok-item__name">${escapeHtml(spell.name)}</strong>
+          <span class="ok-badge ${state === 'equipped' ? 'is-success' : ''}">${STATE_LABELS[state]}</span>
+        </div>
       </div>
       <p class="ok-chip-row">
         <span class="ok-chip ok-chip--element">${escapeHtml(element)}</span>

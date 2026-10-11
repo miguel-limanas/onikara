@@ -28,7 +28,7 @@ import {
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
 import { renderCampaignHistory } from './campaignHistory.js';
-import { avatarMarkup, itemAvatarMarkup } from '../ui/avatar.js';
+import { avatarMarkup, itemAvatarMarkup, spellAvatarMarkup } from '../ui/avatar.js';
 import { watchChanges } from '../services/live.js';
 import { createAvatarResolver } from './combatAvatars.js';
 import { mountMasterQuests } from './masterQuestsPanel.js';
@@ -335,7 +335,7 @@ function membersMarkup(details) {
               ? `<p class="ok-chip-row">${granted
                   .map((item) => {
                     const spell = details.spells.find((candidate) => candidate.id === item.spell_id);
-                    return `<span class="ok-chip">${escapeHtml(spell?.name || item.spell_id)}
+                    return `<span class="ok-chip ok-item-line">${spellAvatarMarkup({ spell: spell || { name: item.spell_id }, size: 'sm' })}${escapeHtml(spell?.name || item.spell_id)}
                       <button class="ok-button" type="button" data-revoke="${escapeHtml(item.spell_id)}" aria-label="Retirar ${escapeHtml(spell?.name || item.spell_id)}">Retirar</button></span>`;
                   })
                   .join('')}</p>`

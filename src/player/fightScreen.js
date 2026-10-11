@@ -1,6 +1,7 @@
 import { previewElemental } from '../engine/combat/index.js';
 import { loadSessionLog, watchCombat } from '../services/playerCombat.js';
 import { escapeHtml, html } from '../ui/components.js';
+import { itemAvatarMarkup, spellAvatarMarkup } from '../ui/avatar.js';
 import { rollDiceEffect } from '../ui/dice.js';
 import { logMarkup } from './combatLog.js';
 import { showCombatEnd } from './endEffect.js';
@@ -121,6 +122,8 @@ function actionButton(action, state, targetId) {
         data-item="${escapeHtml(action.itemId || '')}"
         ${disabled ? 'disabled aria-disabled="true"' : ''}
       >
+        ${action.type === 'spell' ? spellAvatarMarkup({ spell: state.catalog.spells[action.spellId] || { name: action.label, element_id: action.elementId }, size: 'sm' }) : ''}
+        ${action.type === 'item' ? itemAvatarMarkup({ item: state.catalog.items[action.itemId] || { name: action.label }, size: 'sm' }) : ''}
         <span class="ok-combat-action__label">${escapeHtml(action.label)}</span>
         ${element}
       </button>

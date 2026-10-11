@@ -57,6 +57,26 @@ const ITEM_RARITY_COLORS = {
   legendary: '#e0a63a',
 };
 
+// Avatar de magia: imagem cadastrada (image_url) ou runa padrão na cor do elemento.
+const SPELL_GLYPHS = {
+  fire: '<path d="M50 14 C62 32 74 42 70 62 C67 78 58 86 50 86 C40 86 30 78 30 62 C30 50 38 44 42 34 C46 40 48 30 50 14Z" fill="#fff" opacity=".9"/>',
+  water: '<path d="M50 14 C66 38 74 50 74 62 C74 77 63 86 50 86 C37 86 26 77 26 62 C26 50 34 38 50 14Z" fill="#fff" opacity=".9"/>',
+  storm: '<path d="M56 12 L30 54 L48 54 L40 88 L72 44 L54 44Z" fill="#fff" opacity=".92"/>',
+  earth: '<path d="M18 80 L40 34 L52 56 L62 42 L84 80Z" fill="#fff" opacity=".9"/>',
+  nature: '<path d="M50 86 C50 60 30 50 24 22 C52 24 74 40 72 62 C70 76 60 80 50 86Z" fill="#fff" opacity=".9"/><path d="M50 86 L50 44" stroke="#14090c" stroke-width="4" opacity=".4"/>',
+  neutral: '<path d="M50 14 L60 42 L88 50 L60 58 L50 86 L40 58 L12 50 L40 42Z" fill="#fff" opacity=".9"/>',
+};
+
+export function spellAvatarMarkup({ spell = null, name = '', size = 'md' } = {}) {
+  const label = name || spell?.name || 'Magia';
+  const element = spell?.element_id || 'neutral';
+  const color = ELEMENT_COLORS[element] || ELEMENT_COLORS.neutral;
+  const inner = spell?.image_url
+    ? `<img src="${escapeHtml(spell.image_url)}" alt="" draggable="false" />`
+    : `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="${color}" opacity=".28"/><rect width="100" height="100" fill="#14090c" opacity=".55"/>${SPELL_GLYPHS[element] || SPELL_GLYPHS.neutral}</svg>`;
+  return `<span class="ok-avatar ok-avatar--item ok-avatar--${size} ${spell?.image_url ? '' : 'is-default'}" style="border-color:${color}" role="img" aria-label="${escapeHtml(label)}">${inner}</span>`;
+}
+
 // Avatar de item: imagem cadastrada (image_url) ou ícone padrão por tipo.
 export function itemAvatarMarkup({ item = null, name = '', size = 'md' } = {}) {
   const label = name || item?.name || 'Item';

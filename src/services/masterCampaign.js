@@ -149,7 +149,7 @@ export async function loadCampaignDetails(campaignId) {
     runSupabase((client) => client.from('campaign_enemies').select('enemy_id').eq('campaign_id', campaignId)),
     runSupabase((client) => client.from('campaign_member_spells').select('profile_id, spell_id').eq('campaign_id', campaignId)),
     runSupabase((client) => client.from('enemies').select('id, name, level, element_id, description').order('level').order('name')),
-    runSupabase((client) => client.from('spells').select('id, name, element_id, rarity, mana_cost').order('name')),
+    runSupabase((client) => client.from('spells').select('id, name, element_id, rarity, mana_cost, image_url').order('name')),
     runSupabase((client) => client.from('rpg_classes').select('id, name')),
     loadPendingInvitations(campaignId),
     runSupabase((client) => client.rpc('campaign_avatars', { p_campaign_id: campaignId })),

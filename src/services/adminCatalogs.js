@@ -64,6 +64,7 @@ export const catalogDefinitions = {
       { name: 'power', label: 'Poder', type: 'number', min: 0 },
       { name: 'target_type', label: 'Alvo', options: ['self', 'ally', 'enemy', 'all_allies', 'all_enemies'] },
       { name: 'effects', label: 'Efeitos', type: 'json', fallback: {} },
+      { name: 'image_url', label: 'Imagem (URL ou /caminho)' },
     ],
   },
   items: {
