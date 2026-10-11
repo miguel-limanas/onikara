@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Catálogo de Magias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --oni-black:#050505;--oni-black-900:#0d0d10;--oni-black-850:#141419;--oni-black-800:#1b1b21;
+  --oni-graphite:#282b31;--oni-crimson:#8b1118;--oni-crimson-600:#bd1b29;--oni-crimson-300:#f07782;
+  --oni-gold:#b19052;--oni-gold-300:#dec47c;--oni-ivory:#f3ede2;--oni-parchment:#e4d7c4;--oni-muted:#ada69c;
+  --oni-green:#4fb477;--oni-blue:#65a9ff;--oni-ice:#8bd7f5;--oni-shadow:#7761d9;
+  --font-brand-sober:"Cinzel",Georgia,serif;--font-ui:Inter,ui-sans-serif,system-ui,sans-serif;--font-mono:Consolas,"SFMono-Regular",monospace;
+  --admin-red:#c8102e;--admin-dark:#0d0d0d;--admin-panel:#181818;--admin-light:#f0ece4;
+  --line:rgba(228,215,196,.12);--line-gold:rgba(177,144,82,.3);
+  --el-fire:#ef6f3a;--el-water:var(--oni-blue);--el-storm:#e8d44d;--el-ice:var(--oni-ice);--el-shadow:var(--oni-shadow);--el-earth:#9a7a4e;
+  --rar-common:#c8c1b8;--rar-uncommon:var(--oni-green);--rar-rare:var(--oni-blue);--rar-epic:var(--oni-shadow);--rar-legendary:var(--oni-gold-300);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#080808;color:var(--admin-light);font-family:var(--font-ui);font-size:15px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--oni-gold-300);outline-offset:2px}
+
+/* ===== Casca da página de apresentação ===== */
+.deck{max-width:1480px;margin:0 auto;padding:28px 24px 64px}
+.deck h1{font-family:var(--font-brand-sober);font-size:1.5rem;letter-spacing:.06em;margin:0 0 4px;text-transform:uppercase}
+.deck h1 span{color:var(--admin-red)}
+.deck .lead{color:var(--oni-muted);margin:0 0 20px;max-width:78ch}
+.journey{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:22px}
+.journey article{background:var(--oni-black-850);border:1px solid var(--line);border-left:3px solid var(--oni-gold);padding:14px 16px;border-radius:6px}
+.journey h2{margin:0 0 6px;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--oni-gold-300);font-weight:600}
+.journey p{margin:0;font-size:.9rem;color:var(--oni-parchment)}
+.tabs{display:flex;gap:6px;margin:0 0 14px;flex-wrap:wrap}
+.tabs button{background:transparent;border:1px solid var(--line);padding:8px 16px;border-radius:6px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-family:var(--font-brand-sober);font-weight:700}
+.tabs button[aria-pressed="true"]{background:var(--oni-crimson-600);border-color:var(--oni-crimson-600);color:#fff}
+.stage{display:grid;gap:18px}
+.stage[data-view="antes"] .frame--depois,.stage[data-view="depois"] .frame--antes{display:none}
+.stage[data-view="lado"]{grid-template-columns:1fr 1fr}
+.frame-label{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--oni-muted)}
+.frame-label b{padding:2px 10px;border-radius:99px;font-weight:700;letter-spacing:.14em}
+.frame--antes .frame-label b{background:rgba(173,166,156,.16);color:var(--oni-parchment)}
+.frame--depois .frame-label b{background:rgba(79,180,119,.16);color:var(--oni-green)}
+.screen{border:1px solid var(--line-gold);border-radius:8px;overflow:hidden;background:var(--admin-dark);box-shadow:0 18px 44px rgba(0,0,0,.5);container-type:inline-size}
+.stage[data-view="lado"] .screen{font-size:.82rem}
+
+/* ===== Admin (réplica da identidade atual) ===== */
+.app{display:grid;grid-template-columns:200px 1fr;min-height:640px}
+.side{background:#0a0a0c;border-right:1px solid var(--line);padding-bottom:16px}
+.side__brand{padding:16px 16px 12px;border-bottom:1px solid var(--line);text-align:center}
+.side__brand img{width:84px;height:auto;display:block;margin:0 auto}
+.side__brand p{margin:4px 0 0;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--admin-red)}
+.nav-label{padding:14px 16px 4px;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--oni-muted)}
+.nav-i{display:flex;align-items:center;gap:10px;padding:8px 16px;border-left:3px solid transparent;color:var(--oni-muted);font-size:.86rem}
+.nav-i.on{color:var(--oni-ivory);border-left-color:var(--admin-red);background:linear-gradient(90deg,rgba(200,16,46,.24),transparent)}
+.nav-i em{margin-left:auto;font-style:normal;font-size:.62rem;padding:1px 7px;border:1px solid rgba(200,16,46,.4);background:rgba(200,16,46,.2);color:var(--oni-crimson-300)}
+.nav-i i{font-style:normal;width:14px;text-align:center;opacity:.8}
+.nav-group-toggle{display:flex;width:100%;justify-content:space-between;background:none;border:0;padding:14px 16px 4px;font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--oni-muted)}
+.main{min-width:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 24px;border-bottom:1px solid var(--line);font-size:.84rem;color:var(--oni-muted)}
+.top b{color:var(--oni-ivory);font-weight:500}
+.top .acts{display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:4px;border:1px solid var(--line);background:transparent;font-family:var(--font-brand-sober);font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.btn--primary{background:var(--oni-crimson-600);border-color:var(--oni-crimson-600);color:#fff}
+.btn--primary:hover{background:var(--oni-crimson)}
+.btn--ghost:hover{border-color:var(--line-gold)}
+.btn--danger{color:var(--oni-crimson-300);border-color:rgba(189,27,41,.45)}
+.page{padding:20px 24px 28px}
+.eyebrow{font-size:.68rem;letter-spacing:.24em;text-transform:uppercase;color:var(--oni-muted)}
+.title{font-family:var(--font-brand-sober);font-weight:700;font-size:1.5rem;letter-spacing:.04em;text-transform:uppercase;margin:2px 0 0}
+.title span{color:var(--admin-red)}
+.panel{background:var(--admin-panel);border:1px solid var(--line);border-radius:6px}
+.field-l{display:block;font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--oni-muted);margin-bottom:6px}
+.input,.select{background:#101012;border:1px solid var(--line);color:var(--oni-ivory);padding:9px 12px;border-radius:4px;font:inherit;font-size:.86rem;min-width:0}
+.input::placeholder{color:rgba(173,166,156,.6)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--oni-muted);font-weight:500;padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:12px;border-bottom:1px solid var(--line);font-size:.86rem;vertical-align:middle}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono)}
+.muted{color:var(--oni-muted)}
+
+/* ANTES: tabela como está hoje */
+.before .tbl-wrap{margin:0;padding:0 0 12px}
+.before .tbl-head{padding:14px 16px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.before .count{padding:14px 16px 6px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--oni-muted)}
+.before td{padding:18px 12px}
+.before .row-acts{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.before .row-acts .btn{justify-content:center;padding:8px 12px;font-size:.66rem}
+.before .scroll{overflow-x:auto}
+
+/* DEPOIS */
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.hdr .sub{color:var(--oni-muted);font-size:.86rem;margin:2px 0 0}
+.stats{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:transparent;font-size:.8rem;color:var(--oni-parchment)}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--c,var(--oni-muted))}
+.chip small{color:var(--oni-muted);font-size:.74rem}
+.chip[aria-pressed="true"]{border-color:var(--oni-gold-300);background:rgba(222,196,124,.1);color:var(--oni-ivory)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.bar .grow{flex:1;min-width:200px;position:relative}
+.bar .grow .input{width:100%;padding-left:34px}
+.bar .grow::before{content:"⌕";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--oni-muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{background:transparent;border:0;padding:7px 12px;font-size:.76rem;color:var(--oni-muted)}
+.seg button[aria-pressed="true"]{background:rgba(222,196,124,.14);color:var(--oni-ivory)}
+.after .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.after .layout.has-drawer{grid-template-columns:minmax(0,1fr) 320px}
+@container (max-width:900px){.after .layout.has-drawer{grid-template-columns:1fr}}
+.after tbody tr{cursor:pointer;position:relative}
+.after tbody tr:hover td{background:rgba(255,255,255,.025)}
+.after tbody tr.sel td{background:rgba(222,196,124,.07)}
+.after tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--oni-gold-300)}
+.after.compact td{padding:7px 12px}
+.name{display:flex;align-items:center;gap:10px}
+.name .glyph{width:30px;height:30px;border-radius:4px;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 18%,#111);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);color:var(--c);font-size:.9rem}
+.name strong{display:block;white-space:nowrap;font-weight:600;color:var(--oni-ivory);line-height:1.2}
+.name span{font-family:var(--font-mono);font-size:.72rem;color:var(--oni-muted)}
+.badge{display:inline-block;padding:2px 9px;border-radius:3px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid color-mix(in srgb,var(--c) 50%,transparent);color:var(--c);background:color-mix(in srgb,var(--c) 10%,transparent)}
+.power{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.power i{display:block;height:5px;width:56px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+.power i::after{content:"";display:block;height:100%;width:var(--w);background:var(--oni-crimson-600)}
+.kebab{background:none;border:1px solid transparent;border-radius:4px;padding:4px 8px;color:var(--oni-muted)}
+.kebab:hover{border-color:var(--line);color:var(--oni-ivory)}
+.menu{position:absolute;right:12px;top:calc(100% - 6px);z-index:4;background:#121216;border:1px solid var(--line-gold);border-radius:6px;box-shadow:0 26px 70px rgba(0,0,0,.6);min-width:170px;padding:6px;display:none}
+.menu.open{display:block}
+.menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:8px 10px;border-radius:4px;font-size:.84rem}
+.menu button:hover{background:rgba(255,255,255,.06)}
+.menu .danger{color:var(--oni-crimson-300)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:6px 0}
+.row-hint{margin:10px 2px 0;font-size:.78rem;color:var(--oni-muted)}
+.drawer{padding:0;position:sticky;top:12px}
+.drawer__hd{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawer__hd h3{margin:0;font-family:var(--font-brand-sober);font-size:1.05rem;letter-spacing:.04em}
+.drawer__hd small{color:var(--oni-muted);font-family:var(--font-mono)}
+.drawer section{padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawer h4{margin:0 0 10px;font-size:.64rem;letter-spacing:.22em;text-transform:uppercase;color:var(--oni-gold-300);font-weight:600}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid2 .full{grid-column:1/-1}
+.drawer .input,.drawer .select{width:100%}
+details.adv summary{cursor:pointer;font-size:.8rem;color:var(--oni-muted);list-style:none}
+details.adv summary::before{content:"▸ "}
+details.adv[open] summary::before{content:"▾ "}
+details.adv pre{margin:10px 0 0;background:#0a0a0c;border:1px solid var(--line);padding:10px;border-radius:4px;font-size:.74rem;color:var(--oni-parchment);overflow:auto}
+.drawer__ft{display:flex;justify-content:space-between;gap:8px;padding:12px 16px;background:rgba(0,0,0,.25)}
+.empty{text-align:center;padding:44px 20px}
+.empty .rune{font-size:2rem;color:var(--oni-gold);opacity:.8}
+.empty h3{font-family:var(--font-brand-sober);margin:8px 0 4px;font-size:1.05rem;letter-spacing:.04em}
+.empty p{margin:0 0 16px;color:var(--oni-muted);font-size:.88rem}
+.hidden{display:none!important}
+
+/* anotações */
+.notes{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.note{background:var(--oni-black-850);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.note h3{margin:0 0 6px;font-size:.9rem;display:flex;gap:10px;align-items:center}
+.note h3 .n{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--oni-crimson-600);color:#fff;font-size:.72rem;font-weight:700}
+.note p{margin:0 0 6px;font-size:.86rem;color:var(--oni-parchment)}
+.note .tag{display:inline-block;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;padding:1px 8px;border-radius:3px;margin-right:6px}
+.tag--up{background:rgba(79,180,119,.16);color:var(--oni-green)}
+.tag--down{background:rgba(173,166,156,.16);color:var(--oni-parchment)}
+.tag--hide{background:rgba(119,97,217,.18);color:#b3a4f5}
+.tag--new{background:rgba(222,196,124,.16);color:var(--oni-gold-300)}
+.tag--del{background:rgba(189,27,41,.2);color:var(--oni-crimson-300)}
+.foot{margin-top:22px;color:var(--oni-muted);font-size:.8rem}
+@media (max-width:1100px){.stage[data-view="lado"]{grid-template-columns:1fr}.app{grid-template-columns:150px 1fr}}
+@media (max-width:760px){.app{grid-template-columns:1fr}.side{display:none}.page{padding:16px}}
+@media (prefers-reduced-motion:no-preference){.menu{transition:opacity .15s}}
+</style>
+</head>
+<body>
+<div class="deck">
+  <h1>Catálogo de Magias <span>· antes e depois</span></h1>
+  <p class="lead">Proposta de reorganização de uma tela do painel administrativo. Mockup estático, sem alterar o admin real. Mantém a identidade atual (Brasa Oni, tokens <code>--oni-*</code>, logotipo original).</p>
+
+  <div class="journey">
+    <article><h2>Quem é</h2><p>A pessoa que mantém o conteúdo do jogo: ajusta magias, itens e regras para o combate ficar equilibrado.</p></article>
+    <article><h2>O que quer fazer aqui</h2><p>Achar uma magia, comparar com as vizinhas (custo, recarga, poder), corrigir um número e seguir. De vez em quando, criar uma nova.</p></article>
+    <article><h2>O que atrapalha hoje</h2><p>Duas ações “novo”, seletor de entidade repetido, ID e nomes técnicos em destaque, botões enormes por linha e tabela que corta à direita.</p></article>
+  </div>
+
+  <div class="tabs" role="group" aria-label="Visualização">
+    <button type="button" data-view="lado" aria-pressed="false">Lado a lado</button>
+    <button type="button" data-view="antes" aria-pressed="false">Antes</button>
+    <button type="button" data-view="depois" aria-pressed="true">Depois</button>
+  </div>
+
+  <div class="stage" id="stage" data-view="depois">
+
+    <!-- ================= ANTES ================= -->
+    <section class="frame frame--antes">
+      <p class="frame-label"><b>Antes</b> estado atual</p>
+      <div class="screen before">
+        <div class="app">
+          <aside class="side">
+            <div class="side__brand"><img src="../../.planning/design-system/assets/onikara-logotipo.png" alt="Onikara"><p>Painel administrativo</p></div>
+            <div class="nav-label">Visão geral</div>
+            <a class="nav-i"><i>▦</i>Dashboard</a><a class="nav-i"><i>≡</i>Auditoria<em>logs</em></a>
+            <div class="nav-label">Catálogos de jogo</div>
+            <a class="nav-i"><i>⚔</i>Classes</a><a class="nav-i"><i>☆</i>Raças</a><a class="nav-i"><i>✶</i>Elementos</a>
+            <a class="nav-i on"><i>♨</i>Magias<em>48</em></a><a class="nav-i"><i>▣</i>Itens &amp; Equipamentos</a><a class="nav-i"><i>△</i>Inimigos &amp; NPCs</a><a class="nav-i"><i>☑</i>Missões</a><a class="nav-i"><i>⚭</i>Vínculos</a>
+            <div class="nav-label">Balanceamento</div>
+            <a class="nav-i"><i>↗</i>Progressão &amp; XP</a><a class="nav-i"><i>✶</i>Mana</a><a class="nav-i"><i>⤢</i>Regras de Combate</a><a class="nav-i"><i>▣</i>Loot &amp; Raridade</a>
+          </aside>
+          <div class="main">
+            <div class="top"><span>Admin / <b>Magias</b></span><span class="acts"><button class="btn btn--primary">Novo conteúdo</button><button class="btn">Sair</button></span></div>
+            <div class="page">
+              <div class="eyebrow">Onikara Control</div>
+              <h2 class="title" style="margin-bottom:16px">Magias <span>Operacional</span></h2>
+              <div class="panel tbl-wrap">
+                <div class="tbl-head">
+                  <div><label class="field-l">Entidade</label><select class="select"><option>Magias</option></select></div>
+                  <div><label class="field-l">Busca</label><input class="input" placeholder="Filtrar registros"></div>
+                  <button class="btn btn--primary">Novo registro</button>
+                </div>
+                <div class="count">Magias: 8 registro(s)</div>
+                <div class="scroll">
+                <table>
+                  <thead><tr><th>ID</th><th>Name</th><th>Element_id</th><th>Rarity</th><th>Mana_cost</th><th>Cooldown_turns</th><th>Power</th><th>Target_type</th><th>Ações</th></tr></thead>
+                  <tbody>
+                    <tr><td>ember-strike</td><td>Golpe de Brasa</td><td>fire</td><td>common</td><td>12</td><td>1</td><td>24</td><td>enemy</td><td><div class="row-acts"><button class="btn">Editar</button><button class="btn btn--danger">Excluir</button></div></td></tr>
+                    <tr><td>fireball</td><td>Bola de Fogo</td><td>fire</td><td>uncommon</td><td>24</td><td>2</td><td>42</td><td>enemy</td><td><div class="row-acts"><button class="btn">Editar</button><button class="btn btn--danger">Excluir</button></div></td></tr>
+                    <tr><td>water-veil</td><td>Véu de Água</td><td>water</td><td>common</td><td>14</td><td>2</td><td>0</td><td>enemy</td><td><div class="row-acts"><button class="btn">Editar</button><button class="btn btn--danger">Excluir</button></div></td></tr>
+                    <tr><td>tidal-cut</td><td>Corte da Maré</td><td>water</td><td>uncommon</td><td>20</td><td>2</td><td>34</td><td>enemy</td><td><div class="row-acts"><button class="btn">Editar</button><button class="btn btn--danger">Excluir</button></div></td></tr>
+                  </tbody>
+                </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DEPOIS ================= -->
+    <section class="frame frame--depois">
+      <p class="frame-label"><b>Depois</b> proposta</p>
+      <div class="screen after" id="after">
+        <div class="app">
+          <aside class="side">
+            <div class="side__brand"><img src="../../.planning/design-system/assets/onikara-logotipo.png" alt="Onikara"><p>Painel administrativo</p></div>
+            <a class="nav-i" style="margin-top:8px"><i>▦</i>Dashboard</a><a class="nav-i"><i>≡</i>Auditoria</a>
+            <button class="nav-group-toggle" type="button" aria-expanded="true"><span>Catálogos de jogo</span><span>▾</span></button>
+            <a class="nav-i"><i>⚔</i>Classes</a><a class="nav-i"><i>☆</i>Raças</a><a class="nav-i"><i>✶</i>Elementos</a>
+            <a class="nav-i on"><i>♨</i>Magias<em>8</em></a><a class="nav-i"><i>▣</i>Itens</a><a class="nav-i"><i>△</i>Inimigos &amp; NPCs</a><a class="nav-i"><i>☑</i>Missões</a><a class="nav-i"><i>⚭</i>Vínculos</a>
+            <button class="nav-group-toggle" type="button" aria-expanded="false"><span>Balanceamento</span><span>▸</span></button>
+          </aside>
+          <div class="main">
+            <div class="top"><span>Catálogos / <b>Magias</b></span><span class="acts"><span class="muted">admin@onikara</span><button class="btn btn--ghost">Sair</button></span></div>
+            <div class="page">
+              <div class="hdr">
+                <div>
+                  <div class="eyebrow">Catálogo de jogo</div>
+                  <h2 class="title">Magias <span id="countTitle">· 8</span></h2>
+                  <p class="sub">Clique em uma magia para ajustar. Alterações valem para todo o jogo.</p>
+                </div>
+                <button class="btn btn--primary" id="btnNew">+ Nova magia</button>
+              </div>
+
+              <div class="stats" id="rarityChips" aria-label="Filtrar por raridade">
+                <button class="chip" type="button" data-r="all" aria-pressed="true">Todas <small>8</small></button>
+                <button class="chip" type="button" data-r="common" style="--c:var(--rar-common)" aria-pressed="false"><span class="dot"></span>Comum <small>3</small></button>
+                <button class="chip" type="button" data-r="uncommon" style="--c:var(--rar-uncommon)" aria-pressed="false"><span class="dot"></span>Incomum <small>3</small></button>
+                <button class="chip" type="button" data-r="rare" style="--c:var(--rar-rare)" aria-pressed="false"><span class="dot"></span>Rara <small>1</small></button>
+                <button class="chip" type="button" data-r="epic" style="--c:var(--rar-epic)" aria-pressed="false"><span class="dot"></span>Épica <small>1</small></button>
+              </div>
+
+              <div class="bar">
+                <div class="grow"><input class="input" id="q" placeholder="Buscar por nome ou ID" aria-label="Buscar magias"></div>
+                <select class="select" id="el" aria-label="Elemento"><option value="">Todos os elementos</option><option value="fire">Fogo</option><option value="water">Água</option><option value="storm">Tempestade</option><option value="ice">Gelo</option><option value="shadow">Sombra</option></select>
+                <div class="seg" role="group" aria-label="Densidade"><button type="button" data-d="cozy" aria-pressed="true">Confortável</button><button type="button" data-d="compact" aria-pressed="false">Compacta</button></div>
+              </div>
+
+              <div class="layout has-drawer" id="layout">
+                <div>
+                  <div class="panel" style="overflow:visible">
+                    <table id="tbl">
+                      <thead><tr><th>Magia</th><th>Elemento</th><th>Raridade</th><th class="num">Mana</th><th class="num">Recarga</th><th class="num">Poder</th><th>Alvo</th><th style="width:44px"><span class="sr" style="position:absolute;left:-9999px">Ações</span></th></tr></thead>
+                      <tbody id="rows"></tbody>
+                    </table>
+                    <div class="empty hidden" id="empty">
+                      <div class="rune">♨</div>
+                      <h3>Nenhuma magia encontrada</h3>
+                      <p id="emptyMsg">Nenhuma magia combina com a busca e os filtros atuais.</p>
+                      <button class="btn" id="clear" type="button">Limpar filtros</button>
+                    </div>
+                  </div>
+                  <p class="row-hint">As colunas técnicas (ID, efeitos em JSON, status) ficam dentro do painel da magia. Ações destrutivas ficam no menu ⋯.</p>
+                </div>
+
+                <aside class="panel drawer" id="drawer" aria-label="Editar magia">
+                  <div class="drawer__hd"><div><h3 id="dName">Bola de Fogo</h3><small id="dId">fireball</small></div><button class="kebab" id="closeDrawer" aria-label="Fechar painel">✕</button></div>
+                  <section><h4>Identidade</h4>
+                    <div class="grid2">
+                      <div class="full"><label class="field-l">Nome</label><input class="input" id="fName" value="Bola de Fogo"></div>
+                      <div><label class="field-l">Elemento</label><select class="select"><option>Fogo</option></select></div>
+                      <div><label class="field-l">Raridade</label><select class="select"><option>Incomum</option></select></div>
+                    </div>
+                  </section>
+                  <section><h4>Custo e uso</h4>
+                    <div class="grid2">
+                      <div><label class="field-l">Custo de mana</label><input class="input" type="number" value="24"></div>
+                      <div><label class="field-l">Recarga (turnos)</label><input class="input" type="number" value="2"></div>
+                      <div><label class="field-l">Poder</label><input class="input" type="number" value="42"></div>
+                      <div><label class="field-l">Alvo</label><select class="select"><option>Inimigo</option></select></div>
+                    </div>
+                  </section>
+                  <section>
+                    <details class="adv"><summary>Avançado: status e efeitos (JSON)</summary>
+                      <pre>{
+  "burn": { "chance": 0.35, "turns": 2 }
+}</pre>
+                    </details>
+                  </section>
+                  <div class="drawer__ft"><button class="btn btn--primary" type="button">Salvar</button><button class="btn btn--ghost" type="button">Cancelar</button></div>
+                </aside>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="notes">
+    <div class="note"><h3><span class="n">1</span>Uma única ação principal</h3>
+      <p><span class="tag tag--up">Sobe</span>“+ Nova magia” fica no cabeçalho da página, com o nome do que cria.</p>
+      <p><span class="tag tag--del">Some</span>“Novo conteúdo” (topo) e “Novo registro” (tabela) competiam e não diziam o que criavam.</p></div>
+    <div class="note"><h3><span class="n">2</span>Seletor de entidade removido</h3>
+      <p><span class="tag tag--del">Some</span>A barra lateral já escolhe o catálogo; o seletor repetia a mesma decisão e deixava a busca em segundo plano.</p></div>
+    <div class="note"><h3><span class="n">3</span>Busca e filtros logo acima da lista</h3>
+      <p><span class="tag tag--up">Sobe</span>Busca em largura total, filtro por elemento e chips de raridade com contagem. Achar uma magia vira digitar ou tocar um chip.</p></div>
+    <div class="note"><h3><span class="n">4</span>Nome primeiro, ID depois</h3>
+      <p><span class="tag tag--down">Desce</span>O ID técnico vira texto secundário sob o nome, com o ícone do elemento colorido. Quem escaneia lê “Bola de Fogo”, não <code>fireball</code>.</p></div>
+    <div class="note"><h3><span class="n">5</span>Colunas pensadas para comparar</h3>
+      <p>Mana, recarga e poder alinhados à direita com números tabulares; poder ganha uma barra curta. Elemento e raridade viram badges coloridos com os tokens existentes. Cabeçalhos em pt-BR, sem <code>snake_case</code>.</p></div>
+    <div class="note"><h3><span class="n">6</span>Linha inteira é “Editar”</h3>
+      <p><span class="tag tag--hide">Atrás de ação</span>Editar e Excluir deixam de ocupar duas colunas de botões gigantes. Clicar na linha abre o painel; o menu ⋯ guarda Duplicar e Excluir (com confirmação).</p></div>
+    <div class="note"><h3><span class="n">7</span>Editar sem sair da lista</h3>
+      <p><span class="tag tag--new">Novo</span>Painel lateral agrupa em Identidade e Custo e uso. O JSON de efeitos fica recolhido em “Avançado”. A pessoa vê a magia vizinha enquanto ajusta o número.</p></div>
+    <div class="note"><h3><span class="n">8</span>Menos ruído lateral</h3>
+      <p><span class="tag tag--down">Desce</span>Balanceamento e Plataforma começam recolhidos. O contador do menu passa a mostrar o total real do catálogo e “Itens &amp; Equipamentos” vira “Itens” para não quebrar linha.</p></div>
+    <div class="note"><h3><span class="n">9</span>Estado vazio útil</h3>
+      <p>Filtre por <em>Tempestade</em> + <em>Épica</em> ou busque “xyz” para ver: mensagem clara e botão “Limpar filtros”. Com catálogo vazio, o botão vira “Criar a primeira magia”.</p></div>
+    <div class="note"><h3><span class="n">10</span>Densidade sob controle</h3>
+      <p>Confortável para revisar; Compacta para varrer dezenas de magias. A escolha é da pessoa e não esconde nenhuma coluna.</p></div>
+  </div>
+
+  <p class="foot">Mockup estático: os dados são os da seed local; a lógica de filtros, painel e menu é só demonstração visual. O mesmo padrão serve para Itens, Inimigos, Missões e Raças, que hoje compartilham a tela genérica.</p>
+</div>
+
+<script>
+(function(){
+  var spells=[
+    {id:'ember-strike',name:'Golpe de Brasa',el:'fire',elN:'Fogo',r:'common',rN:'Comum',mana:12,cd:1,pow:24,t:'Inimigo'},
+    {id:'fireball',name:'Bola de Fogo',el:'fire',elN:'Fogo',r:'uncommon',rN:'Incomum',mana:24,cd:2,pow:42,t:'Inimigo'},
+    {id:'water-veil',name:'Véu de Água',el:'water',elN:'Água',r:'common',rN:'Comum',mana:14,cd:2,pow:0,t:'Aliado'},
+    {id:'tidal-cut',name:'Corte da Maré',el:'water',elN:'Água',r:'uncommon',rN:'Incomum',mana:20,cd:2,pow:34,t:'Inimigo'},
+    {id:'spark',name:'Centelha',el:'storm',elN:'Tempestade',r:'common',rN:'Comum',mana:10,cd:1,pow:22,t:'Inimigo'},
+    {id:'frost-shard',name:'Estilhaço Gélido',el:'ice',elN:'Gelo',r:'uncommon',rN:'Incomum',mana:22,cd:2,pow:36,t:'Inimigo'},
+    {id:'shadow-bind',name:'Elo Sombrio',el:'shadow',elN:'Sombra',r:'rare',rN:'Rara',mana:30,cd:3,pow:48,t:'Inimigo'},
+    {id:'oni-roar',name:'Rugido Oni',el:'fire',elN:'Fogo',r:'epic',rN:'Épica',mana:46,cd:4,pow:80,t:'Todos os inimigos'}
+  ];
+  var glyph={fire:'♨',water:'≈',storm:'ϟ',ice:'❄',shadow:'◐'};
+  var state={r:'all',el:'',q:'',sel:'fireball'};
+  var $=function(s,c){return(c||document).querySelector(s)};
+  var rows=$('#rows'),empty=$('#empty'),tbl=$('#tbl'),layout=$('#layout'),after=$('#after');
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function render(){
+    var q=state.q.trim().toLowerCase();
+    var list=spells.filter(function(s){
+      return (state.r==='all'||s.r===state.r)&&(!state.el||s.el===state.el)&&(!q||s.name.toLowerCase().indexOf(q)>-1||s.id.indexOf(q)>-1);
+    });
+    $('#countTitle').textContent='· '+list.length;
+    rows.innerHTML=list.map(function(s){
+      var elc='var(--el-'+s.el+')',rc='var(--rar-'+s.r+')';
+      return '<tr data-id="'+s.id+'" class="'+(s.id===state.sel?'sel':'')+'">'+
+        '<td><div class="name"><span class="glyph" style="--c:'+elc+'">'+glyph[s.el]+'</span><div><strong>'+esc(s.name)+'</strong><span>'+s.id+'</span></div></div></td>'+
+        '<td><span class="badge" style="--c:'+elc+'">'+s.elN+'</span></td>'+
+        '<td><span class="badge" style="--c:'+rc+'">'+s.rN+'</span></td>'+
+        '<td class="num">'+s.mana+'</td><td class="num">'+s.cd+'</td>'+
+        '<td class="num"><div class="power"><span>'+s.pow+'</span><i style="--w:'+Math.min(100,s.pow)+'%"></i></div></td>'+
+        '<td class="muted">'+s.t+'</td>'+
+        '<td style="position:relative"><button class="kebab" type="button" aria-label="Mais ações" data-k="'+s.id+'">⋯</button>'+
+        '<div class="menu" data-m="'+s.id+'"><button type="button">Editar</button><button type="button">Duplicar</button><hr><button type="button" class="danger">Excluir…</button></div></td></tr>';
+    }).join('');
+    var none=list.length===0;
+    tbl.classList.toggle('hidden',none);empty.classList.toggle('hidden',!none);
+  }
+  function openDrawer(id){
+    var s=spells.filter(function(x){return x.id===id})[0];if(!s)return;
+    state.sel=id;$('#dName').textContent=s.name;$('#dId').textContent=s.id;$('#fName').value=s.name;
+    layout.classList.add('has-drawer');render();
+  }
+  rows.addEventListener('click',function(e){
+    var k=e.target.closest('[data-k]');
+    if(k){var m=rows.querySelector('[data-m="'+k.dataset.k+'"]');var was=m.classList.contains('open');
+      rows.querySelectorAll('.menu.open').forEach(function(x){x.classList.remove('open')});if(!was)m.classList.add('open');e.stopPropagation();return}
+    if(e.target.closest('.menu')){e.target.closest('.menu').classList.remove('open');return}
+    var tr=e.target.closest('tr');if(tr)openDrawer(tr.dataset.id);
+  });
+  document.addEventListener('click',function(e){if(!e.target.closest('.menu')&&!e.target.closest('[data-k]'))rows.querySelectorAll('.menu.open').forEach(function(x){x.classList.remove('open')})});
+  $('#rarityChips').addEventListener('click',function(e){
+    var b=e.target.closest('.chip');if(!b)return;state.r=b.dataset.r;
+    this.querySelectorAll('.chip').forEach(function(c){c.setAttribute('aria-pressed',c===b)});render();
+  });
+  $('#el').addEventListener('change',function(){state.el=this.value;render()});
+  $('#q').addEventListener('input',function(){state.q=this.value;render()});
+  $('#clear').addEventListener('click',function(){
+    state={r:'all',el:'',q:'',sel:state.sel};$('#q').value='';$('#el').value='';
+    document.querySelectorAll('#rarityChips .chip').forEach(function(c){c.setAttribute('aria-pressed',c.dataset.r==='all')});render();
+  });
+  $('#closeDrawer').addEventListener('click',function(){layout.classList.remove('has-drawer');state.sel='';render()});
+  $('#btnNew').addEventListener('click',function(){state.sel='';$('#dName').textContent='Nova magia';$('#dId').textContent='novo';$('#fName').value='';layout.classList.add('has-drawer');render()});
+  document.querySelectorAll('.seg button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('.seg button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    after.classList.toggle('compact',b.dataset.d==='compact');
+  })});
+  document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){
+    document.querySelectorAll('.tabs button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});
+    $('#stage').dataset.view=b.dataset.view;
+  })});
+  render();
+})();
+</script>
+</body>
+</html>

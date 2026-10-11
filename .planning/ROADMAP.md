@@ -315,10 +315,21 @@ Linha de pesquisa visual:
 
 **Plans**:
 
-- [ ] 06-01: Implementar métricas operacionais e relatórios básicos de balanceamento.
-- [ ] 06-02: Implementar auditoria visual, histórico de ações e suporte a recuperação de estados problemáticos.
-- [ ] 06-03: Realizar revisão UI/UX, acessibilidade, responsividade e testes de fluxo completo.
-- [ ] 06-04: Atualizar documentação de desenvolvimento, operação local e dados seed.
+**Wave 1**
+
+- [ ] 06-01: Métricas operacionais no admin (ADMIN-04): funções SQL de agregação e tela "Métricas".
+- [ ] 06-02: Balanceamento sem alterar números: tela da regra de recuperação e relatório de simulação inimigo x classe x nível.
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 06-03: Suporte mutável por RPC auditada (item, XP, restaurar, encerrar sessão travada, reprocessar recompensa) e auditoria legível.
+- [ ] 06-04: Conteúdo do mestre (inimigos e magias da própria campanha) e campo de imagem para inimigos. Depende das respostas Q2 e Q3.
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 06-05: Revisão de acessibilidade e responsividade, pendências da Fase 5, UAT dos fluxos críticos e guia de desenvolvimento.
+
+Contexto, escopo ajustado ao que já foi entregue e perguntas abertas: `.planning/phases/06-observabilidade-suporte-e-polimento/` (`06-CONTEXT.md`, `06-QUESTIONS.md`).
 
 ---
 
@@ -334,4 +345,4 @@ Phases execute in numeric order, with Phase 2 allowed to overlap Phase 1 after r
 | 3. Área de Administração | v1.0 Admin/Player Foundation | 4/4 | Complete    | 2026-05-24 |
 | 4. Área do Jogador | v1.0 Player MVP | 4/4 | Complete | 2026-10-10 |
 | 5. Combate Interativo e Realtime | v1.0 Player MVP | 8/8 | Implemented (sem UAT formal) | 2026-10-10 |
-| 6. Observabilidade, Suporte e Polimento | v1.0 Hardening | 0/4 | Not started | - |
+| 6. Observabilidade, Suporte e Polimento | v1.0 Hardening | 0/5 | Planejada | - |
