@@ -7,7 +7,6 @@
 //   act      – ação (`move`) do jogador na própria vez; o mestre age pelos inimigos
 //   suggest  – o mestre pede a sugestão da IA para o inimigo da vez
 //   abandon  – encerra o combate (jogador solo ou mestre)
-//   enemy_turn – mestre ausente: o mestre ou qualquer jogador da sessão executa o turno do inimigo pela IA
 //   rewards_preview / rewards_award – o mestre revisa e concede XP e itens de uma vitória
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import {
@@ -252,21 +251,6 @@ async function loadCampaignSession(admin: any, campaignId: string) {
 }
 
 // Sessão por id para quem participa (jogador/mestre), mesmo depois de encerrada.
-// Inimigos passivos (ex.: Boneco de Treino) não tomam decisões: o servidor passa o turno deles sozinho.
-// Isso evita travar a campanha quando só há alvos de treino; inimigos com IA continuam com o mestre.
-function settlePassive(state: any) {
-  let current = state;
-  const events: any[] = [];
-  for (let steps = 0; steps < 50 && current.status === 'active'; steps += 1) {
-    const active = getActiveParticipant(current);
-    if (active.team !== 'enemy' || active.behavior?.strategy !== 'passive') break;
-    const step = applyAction(current, { type: 'pass', actorId: active.id });
-    current = step.state;
-    events.push(...step.events);
-  }
-  return { state: current, events };
-}
-
 // Encerrou? grava HP/mana no perfil (D-10) e, no treino solo, concede as recompensas na hora.
 async function afterPersist(admin: any, session: any, state: any, userId: string) {
   if (state.status === 'active') return;
@@ -490,9 +474,7 @@ async function startCampaign(request: Request, admin: any, user: any, body: any)
     catalog: buildCatalog(shared.rows),
     participants: [...players, ...enemies],
   });
-  const settledStart = settlePassive(setup.state);
-  const state = settledStart.state;
-  const startEvents = [...setup.events, ...settledStart.events];
+  const state = setup.state;
 
   const created: any = await must(
     admin
@@ -511,11 +493,11 @@ async function startCampaign(request: Request, admin: any, user: any, body: any)
   );
   try {
     await insertParticipants(admin, created.id, state);
-    const version = await persist(admin, created.id, 0, state, startEvents);
+    const version = await persist(admin, created.id, 0, state, setup.events);
     return json(request, 200, {
       ok: true,
       resumed: false,
-      ...publicView({ ...created, version }, state, viewerFor(state, null, true), startEvents),
+      ...publicView({ ...created, version }, state, viewerFor(state, null, true), setup.events),
     });
   } catch (error) {
     await admin.from('combat_sessions').delete().eq('id', created.id);
@@ -573,38 +555,10 @@ async function act(request: Request, admin: any, user: any, profile: any, body: 
 
   const step = applyAction(state, cleanMove(body.move, actorId));
   // Em sessões de campanha o mestre conduz os inimigos (D-19); no treino solo a IA joga.
-  const settled = session.campaign_id ? settlePassive(step.state) : runUntilPlayerTurn(step.state);
+  const settled = session.campaign_id ? { state: step.state, events: [] } : runUntilPlayerTurn(step.state);
   const events = [...step.events, ...settled.events];
   const version = await persist(admin, session.id, session.version, settled.state, events);
   await afterPersist(admin, session, settled.state, user.id);
-  return json(request, 200, { ok: true, ...publicView({ ...session, version }, settled.state, viewer, events) });
-}
-
-// Mestre ausente: o mestre ou qualquer participante executa o turno do inimigo com a IA do motor.
-async function enemyTurn(request: Request, admin: any, user: any, profile: any, body: any) {
-  let sessionId = body.sessionId ? String(body.sessionId) : '';
-  if (!sessionId && body.campaignId) {
-    const active = await loadCampaignSession(admin, String(body.campaignId));
-    sessionId = active?.session.id || '';
-  }
-  if (!sessionId) return fail(request, 404, 'no_session', 'Combate não encontrado ou já encerrado.');
-
-  const found: any = await loadSessionForViewer(admin, user, profile, sessionId);
-  if (!found) return fail(request, 403, 'not_participant', 'Você não participa deste combate.');
-  const { session, state } = found;
-  if (session.status !== 'active') return fail(request, 404, 'no_session', 'O combate já terminou.');
-
-  const active = getActiveParticipant(state);
-  if (active.team !== 'enemy') {
-    return fail(request, 422, 'not_enemy_turn', 'Não é a vez de um inimigo.');
-  }
-
-  const step = applyAction(state, chooseEnemyAction(state, active.id));
-  const settled = settlePassive(step.state);
-  const events = [...step.events, ...settled.events];
-  const version = await persist(admin, session.id, session.version, settled.state, events);
-  await afterPersist(admin, session, settled.state, user.id);
-  const viewer = viewerFor(settled.state, profile, found.isMaster);
   return json(request, 200, { ok: true, ...publicView({ ...session, version }, settled.state, viewer, events) });
 }
 
@@ -749,8 +703,6 @@ Deno.serve(async (request: Request) => {
         return await act(request, admin, user, profile, body);
       case 'suggest':
         return await suggest(request, admin, user, body);
-      case 'enemy_turn':
-        return await enemyTurn(request, admin, user, profile, body);
       case 'abandon':
         return await abandon(request, admin, user, profile, body);
       case 'rewards_preview':

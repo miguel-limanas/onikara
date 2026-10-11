@@ -219,19 +219,6 @@ export function createRemoteDriver(view, { log = [], campaignId = null } = {}) {
       events = events.concat(fresh);
       return { state: current.state, events: fresh };
     },
-    // Mestre ausente: qualquer participante executa o turno do inimigo com a IA do servidor.
-    async enemyTurn() {
-      const result = await callCombat({ op: 'enemy_turn', sessionId: current.sessionId, campaignId });
-      if (!result.ok) {
-        const error = new Error(result.error?.message || 'Não foi possível executar o turno.');
-        error.code = result.error?.code;
-        throw error;
-      }
-      current = result.data;
-      const fresh = result.data.events || [];
-      events = events.concat(fresh);
-      return { state: current.state, events: fresh };
-    },
     async suggest() {
       const result = await callCombat({ op: 'suggest', campaignId });
       if (!result.ok) throw new Error(result.error?.message || 'Sem sugestão disponível.');
