@@ -807,3 +807,7 @@ textarea {
 .ok-copy {
   max-width: none;
 }
+
+[hidden] {
+  display: none !important;
+}

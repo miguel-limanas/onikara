@@ -1627,3 +1627,8 @@ body.ok-player-body {
 .ok-token__figure {
   margin-bottom: 10px;
 }
+
+/* O atributo hidden sempre vence regras de display dos componentes. */
+[hidden] {
+  display: none !important;
+}
