@@ -859,6 +859,7 @@ export async function renderMasterView(container, { session }) {
   renderPeople();
   renderCampaignHistory(historyHost, campaign.id);
   const questsPanel = mountMasterQuests(container.querySelector('[data-quests]'), {
+    campaignId: campaign.id,
     getMembers: () => details.members,
     feedback: container.querySelector('[data-feedback="quests"]'),
   });

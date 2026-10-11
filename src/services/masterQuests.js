@@ -24,8 +24,10 @@ export async function loadMasterQuests(profileIds) {
     ok: true,
     error: null,
     data: {
+      items: items.ok ? items.data : [],
       quests: quests.data.map((quest) => ({
         id: quest.id,
+        campaignId: quest.campaign_id,
         title: quest.title,
         description: quest.description,
         minLevel: quest.min_level,
@@ -42,6 +44,24 @@ export async function loadMasterQuests(profileIds) {
     },
   };
 }
+
+export function createCampaignQuest(campaignId, quest) {
+  return runSupabase((client) =>
+    client.rpc('master_create_quest', {
+      p_campaign_id: campaignId,
+      p_title: quest.title,
+      p_description: quest.description,
+      p_min_level: quest.minLevel,
+      p_repeatable: quest.repeatable,
+      p_xp: quest.xp,
+      p_items: quest.items,
+      p_steps: quest.steps,
+    }),
+  );
+}
+
+export const deleteCampaignQuest = (questId) =>
+  runSupabase((client) => client.rpc('master_delete_quest', { p_quest_id: questId }));
 
 export const assignQuest = (profileId, questId) =>
   runSupabase((client) => client.rpc('master_assign_quest', { p_profile_id: profileId, p_quest_id: questId }));
