@@ -39,6 +39,7 @@ const dismissedSessions = new Set();
 
 const MASTER_TABS = [
   ['visao', 'Visão geral'],
+  ['combate', 'Combate'],
   ['jogadores', 'Jogadores'],
   ['missoes', 'Missões'],
   ['inimigos', 'Inimigos'],
@@ -587,11 +588,12 @@ export async function renderMasterView(container, { session }) {
         <h3 class="ok-combat__heading ok-overview__heading">Jogadores</h3>
         <div data-overview-people></div>
         <div class="ok-toolbar">
+          <button class="ok-button ok-button--primary" type="button" data-goto-combat>Ir para o combate</button>
           <button class="ok-button" type="button" data-goto-settings>Abrir configurações</button>
         </div>
       </section>
-      <section class="ok-panel" aria-labelledby="master-title" data-tab-panel="visao">
-        <h2 id="master-title" class="ok-section-title" data-campaign-title>Campanha · ${escapeHtml(campaign.name)}</h2>
+      <section class="ok-panel" aria-labelledby="master-title" data-tab-panel="combate">
+        <h2 id="master-title" class="ok-section-title">Combate</h2>
         <div id="master-combat"></div>
       </section>
       <section class="ok-panel" aria-labelledby="settings-title" data-tab-panel="config">
@@ -784,7 +786,6 @@ export async function renderMasterView(container, { session }) {
     });
     if (!result.ok) return feedbackLine(feedback, result.error.message, 'is-error');
     campaign = result.data;
-    container.querySelector('[data-campaign-title]').textContent = `Campanha · ${campaign.name}`;
     updateOverview();
     feedbackLine(feedback, 'Campanha salva.', 'is-success');
   });
@@ -803,6 +804,7 @@ export async function renderMasterView(container, { session }) {
   });
 
   bindStorySuggest(container.querySelector('[data-form="settings"]'), () => container.querySelector('#campaign-name').value);
+  container.querySelector('[data-goto-combat]').addEventListener('click', () => showTab('combate'));
   container.querySelector('[data-goto-settings]').addEventListener('click', () => {
     showTab('config');
     container.querySelector('#settings-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
