@@ -9,13 +9,13 @@ export async function createAvatarResolver({ sessionId = null, ownProfile = null
     const own = await loadMyAvatar(ownUserId);
     if (own) byProfile.set(ownProfile.id, own);
   }
-  return (participant) =>
+  return (participant, size = 'md') =>
     participant.team === 'enemy'
-      ? avatarMarkup({ kind: 'enemy', name: participant.name, elementId: participant.elementId, size: 'md' })
+      ? avatarMarkup({ kind: 'enemy', name: participant.name, elementId: participant.elementId, size })
       : avatarMarkup({
           src: byProfile.get(participant.refId) || null,
           kind: 'player',
           name: participant.name,
-          size: 'md',
+          size,
         });
 }

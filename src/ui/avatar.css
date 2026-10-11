@@ -147,3 +147,6 @@
   align-items: center;
   gap: 8px;
 }
+
+.ok-avatar--xl { width: 92px; height: 92px; border-width: 3px; }
+.ok-avatar--xl.ok-avatar--item { border-radius: 14px; }

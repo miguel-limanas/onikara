@@ -56,21 +56,22 @@ function combatantCard(state, participant, { selectable = false, selected = fals
   const defeated = participant.stats.hp <= 0;
   return html`
     <li
-      class="ok-combatant is-${participant.team} ${defeated ? 'is-defeated' : ''} ${active ? 'is-active' : ''} ${selected ? 'is-selected' : ''}"
+      class="ok-token is-${participant.team} ${defeated ? 'is-defeated' : ''} ${active ? 'is-active' : ''} ${selected ? 'is-selected' : ''}"
       data-participant="${escapeHtml(participant.id)}"
     >
-      <div class="ok-combatant__avatar">
+      <div class="ok-token__figure">
         ${avatar}
-        <div class="ok-combatant__head">
-          <strong>${escapeHtml(participant.name)}</strong>
-          ${elementChip(participant.elementId)}
-          ${mine ? '<span class="ok-badge">Você</span>' : ''}
-          ${active ? '<span class="ok-badge is-warning">Vez atual</span>' : ''}
-          ${defeated ? '<span class="ok-badge is-error">Derrotado</span>' : ''}
-        </div>
+        ${active ? '<span class="ok-token__turn">Vez atual</span>' : ''}
+        ${defeated ? '<span class="ok-token__down">Derrotado</span>' : ''}
       </div>
-      ${meter({ label: 'HP', current: participant.stats.hp, max: participant.stats.maxHp })}
-      ${participant.stats.maxMana > 0 ? meter({ label: 'Mana', current: participant.stats.mana, max: participant.stats.maxMana, modifier: 'ok-stat-bar--mana' }) : ''}
+      <div class="ok-token__plate">
+        <strong class="ok-token__name">${escapeHtml(participant.name)}${mine ? ' <span class="ok-badge">Você</span>' : ''}</strong>
+        ${elementChip(participant.elementId)}
+      </div>
+      <div class="ok-token__bars">
+        ${meter({ label: 'HP', current: participant.stats.hp, max: participant.stats.maxHp })}
+        ${participant.stats.maxMana > 0 ? meter({ label: 'Mana', current: participant.stats.mana, max: participant.stats.maxMana, modifier: 'ok-stat-bar--mana' }) : ''}
+      </div>
       ${statusList(state, participant)}
       ${
         selectable && !defeated
@@ -232,25 +233,25 @@ export function mountFight(container, { driver, perspective = 'player', title, e
           ${ui.connection ? `<span class="ok-badge ${ui.connection === 'live' ? 'is-success' : ''}">${ui.connection === 'live' ? 'Ao vivo' : 'Atualizando a cada poucos segundos'}</span>` : ''}
           ${finished ? '' : `<ol class="ok-combat-order" aria-label="Ordem de turno">${orderStrip(state)}</ol>`}
         </div>
-        <div class="ok-combat__field">
-          <div>
-            <h3 class="ok-combat__heading">Inimigos</h3>
-            <ul class="ok-combatant-list">
+        <div class="ok-arena" aria-label="Arena de combate">
+          <div class="ok-arena__floor" aria-hidden="true"></div>
+          <section class="ok-arena__side ok-arena__side--enemy" aria-label="Inimigos">
+            <ul class="ok-arena__row">
               ${enemies
                 .map((enemy) =>
                   combatantCard(state, enemy, {
                     selectable: canAct && targetTeam === 'enemy' && targetsAlive > 1,
                     selected: enemy.id === ui.targetId && targetTeam === 'enemy',
                     active: enemy.id === activeId && !finished,
-                    avatar: avatarFor ? avatarFor(enemy) : '',
+                    avatar: avatarFor ? avatarFor(enemy, 'xl') : '',
                   }),
                 )
                 .join('')}
             </ul>
-          </div>
-          <div>
-            <h3 class="ok-combat__heading">${players.length > 1 || perspective === 'master' ? 'Aventureiros' : 'Você'}</h3>
-            <ul class="ok-combatant-list">
+          </section>
+          <div class="ok-arena__vs" aria-hidden="true"><span>VS</span></div>
+          <section class="ok-arena__side ok-arena__side--player" aria-label="${players.length > 1 || perspective === 'master' ? 'Aventureiros' : 'Você'}">
+            <ul class="ok-arena__row">
               ${players
                 .map((player) =>
                   combatantCard(state, player, {
@@ -258,12 +259,12 @@ export function mountFight(container, { driver, perspective = 'player', title, e
                     selected: player.id === ui.targetId && targetTeam === 'player',
                     active: player.id === activeId && !finished,
                     mine: perspective === 'player' && player.id === viewerId,
-                    avatar: avatarFor ? avatarFor(player) : '',
+                    avatar: avatarFor ? avatarFor(player, 'xl') : '',
                   }),
                 )
                 .join('')}
             </ul>
-          </div>
+          </section>
         </div>
         ${
           finished
