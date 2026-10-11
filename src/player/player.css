@@ -1216,27 +1216,9 @@ body.ok-player-body {
 
 /* Histórico de combates expansível ---------------------------------- */
 
-.ok-history__toggle {
-  display: grid;
-  gap: 6px;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.ok-history__toggle:focus-visible {
-  outline: 2px solid var(--player-red);
-  outline-offset: 4px;
-}
-
-.ok-history__chevron {
-  color: #c9a84c;
-  font-size: 0.85rem;
+.ok-history .ok-copy,
+.ok-history .ok-helper {
+  margin: 0;
 }
 
 .ok-history__detail {

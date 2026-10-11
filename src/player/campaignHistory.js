@@ -40,18 +40,18 @@ function listMarkup(rows) {
       const reward = rewardLine(row.rewards?.summary);
       return html`
         <li class="ok-combatant ok-history__item" data-session="${escapeHtml(row.id)}">
-          <button class="ok-history__toggle" type="button" aria-expanded="false" aria-controls="history-detail-${index}">
-            <span class="ok-combatant__head">
-              <strong>${escapeHtml(formatWhen(row.started_at))}</strong>
-              <span class="ok-badge ${outcome.badge}">${escapeHtml(outcome.label)}</span>
-              ${row.turn_number ? `<span class="ok-badge">${row.turn_number} rodadas</span>` : ''}
-              ${duration(row) ? `<span class="ok-badge">${escapeHtml(duration(row))}</span>` : ''}
-            </span>
-            <span class="ok-copy"><strong>Aventureiros:</strong> ${team('player') || '—'}</span>
-            <span class="ok-copy"><strong>Inimigos:</strong> ${team('enemy') || '—'}</span>
-            ${reward ? `<span class="ok-helper">${escapeHtml(reward)}</span>` : ''}
-            <span class="ok-history__chevron" aria-hidden="true">Ver detalhes</span>
-          </button>
+          <div class="ok-combatant__head">
+            <strong>${escapeHtml(formatWhen(row.started_at))}</strong>
+            <span class="ok-badge ${outcome.badge}">${escapeHtml(outcome.label)}</span>
+            ${row.turn_number ? `<span class="ok-badge">${row.turn_number} rodadas</span>` : ''}
+            ${duration(row) ? `<span class="ok-badge">${escapeHtml(duration(row))}</span>` : ''}
+          </div>
+          <p class="ok-copy"><strong>Aventureiros:</strong> ${team('player') || '—'}</p>
+          <p class="ok-copy"><strong>Inimigos:</strong> ${team('enemy') || '—'}</p>
+          ${reward ? `<p class="ok-helper">${escapeHtml(reward)}</p>` : ''}
+          <div class="ok-toolbar">
+            <button class="ok-button ok-history__toggle" type="button" aria-expanded="false" aria-controls="history-detail-${index}">Ver detalhes</button>
+          </div>
           <div class="ok-history__detail" id="history-detail-${index}" hidden></div>
         </li>
       `;
@@ -131,7 +131,7 @@ export async function renderCampaignHistory(node, campaignId) {
     toggle.addEventListener('click', async () => {
       const open = toggle.getAttribute('aria-expanded') === 'true';
       toggle.setAttribute('aria-expanded', String(!open));
-      toggle.querySelector('.ok-history__chevron').textContent = open ? 'Ver detalhes' : 'Ocultar detalhes';
+      toggle.textContent = open ? 'Ver detalhes' : 'Ocultar detalhes';
       detail.hidden = open;
       if (!open && !loaded) {
         loaded = true;
