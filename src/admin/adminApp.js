@@ -1,4 +1,5 @@
 import { requireAdminSession, signOutAdmin } from '../services/adminAuth.js';
+import { mountAvatarButton } from '../ui/avatarControl.js';
 import { loadDashboardData } from '../services/adminDashboard.js';
 import { renderCatalogsView } from './catalogsView.js';
 import { renderRelationshipsView } from './relationshipsView.js';
@@ -156,6 +157,7 @@ function renderShell() {
           </div>
           <div class="ok-topbar-actions">
             <button class="ok-topbar-button ok-topbar-button--primary" data-view="catalogs" data-label="Catálogos" data-catalog-table="rpg_classes">Novo conteúdo</button>
+            <span id="admin-avatar"></span>
             <span class="ok-topbar-divider" aria-hidden="true"></span>
             <button id="logout" class="ok-topbar-button ok-topbar-button--ghost">Sair</button>
           </div>
@@ -172,6 +174,12 @@ function renderShell() {
   `;
 
   seedAdminParticles();
+
+  mountAvatarButton(document.querySelector('#admin-avatar'), {
+    userId: currentSession.user.id,
+    name: currentSession.user.email || 'Admin',
+    size: 'sm',
+  });
 
   document.querySelector('#logout').addEventListener('click', async () => {
     await signOutAdmin();

@@ -5,6 +5,7 @@ import { renderCombatView } from './combatView.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
 import { mountInvitations } from './invitations.js';
+import { mountAvatarButton } from '../ui/avatarControl.js';
 import { renderMasterView } from './masterView.js';
 import { renderQuestsView } from './questsView.js';
 import { renderSpellsView } from './spellsView.js';
@@ -90,6 +91,7 @@ function renderShell() {
             .join('')}
         </nav>
         <div class="ok-player-topbar__user">
+          <span id="player-avatar" class="ok-player-topbar__avatar"></span>
           <span class="ok-player-topbar__name">${escapeHtml(state.profile?.character_name || state.session.user.email)}</span>
           <button id="player-logout" class="ok-button" type="button">Sair</button>
         </div>
@@ -98,6 +100,11 @@ function renderShell() {
       <main id="player-main" class="ok-player-main" tabindex="-1"></main>
     </div>
   `;
+  mountAvatarButton(document.querySelector('#player-avatar'), {
+    userId: state.session.user.id,
+    name: state.profile?.character_name || state.session.user.email,
+    profile: state.profile,
+  });
   const invites = document.querySelector('#player-invites');
   if (state.profile && invites) {
     mountInvitations(invites, { profile: state.profile, onAccepted: () => showSection() });

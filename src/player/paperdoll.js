@@ -90,6 +90,17 @@ export function resolveDollLayers(classId, equipment, manifest = null) {
   return { doll, layers: layers.sort((a, b) => a.z - b.z) };
 }
 
+// URLs das camadas (de baixo para cima) do boneco, para compor imagens fora do DOM (ex.: avatar).
+export async function dollLayerUrls(classId, equipment = {}) {
+  const doll = DOLLS[dollKeyForClass(classId)];
+  const manifest = await loadManifest(doll);
+  const { layers } = resolveDollLayers(classId, equipment, manifest);
+  return layers.map((layer) => `${ART_ROOT}/${doll.folder}/${layer.file}`);
+}
+
+// Bonecos base disponíveis para quem não tem personagem (mestre, admin).
+export const BASE_DOLL_OPTIONS = Object.entries(DOLLS).map(([id, doll]) => ({ id, label: doll.label }));
+
 // Monta o boneco em `container`. `equipment` mapeia slot -> item (ou truthy).
 export async function renderPaperdoll(container, { classId, equipment = {}, name = '' }) {
   const doll = DOLLS[dollKeyForClass(classId)];

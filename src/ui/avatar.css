@@ -1,0 +1,133 @@
+/* Avatar redondo e editor de avatar (jogador, mestre e admin). */
+
+.ok-avatar {
+  display: inline-block;
+  flex: none;
+  overflow: hidden;
+  border: 2px solid #c8102e;
+  border-radius: 50%;
+  background: #14090c;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+  line-height: 0;
+}
+
+.ok-avatar--sm { width: 32px; height: 32px; }
+.ok-avatar--md { width: 48px; height: 48px; }
+.ok-avatar--lg { width: 72px; height: 72px; }
+
+.ok-avatar img,
+.ok-avatar svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ok-avatar-button {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ok-avatar-button:hover .ok-avatar,
+.ok-avatar-button:focus-visible .ok-avatar {
+  border-color: #c9a84c;
+}
+
+.ok-avatar-editor {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(5, 3, 6, 0.78);
+}
+
+.ok-avatar-editor__dialog {
+  width: min(760px, 100%);
+  max-height: 94vh;
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #c8102e;
+  background: #17101a;
+  color: #f1e9e4;
+}
+
+.ok-avatar-editor__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
+  gap: 16px;
+  align-items: start;
+}
+
+.ok-avatar-editor__stage {
+  position: relative;
+  width: min(100%, 260px);
+  margin: 0 auto;
+  background: #000;
+  touch-action: none;
+}
+
+.ok-avatar-editor__stage canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ok-avatar-editor__crop {
+  position: absolute;
+  border: 2px solid #c9a84c;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  cursor: grab;
+}
+
+.ok-avatar-editor__crop:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.ok-avatar-editor__side {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.ok-avatar-editor__preview {
+  width: 120px;
+  height: 120px;
+  border: 2px solid #c8102e;
+  border-radius: 50%;
+}
+
+.ok-avatar-editor select {
+  min-height: 44px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  color: inherit;
+  border: 1px solid #5b2230;
+  font: inherit;
+}
+
+.ok-combatant__avatar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ok-combatant__avatar .ok-combatant__head {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .ok-avatar-editor__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

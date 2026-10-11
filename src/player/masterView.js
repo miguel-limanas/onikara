@@ -26,6 +26,7 @@ import {
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
 import { renderCampaignHistory } from './campaignHistory.js';
+import { createAvatarResolver } from './combatAvatars.js';
 import { attachLive, mountFight } from './fightScreen.js';
 
 // Combates vencidos já fechados pelo mestre; sobrevive às atualizações parciais da tela.
@@ -607,6 +608,7 @@ export async function renderMasterView(container, { session }) {
     const driver = createRemoteDriver(view.data, { campaignId: campaign.id });
     mountFight(combatHost, {
       driver,
+      avatarFor: await createAvatarResolver({ sessionId: last.data.id }),
       perspective: 'master',
       title: 'Último combate',
       endNote: 'Combate registrado no servidor.',
@@ -627,6 +629,7 @@ export async function renderMasterView(container, { session }) {
       const driver = createRemoteDriver(active.data, { log, campaignId: campaign.id });
       const fight = mountFight(combatHost, {
         driver,
+        avatarFor: await createAvatarResolver({ sessionId: driver.sessionId }),
         perspective: 'master',
         title: 'Combate da campanha',
         endNote: 'Combate registrado no servidor.',

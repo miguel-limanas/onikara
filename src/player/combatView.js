@@ -10,6 +10,7 @@ import {
   startRemoteCombat,
 } from '../services/playerCombat.js';
 import { emptyBlock, errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
+import { createAvatarResolver } from './combatAvatars.js';
 import { attachLive, mountFight } from './fightScreen.js';
 
 const ELEMENT_LABELS = {
@@ -35,9 +36,15 @@ export async function renderCombatView(container, { profile, session }) {
   }
   const canTrain = isTestAccount(session);
 
-  function openFight(driver, { remote, inCampaign = false }) {
+  async function openFight(driver, { remote, inCampaign = false }) {
+    const avatarFor = await createAvatarResolver({
+      sessionId: remote ? driver.sessionId : null,
+      ownProfile: profile,
+      ownUserId: session.user.id,
+    });
     const fight = mountFight(container, {
       driver,
+      avatarFor,
       perspective: 'player',
       title: remote ? 'Combate' : 'Treino local',
       endNote: remote

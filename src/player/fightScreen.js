@@ -50,19 +50,22 @@ function statusList(state, participant) {
   return parts.length ? `<p class="ok-chip-row">${parts.join('')}</p>` : '';
 }
 
-function combatantCard(state, participant, { selectable = false, selected = false, active = false, mine = false } = {}) {
+function combatantCard(state, participant, { selectable = false, selected = false, active = false, mine = false, avatar = '' } = {}) {
   const defeated = participant.stats.hp <= 0;
   return html`
     <li
       class="ok-combatant is-${participant.team} ${defeated ? 'is-defeated' : ''} ${active ? 'is-active' : ''} ${selected ? 'is-selected' : ''}"
       data-participant="${escapeHtml(participant.id)}"
     >
-      <div class="ok-combatant__head">
-        <strong>${escapeHtml(participant.name)}</strong>
-        ${elementChip(participant.elementId)}
-        ${mine ? '<span class="ok-badge">Você</span>' : ''}
-        ${active ? '<span class="ok-badge is-warning">Vez atual</span>' : ''}
-        ${defeated ? '<span class="ok-badge is-error">Derrotado</span>' : ''}
+      <div class="ok-combatant__avatar">
+        ${avatar}
+        <div class="ok-combatant__head">
+          <strong>${escapeHtml(participant.name)}</strong>
+          ${elementChip(participant.elementId)}
+          ${mine ? '<span class="ok-badge">Você</span>' : ''}
+          ${active ? '<span class="ok-badge is-warning">Vez atual</span>' : ''}
+          ${defeated ? '<span class="ok-badge is-error">Derrotado</span>' : ''}
+        </div>
       </div>
       ${meter({ label: 'HP', current: participant.stats.hp, max: participant.stats.maxHp })}
       ${participant.stats.maxMana > 0 ? meter({ label: 'Mana', current: participant.stats.mana, max: participant.stats.maxMana, modifier: 'ok-stat-bar--mana' }) : ''}
@@ -128,7 +131,7 @@ function actionButton(action, state, targetId) {
 // Tela de luta compartilhada por jogador e mestre.
 // driver: { kind, getState, getViewer, actionsFor, act, [suggest], [sessionId] }
 // perspective: 'player' (age pelo próprio personagem) | 'master' (age pelo inimigo da vez)
-export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true, renderEndExtra = null }) {
+export function mountFight(container, { driver, perspective = 'player', title, endNote, onExit, onLeave, leaveLabel = 'Abandonar combate', initialEvents = [], showLog = true, renderEndExtra = null, avatarFor = null }) {
   const ui = { targetId: null, busy: false, message: '', connection: '' };
   let logHtml = '';
   let announced = false;
@@ -205,6 +208,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
                     selectable: canAct && targetTeam === 'enemy' && targetsAlive > 1,
                     selected: enemy.id === ui.targetId && targetTeam === 'enemy',
                     active: enemy.id === activeId && !finished,
+                    avatar: avatarFor ? avatarFor(enemy) : '',
                   }),
                 )
                 .join('')}
@@ -220,6 +224,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
                     selected: player.id === ui.targetId && targetTeam === 'player',
                     active: player.id === activeId && !finished,
                     mine: perspective === 'player' && player.id === viewerId,
+                    avatar: avatarFor ? avatarFor(player) : '',
                   }),
                 )
                 .join('')}
