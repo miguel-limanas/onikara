@@ -4,6 +4,7 @@ import { loadOwnProfile } from '../services/playerProfile.js';
 import { attemptMedicine, recoverRest } from '../services/playerRecovery.js';
 import { errorBlock, escapeHtml, html, loadingBlock } from '../ui/components.js';
 import { loadInventory } from '../services/playerInventory.js';
+import { watchChanges } from '../services/live.js';
 import { rollDiceEffect } from '../ui/dice.js';
 import { renderPaperdoll } from './paperdoll.js';
 
@@ -52,8 +53,8 @@ function shortcut(section, title, text) {
   `;
 }
 
-export async function renderDashboardView(container, { profile, notice = '' }) {
-  container.innerHTML = loadingBlock('Carregando seu personagem...');
+export async function renderDashboardView(container, { profile, notice = '', silent = false }) {
+  if (!silent) container.innerHTML = loadingBlock('Carregando seu personagem...');
 
   // Regeneração pelo tempo (servidor) e perfil atualizado antes de desenhar.
   await recoverRest();
@@ -155,6 +156,15 @@ export async function renderDashboardView(container, { profile, notice = '' }) {
     equipment,
     name: character.name,
   });
+
+  // Estado sempre atual: o servidor regenera (job a cada minuto) e a tela acompanha ao vivo.
+  const anchor = container.firstElementChild;
+  watchChanges(
+    `dashboard:${profile.id}`,
+    [{ table: 'profiles', event: 'UPDATE', filter: `id=eq.${profile.id}` }],
+    () => renderDashboardView(container, { profile, silent: true }),
+    { alive: () => anchor?.isConnected, debounceMs: 400 },
+  );
 
   const medicine = container.querySelector('[data-medicine]');
   medicine.addEventListener('click', async () => {

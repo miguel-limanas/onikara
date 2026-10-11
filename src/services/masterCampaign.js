@@ -138,6 +138,8 @@ export async function loadCombatSnapshotCatalog(sessionId) {
 }
 
 export async function loadCampaignDetails(campaignId) {
+  // O servidor calcula a regeneração dos jogadores antes de ler o estado atual.
+  await runSupabase((client) => client.rpc('refresh_campaign_state', { p_campaign_id: campaignId }));
   const [members, released, granted, enemies, spells, classes, invitations, avatars, emails] = await Promise.all([
     runSupabase((client) =>
       client
