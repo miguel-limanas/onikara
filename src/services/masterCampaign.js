@@ -110,7 +110,7 @@ export async function loadCombatSnapshotCatalog(sessionId) {
 }
 
 export async function loadCampaignDetails(campaignId) {
-  const [members, released, granted, enemies, spells, classes, invitations, avatars] = await Promise.all([
+  const [members, released, granted, enemies, spells, classes, invitations, avatars, emails] = await Promise.all([
     runSupabase((client) =>
       client
         .from('campaign_members')
@@ -125,6 +125,7 @@ export async function loadCampaignDetails(campaignId) {
     runSupabase((client) => client.from('rpg_classes').select('id, name')),
     loadPendingInvitations(campaignId),
     runSupabase((client) => client.rpc('campaign_avatars', { p_campaign_id: campaignId })),
+    runSupabase((client) => client.rpc('campaign_player_emails', { p_campaign_id: campaignId })),
   ]);
   for (const result of [members, released, granted, enemies, spells, classes, invitations]) {
     if (!result.ok) return { ok: false, data: null, error: result.error };
@@ -140,6 +141,7 @@ export async function loadCampaignDetails(campaignId) {
       spells: spells.data,
       classes: classes.data,
       invitations: invitations.data,
+      emails: new Map((emails.ok ? emails.data : []).map((row) => [row.profile_id, row.email])),
       avatars: new Map((avatars.ok ? avatars.data : []).map((row) => [row.profile_id, row.avatar])),
     },
   };

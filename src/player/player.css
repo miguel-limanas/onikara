@@ -1257,3 +1257,8 @@ body.ok-player-body {
   max-height: 320px;
   overflow: auto;
 }
+
+.ok-player-email {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
+}

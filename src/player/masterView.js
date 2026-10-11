@@ -164,6 +164,7 @@ function membersMarkup(details) {
               <strong>${escapeHtml(profile.character_name)}</strong>
               <span class="ok-badge">${escapeHtml(className(profile.class_id))} · Nível ${profile.level}</span>
               ${STATUS_ICONS.accepted}
+              ${details.emails.get(profile.id) ? `<span class="ok-helper ok-player-email">${escapeHtml(details.emails.get(profile.id))}</span>` : ''}
             </div>
           </div>
           <p class="ok-helper">Magias concedidas pelo mestre</p>
@@ -225,6 +226,7 @@ function invitationsMarkup(details) {
                   <strong>${escapeHtml(row.profile?.character_name || 'Personagem')}</strong>
                   <span class="ok-badge">${escapeHtml(className(row.profile?.class_id))} · Nível ${row.profile?.level ?? '?'}</span>
                   ${STATUS_ICONS.pending}
+                  ${details.emails.get(row.profile?.id) ? `<span class="ok-helper ok-player-email">${escapeHtml(details.emails.get(row.profile?.id))}</span>` : ''}
                 </div>
               </div>
               <div class="ok-toolbar"><button class="ok-button" type="button" data-cancel-invite>Cancelar convite</button></div>
@@ -477,6 +479,7 @@ export async function renderMasterView(container, { session }) {
     details.granted = fresh.data.granted;
     details.invitations = fresh.data.invitations;
     details.avatars = fresh.data.avatars;
+    details.emails = fresh.data.emails;
     renderPeople();
   }
 
