@@ -26,6 +26,8 @@ import {
 } from '../services/masterCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
 import { renderCampaignHistory } from './campaignHistory.js';
+import { avatarMarkup } from '../ui/avatar.js';
+import { watchChanges } from '../services/live.js';
 import { createAvatarResolver } from './combatAvatars.js';
 import { attachLive, mountFight } from './fightScreen.js';
 
@@ -113,6 +115,13 @@ async function createForm(container, userId, { fresh = false } = {}) {
   });
 }
 
+const STATUS_ICONS = {
+  accepted:
+    '<span class="ok-status-icon is-accepted" title="Convite aceito"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor" opacity=".2"/><path d="M5.5 10.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Aceito</span>',
+  pending:
+    '<span class="ok-status-icon is-pending" title="Aguardando aceite"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="currentColor" opacity=".2"/><path d="M10 5v5l3 2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Aguardando</span>',
+};
+
 function membersMarkup(details) {
   if (!details.members.length) return emptyBlock('Nenhum jogador na campanha ainda.');
   const className = (id) => details.classes.find((item) => item.id === id)?.name || id;
@@ -123,9 +132,13 @@ function membersMarkup(details) {
       const available = details.spells.filter((spell) => !granted.some((item) => item.spell_id === spell.id));
       return html`
         <li class="ok-combatant" data-member="${escapeHtml(profile.id)}">
-          <div class="ok-combatant__head">
-            <strong>${escapeHtml(profile.character_name)}</strong>
-            <span class="ok-badge">${escapeHtml(className(profile.class_id))} · Nível ${profile.level}</span>
+          <div class="ok-combatant__avatar">
+            ${avatarMarkup({ src: details.avatars.get(profile.id) || null, name: profile.character_name, size: 'md' })}
+            <div class="ok-combatant__head">
+              <strong>${escapeHtml(profile.character_name)}</strong>
+              <span class="ok-badge">${escapeHtml(className(profile.class_id))} · Nível ${profile.level}</span>
+              ${STATUS_ICONS.accepted}
+            </div>
           </div>
           <p class="ok-helper">Magias concedidas pelo mestre</p>
           ${
@@ -180,10 +193,13 @@ function invitationsMarkup(details) {
         .map(
           (row) => html`
             <li class="ok-combatant" data-invitation="${escapeHtml(row.id)}">
-              <div class="ok-combatant__head">
-                <strong>${escapeHtml(row.profile?.character_name || 'Personagem')}</strong>
-                <span class="ok-badge">${escapeHtml(className(row.profile?.class_id))} · Nível ${row.profile?.level ?? '?'}</span>
-                <span class="ok-badge is-warning">Aguardando aceite</span>
+              <div class="ok-combatant__avatar">
+                ${avatarMarkup({ src: details.avatars.get(row.profile?.id) || null, name: row.profile?.character_name, size: 'md' })}
+                <div class="ok-combatant__head">
+                  <strong>${escapeHtml(row.profile?.character_name || 'Personagem')}</strong>
+                  <span class="ok-badge">${escapeHtml(className(row.profile?.class_id))} · Nível ${row.profile?.level ?? '?'}</span>
+                  ${STATUS_ICONS.pending}
+                </div>
               </div>
               <div class="ok-toolbar"><button class="ok-button" type="button" data-cancel-invite>Cancelar convite</button></div>
             </li>
@@ -408,6 +424,7 @@ export async function renderMasterView(container, { session }) {
     details.members = fresh.data.members;
     details.granted = fresh.data.granted;
     details.invitations = fresh.data.invitations;
+    details.avatars = fresh.data.avatars;
     renderPeople();
   }
 
@@ -699,5 +716,21 @@ export async function renderMasterView(container, { session }) {
 
   renderPeople();
   renderCampaignHistory(historyHost, campaign.id);
+
+  // Ao vivo: aceite de convite, entrada/saída de jogadores e combates encerrados.
+  watchChanges(
+    `master:${campaign.id}`,
+    [
+      { table: 'campaign_members', filter: `campaign_id=eq.${campaign.id}` },
+      { table: 'campaign_invitations', filter: `campaign_id=eq.${campaign.id}` },
+      { table: 'combat_sessions', filter: `campaign_id=eq.${campaign.id}` },
+    ],
+    ({ table }) => {
+      if (table === 'combat_sessions') renderCampaignHistory(historyHost, campaign.id);
+      else refreshPeople();
+    },
+    { alive: () => historyHost.isConnected },
+  );
+
   await renderCombatArea();
 }

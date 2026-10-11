@@ -1,9 +1,10 @@
+import { watchChanges } from '../services/live.js';
 import { loadMyInvitations, respondInvitation } from '../services/playerCampaign.js';
 import { escapeHtml, html } from '../ui/components.js';
 
 // Notificação de convites de campanha: aparece no topo da área do jogador até ser
 // aceita ou recusada. Consulta o servidor periodicamente.
-export function mountInvitations(host, { profile, onAccepted, pollMs = 15000 }) {
+export function mountInvitations(host, { profile, onAccepted, pollMs = 30000 }) {
   let timer = null;
 
   async function refresh() {
@@ -57,6 +58,19 @@ export function mountInvitations(host, { profile, onAccepted, pollMs = 15000 }) 
   }
 
   refresh();
+  // Ao vivo (Realtime); a consulta periódica é só reserva.
+  const stopLive = watchChanges(
+    `invites:${profile.id}`,
+    [{ table: 'campaign_invitations', filter: `profile_id=eq.${profile.id}` }],
+    () => refresh(),
+    { alive: () => host.isConnected },
+  );
   timer = setInterval(refresh, pollMs);
-  return { refresh, stop: () => clearInterval(timer) };
+  return {
+    refresh,
+    stop: () => {
+      clearInterval(timer);
+      stopLive();
+    },
+  };
 }

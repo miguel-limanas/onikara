@@ -1166,3 +1166,50 @@ body.ok-player-body {
 .ok-player-topbar__avatar {
   display: inline-flex;
 }
+
+.ok-status-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ok-status-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.ok-status-icon.is-accepted {
+  color: #4fbf6a;
+}
+
+.ok-status-icon.is-pending {
+  color: #e0a63a;
+}
+
+.ok-notices {
+  display: grid;
+  gap: 10px;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 clamp(12px, 3vw, 28px);
+}
+
+.ok-notice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 18px;
+  border: 1px solid #c9a84c;
+  background: rgba(201, 168, 76, 0.14);
+  animation: ok-notice-in 0.3s ease-out;
+}
+
+@keyframes ok-notice-in {
+  from { transform: translateY(-8px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}

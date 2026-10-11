@@ -1,5 +1,6 @@
 import { loadMyCampaign } from '../services/playerCampaign.js';
 import { emptyBlock, errorBlock, escapeHtml, formatDate, html, loadingBlock } from '../ui/components.js';
+import { watchChanges } from '../services/live.js';
 import { renderCampaignHistory } from './campaignHistory.js';
 
 // Campanha ativa do jogador: história, desde quando participa e histórico de combates.
@@ -37,5 +38,21 @@ export async function renderCampaignView(container, { profile }) {
       </section>
     </div>
   `;
-  await renderCampaignHistory(container.querySelector('[data-history]'), campaign.id);
+  const historyHost = container.querySelector('[data-history]');
+  await renderCampaignHistory(historyHost, campaign.id);
+
+  // Ao vivo: novos combates no histórico e encerramento da campanha.
+  watchChanges(
+    `campaign-view:${campaign.id}`,
+    [
+      { table: 'combat_sessions', filter: `campaign_id=eq.${campaign.id}` },
+      { table: 'campaigns', filter: `id=eq.${campaign.id}` },
+      { table: 'campaign_members', filter: `campaign_id=eq.${campaign.id}` },
+    ],
+    ({ table }) => {
+      if (table === 'combat_sessions') renderCampaignHistory(historyHost, campaign.id);
+      else renderCampaignView(container, { profile });
+    },
+    { alive: () => historyHost.isConnected },
+  );
 }

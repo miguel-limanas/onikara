@@ -5,6 +5,7 @@ import { renderCombatView } from './combatView.js';
 import { renderDashboardView } from './dashboardView.js';
 import { renderInventoryView } from './inventoryView.js';
 import { mountInvitations } from './invitations.js';
+import { mountLiveNotices } from './liveNotices.js';
 import { mountAvatarButton } from '../ui/avatarControl.js';
 import { renderMasterView } from './masterView.js';
 import { renderQuestsView } from './questsView.js';
@@ -96,6 +97,7 @@ function renderShell() {
           <button id="player-logout" class="ok-button" type="button">Sair</button>
         </div>
       </header>
+      <div id="player-notices" class="ok-notices" aria-live="assertive"></div>
       <div id="player-invites" class="ok-invites" aria-live="polite" hidden></div>
       <main id="player-main" class="ok-player-main" tabindex="-1"></main>
     </div>
@@ -104,6 +106,13 @@ function renderShell() {
     userId: state.session.user.id,
     name: state.profile?.character_name || state.session.user.email,
     profile: state.profile,
+  });
+  mountLiveNotices(document.querySelector('#player-notices'), {
+    profile: state.profile,
+    onOpenCombat: () => {
+      if (window.location.hash === '#combate') showSection();
+      else window.location.hash = '#combate';
+    },
   });
   const invites = document.querySelector('#player-invites');
   if (state.profile && invites) {
