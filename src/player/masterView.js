@@ -61,17 +61,24 @@ const STORY_TEMPLATES = [
   (name) =>
     `${name} começa com uma traição. O mestre dos clãs foi derrubado por um discípulo que roubou a Pedra de Mana e a quebrou em fragmentos espalhados pelo reino. Cada fragmento desperta um guardião elemental, e só quem dominar o equilíbrio entre fogo, água, tempestade e terra poderá reuni-los. Os jogadores são os últimos recrutas do refúgio: jovens, sem fama, mas com a mana certa para mudar o destino.`,
 ];
+const NAME_SUGGESTIONS = ['Cinzas de Kurohane', 'O Portão Selado', 'Fragmentos da Pedra de Mana'];
 let storyCursor = 0;
 
-// Preenche o campo de história com uma sugestão; pede confirmação antes de substituir texto existente.
-function bindStorySuggest(root, getName) {
+// Sugere a história da campanha (e o nome, quando o campo está vazio e `suggestName` é verdadeiro).
+// Pede confirmação antes de substituir uma história já escrita.
+function bindStorySuggest(root, getName, { suggestName = false } = {}) {
   const button = root.querySelector('[data-suggest-story]');
   const field = root.querySelector('textarea[name="description"]');
+  const nameField = root.querySelector('input[name="name"]');
   if (!button || !field) return;
   button.addEventListener('click', () => {
     if (field.value.trim() && !window.confirm('Substituir a história atual pela sugestão?')) return;
-    const name = (getName() || 'a campanha').trim() || 'a campanha';
-    field.value = STORY_TEMPLATES[storyCursor % STORY_TEMPLATES.length](name);
+    let name = (getName() || '').trim();
+    if (!name && suggestName && nameField) {
+      name = NAME_SUGGESTIONS[storyCursor % NAME_SUGGESTIONS.length];
+      nameField.value = name;
+    }
+    field.value = STORY_TEMPLATES[storyCursor % STORY_TEMPLATES.length](name || 'a campanha');
     storyCursor += 1;
     field.focus();
   });
@@ -197,7 +204,7 @@ function renderNewCampaign(container, session) {
           <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required />
           <label for="campaign-description">História da campanha</label>
           <textarea id="campaign-description" name="description" maxlength="4000" rows="6" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram."></textarea>
-          <button class="ok-button" type="button" data-suggest-story>Sugerir uma história</button>
+          <button class="ok-button" type="button" data-suggest-story>Sugerir campanha (nome e história)</button>
           <div class="ok-toolbar">
             <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
             <button class="ok-button" type="button" data-cancel>Voltar</button>
@@ -207,7 +214,7 @@ function renderNewCampaign(container, session) {
       </section>
     </div>
   `;
-  bindStorySuggest(container, () => container.querySelector('#campaign-name').value);
+  bindStorySuggest(container, () => container.querySelector('#campaign-name').value, { suggestName: true });
   container.querySelector('[data-cancel]').addEventListener('click', () => renderCampaignList(container, session));
   container.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
