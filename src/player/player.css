@@ -1213,3 +1213,47 @@ body.ok-player-body {
   from { transform: translateY(-8px); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
+
+/* Histórico de combates expansível ---------------------------------- */
+
+.ok-history__toggle {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ok-history__toggle:focus-visible {
+  outline: 2px solid var(--player-red);
+  outline-offset: 4px;
+}
+
+.ok-history__chevron {
+  color: #c9a84c;
+  font-size: 0.85rem;
+}
+
+.ok-history__detail {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--player-line);
+}
+
+.ok-history__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.ok-history__log {
+  max-height: 320px;
+  overflow: auto;
+}

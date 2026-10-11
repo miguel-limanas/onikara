@@ -40,6 +40,30 @@ function feedbackLine(node, message, tone = '') {
   node.textContent = message;
 }
 
+const STORY_TEMPLATES = [
+  (name) =>
+    `Nas montanhas onde o último sol se apaga, ${name} nasce de um pacto quebrado entre clãs Oni. Os chifres antigos voltaram a sangrar mana e as fraquezas elementais deixaram de obedecer à razão: o fogo teme a água, a tempestade devora a terra, e ninguém sabe quem está reescrevendo as regras. O grupo chega ao refúgio sem aliados e com pouca mana. Cada combate revela um pedaço da verdade, e cada vitória cobra um preço que só o mestre conhece.`,
+  (name) =>
+    `Em ${name}, uma aldeia de ferro e cinzas vive à sombra de um portão que ninguém ousa abrir. Dizem que, a cada lua, uma criatura cruza o portão cercada de brasas e não volta igual. Os aventureiros são os únicos que ainda sabem ler as fraquezas elementais dos monstros. A missão é simples de dizer e difícil de cumprir: descobrir quem está alimentando o portão antes que a próxima lua nasça.`,
+  (name) =>
+    `${name} começa com uma traição. O mestre dos clãs foi derrubado por um discípulo que roubou a Pedra de Mana e a quebrou em fragmentos espalhados pelo reino. Cada fragmento desperta um guardião elemental, e só quem dominar o equilíbrio entre fogo, água, tempestade e terra poderá reuni-los. Os jogadores são os últimos recrutas do refúgio: jovens, sem fama, mas com a mana certa para mudar o destino.`,
+];
+let storyCursor = 0;
+
+// Preenche o campo de história com uma sugestão; pede confirmação antes de substituir texto existente.
+function bindStorySuggest(root, getName) {
+  const button = root.querySelector('[data-suggest-story]');
+  const field = root.querySelector('textarea[name="description"]');
+  if (!button || !field) return;
+  button.addEventListener('click', () => {
+    if (field.value.trim() && !window.confirm('Substituir a história atual pela sugestão?')) return;
+    const name = (getName() || 'a campanha').trim() || 'a campanha';
+    field.value = STORY_TEMPLATES[storyCursor % STORY_TEMPLATES.length](name);
+    storyCursor += 1;
+    field.focus();
+  });
+}
+
 function archivedMarkup(rows) {
   if (!rows.length) return '';
   return html`
@@ -93,6 +117,7 @@ async function createForm(container, userId, { fresh = false } = {}) {
           <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required />
           <label for="campaign-description">História da campanha</label>
           <textarea id="campaign-description" name="description" maxlength="4000" rows="6" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram."></textarea>
+          <button class="ok-button" type="button" data-suggest-story>Sugerir uma história</button>
           <button class="ok-button ok-button--primary" type="submit">Criar campanha</button>
           <p class="ok-helper" role="status" aria-live="polite" data-feedback></p>
         </form>
@@ -101,6 +126,7 @@ async function createForm(container, userId, { fresh = false } = {}) {
     </div>
   `;
   bindArchived(container);
+  bindStorySuggest(container, () => container.querySelector('#campaign-name').value);
   container.querySelector('form').addEventListener('submit', async (event) => {
     event.preventDefault();
     const feedback = container.querySelector('[data-feedback]');
@@ -355,9 +381,32 @@ export async function renderMasterView(container, { session }) {
     return;
   }
   const details = detailsResult.data;
+  const archived = await loadArchivedCampaigns(userId);
+  const archivedHtml = archived.ok ? archivedMarkup(archived.data) : '';
 
   container.innerHTML = html`
     <div class="ok-quests">
+      <section class="ok-panel" aria-labelledby="campaigns-title">
+        <h2 id="campaigns-title" class="ok-section-title">Campanhas</h2>
+        <ul class="ok-combat-enemies">
+          <li class="ok-combatant" data-overview>
+            <div class="ok-combatant__head">
+              <strong data-overview-name>${escapeHtml(campaign.name)}</strong>
+              <span class="ok-badge is-success">Ativa</span>
+              <span class="ok-badge" data-overview-players></span>
+              <span class="ok-badge" data-overview-enemies></span>
+              <span class="ok-badge">DT medicina ${campaign.medicine_dt ?? 12}</span>
+            </div>
+            <p class="ok-copy" data-overview-story></p>
+            <p class="ok-helper">Criada em ${escapeHtml(formatDate(campaign.created_at))}</p>
+          </li>
+        </ul>
+        <p class="ok-copy" id="new-campaign-hint">Só pode haver uma campanha ativa por vez. Para criar outra, encerre esta em "Configurações da campanha".</p>
+        <div class="ok-toolbar">
+          <button class="ok-button" type="button" disabled aria-describedby="new-campaign-hint">Nova campanha</button>
+          <button class="ok-button" type="button" data-goto-settings>Ir para configurações</button>
+        </div>
+      </section>
       <section class="ok-panel" aria-labelledby="master-title">
         <h2 id="master-title" class="ok-section-title" data-campaign-title>Campanha · ${escapeHtml(campaign.name)}</h2>
         <div id="master-combat"></div>
@@ -369,6 +418,7 @@ export async function renderMasterView(container, { session }) {
           <input id="campaign-name" name="name" type="text" minlength="2" maxlength="80" required value="${escapeHtml(campaign.name)}" />
           <label for="campaign-description">História da campanha</label>
           <textarea id="campaign-description" name="description" maxlength="4000" rows="7" placeholder="Conte o cenário, o conflito e o que os aventureiros encontram.">${escapeHtml(campaign.description || '')}</textarea>
+          <button class="ok-button" type="button" data-suggest-story>Sugerir uma história</button>
           <button class="ok-button ok-button--primary" type="submit">Salvar campanha</button>
           <p class="ok-helper" role="status" aria-live="polite" data-feedback="settings"></p>
         </form>
@@ -406,8 +456,10 @@ export async function renderMasterView(container, { session }) {
         <h2 id="history-title" class="ok-section-title">Histórico de combates</h2>
         <div data-history></div>
       </section>
+      ${archivedHtml}
     </div>
   `;
+  bindArchived(container);
 
   const membersFeedback = container.querySelector('[data-feedback="members"]');
   const enemiesFeedback = container.querySelector('[data-feedback="enemies"]');
@@ -428,7 +480,20 @@ export async function renderMasterView(container, { session }) {
     renderPeople();
   }
 
+  function updateOverview() {
+    const n = details.members.length;
+    const invited = details.invitations.length;
+    container.querySelector('[data-overview-players]').textContent =
+      `${n} ${n === 1 ? 'jogador' : 'jogadores'}${invited ? ` · ${invited} ${invited === 1 ? 'convite pendente' : 'convites pendentes'}` : ''}`;
+    const released = details.releasedEnemyIds.size;
+    container.querySelector('[data-overview-enemies]').textContent = `${released} ${released === 1 ? 'inimigo liberado' : 'inimigos liberados'}`;
+    container.querySelector('[data-overview-name]').textContent = campaign.name;
+    const story = container.querySelector('[data-overview-story]');
+    story.textContent = campaign.description || 'Ainda sem história. Escreva ou peça uma sugestão em "Configurações da campanha".';
+  }
+
   function renderPeople() {
+    updateOverview();
     peopleHost.innerHTML = invitationsMarkup(details) + membersMarkup(details);
 
     peopleHost.querySelectorAll('[data-invitation]').forEach((card) => {
@@ -485,6 +550,7 @@ export async function renderMasterView(container, { session }) {
     if (!result.ok) return feedbackLine(feedback, result.error.message, 'is-error');
     campaign = result.data;
     container.querySelector('[data-campaign-title]').textContent = `Campanha · ${campaign.name}`;
+    updateOverview();
     feedbackLine(feedback, 'Campanha salva.', 'is-success');
   });
 
@@ -499,6 +565,11 @@ export async function renderMasterView(container, { session }) {
     }
     const result = await setMedicineDt(campaign.id, value);
     feedbackLine(feedback, result.ok ? 'DT salva.' : result.error.message, result.ok ? 'is-success' : 'is-error');
+  });
+
+  bindStorySuggest(container.querySelector('[data-form="settings"]'), () => container.querySelector('#campaign-name').value);
+  container.querySelector('[data-goto-settings]').addEventListener('click', () => {
+    container.querySelector('#settings-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   // Encerrar exige confirmação em dois passos.
@@ -536,6 +607,7 @@ export async function renderMasterView(container, { session }) {
       feedbackLine(enemiesFeedback, input.checked ? 'Inimigo liberado.' : 'Inimigo retirado.', 'is-success');
       if (input.checked) details.releasedEnemyIds.add(input.dataset.release);
       else details.releasedEnemyIds.delete(input.dataset.release);
+      updateOverview();
       // Não remonta uma luta em andamento ou recém-encerrada.
       if (!combatHost.querySelector('.ok-combat')) renderCombatArea();
     });

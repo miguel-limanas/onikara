@@ -90,13 +90,23 @@ export async function loadCampaignHistory(campaignId) {
     client
       .from('combat_sessions')
       .select(
-        'id, status, turn_number, started_at, ended_at, participants:combat_participants(display_name, team), rewards:combat_rewards(summary)',
+        'id, status, turn_number, started_at, ended_at, participants:combat_participants(id, display_name, team, profile_id, current_stats), rewards:combat_rewards(summary)',
       )
       .eq('campaign_id', campaignId)
       .neq('status', 'active')
       .order('started_at', { ascending: false })
       .limit(50),
   );
+}
+
+// Detalhes de um combate encerrado: catálogo do snapshot (nomes de magias/itens) e eventos.
+export async function loadCombatSnapshotCatalog(sessionId) {
+  const result = await runSupabase((client) =>
+    client.from('combat_sessions').select('snapshot').eq('id', sessionId).maybeSingle(),
+  );
+  if (!result.ok) return { spells: {}, statusEffects: {}, items: {} };
+  const catalog = result.data?.snapshot?.engine?.catalog || {};
+  return { spells: catalog.spells || {}, statusEffects: catalog.statusEffects || {}, items: catalog.items || {} };
 }
 
 export async function loadCampaignDetails(campaignId) {

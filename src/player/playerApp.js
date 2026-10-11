@@ -26,7 +26,7 @@ const allSections = [
   { id: 'combate', label: 'Combate', render: (container) => renderCombatView(container, { profile: state.profile, session: state.session }) },
   { id: 'campanha', label: 'Campanha', render: (container) => renderCampaignView(container, { profile: state.profile }) },
   { id: 'missoes', label: 'Missões', render: (container) => renderQuestsView(container, { profile: state.profile }) },
-  { id: 'mestre', label: 'Mestre', role: 'master', render: (container) => renderMasterView(container, { session: state.session }) },
+  { id: 'mestre', label: 'Campanhas', role: 'master', render: (container) => renderMasterView(container, { session: state.session }) },
 ];
 
 // Mestre sem personagem só enxerga a seção do mestre; jogador nunca vê controles de mestre.
