@@ -147,7 +147,12 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     announced = true;
     const key = driver.sessionId ? `onikara:end-seen:${driver.sessionId}` : null;
     try {
-      if (key && sessionStorage.getItem(key)) return;
+      if (key && sessionStorage.getItem(key)) {
+        // Já mostrado antes: sem modal, o painel final normal aparece.
+        ui.endClosed = true;
+        render();
+        return;
+      }
       if (key) sessionStorage.setItem(key, '1');
     } catch {
       // sessionStorage indisponível: mostra mesmo assim.
@@ -155,6 +160,7 @@ export function mountFight(container, { driver, perspective = 'player', title, e
     showCombatEnd({
       status: state.status,
       onClose: () => {
+        ui.endClosed = true;
         if (window.location.hash === '#personagem') window.dispatchEvent(new HashChangeEvent('hashchange'));
         else window.location.hash = '#personagem';
       },
@@ -267,7 +273,9 @@ export function mountFight(container, { driver, perspective = 'player', title, e
           </section>
         </div>
         ${
-          finished
+          finished && perspective === 'player' && !ui.endClosed
+            ? '<p class="ok-copy" role="status">Combate encerrado.</p>'
+            : finished
             ? html`
                 <div class="ok-combat-end is-${state.status}" role="status">
                   <h3 class="ok-route-title">${escapeHtml(END_TITLES[state.status] || 'Combate encerrado')}</h3>

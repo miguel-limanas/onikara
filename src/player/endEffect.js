@@ -13,10 +13,6 @@ const COPY = {
 const CONFETTI_COLORS = ['#C8102E', '#FF1744', '#C9A84C', '#F5E6B8', '#7B61FF', '#2DD4BF'];
 const FIRE_COLORS = ['#FF4500', '#FF8C00', '#FFC107', '#C8102E'];
 
-function reducedMotion() {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-}
-
 function spawnParticles(kind, width, height) {
   const count = kind === 'victory' ? 160 : 110;
   return Array.from({ length: count }, () => {
@@ -130,7 +126,7 @@ export function showCombatEnd({ status, extra = '', onClose }) {
   document.body.appendChild(overlay);
 
   const canvas = overlay.querySelector('canvas');
-  const stopCanvas = canvas ? runCanvas(canvas, effect, reducedMotion()) : () => {};
+  const stopCanvas = canvas ? runCanvas(canvas, effect, false) : () => {};
   const button = overlay.querySelector('[data-end-close]');
   button.focus();
   button.addEventListener('click', () => {

@@ -25,10 +25,6 @@ function splitTotal(total, count, sides) {
   return values;
 }
 
-function reducedMotion() {
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-}
-
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Rola `notation` (ex.: '1d6', '1d20') terminando em `result`. Resolve quando o efeito acaba.
@@ -54,7 +50,8 @@ export async function rollDiceEffect({ notation = '1d20', result, label = '' }) 
   const dice = [...overlay.querySelectorAll('.ok-die')];
   const faces = dice.map((die) => die.querySelector('.ok-die__face'));
   const total = overlay.querySelector('.ok-dice-total');
-  const still = reducedMotion();
+  // Efeito curto e pedido pelo jogo: anima mesmo com "reduzir movimento" do sistema.
+  const still = false;
 
   if (!still) {
     const started = performance.now();

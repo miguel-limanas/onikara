@@ -103,9 +103,3 @@
   100% { transform: scale(1) rotate(0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ok-die.is-rolling,
-  .ok-die.is-settled {
-    animation: none;
-  }
-}
